@@ -71,6 +71,10 @@
         avatar.textContent = name[0].toUpperCase();
       }
     }
+
+    // Toggle les éléments guest-only / user-only
+    document.querySelectorAll('.guest-only').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.user-only').forEach(el => el.classList.remove('hidden'));
   }
 
   function updateHeaderLoggedOut() {
@@ -87,6 +91,10 @@
       profileBtn.classList.remove('flex');
       profileBtn.style.display = 'none';
     }
+
+    // Toggle les éléments guest-only / user-only
+    document.querySelectorAll('.guest-only').forEach(el => el.classList.remove('hidden'));
+    document.querySelectorAll('.user-only').forEach(el => el.classList.add('hidden'));
   }
 
   // ============================================

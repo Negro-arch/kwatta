@@ -450,7 +450,7 @@
         .eq('id', data.user.id)
         .single();
 
-      window.location.href = profile?.role === 'admin' ? 'admin.html' : 'index.html';
+      window.location.href = profile?.role === 'admin' ? 'admin/index.html' : 'index.html';
     });
 
     // ============================================
