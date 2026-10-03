@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#B8543D">
+  <title>Mon profil — KWATTA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            terra: { 50:'#fdf5f2',100:'#fbe8e2',200:'#f5d0c5',300:'#ecad9b',400:'#d97a63',500:'#B8543D',600:'#a3442f',700:'#873727',800:'#6e2f23',900:'#5a2a20' },
+            cream: '#FAF6F0',
+            charcoal: '#2D2A26',
+            honey: '#E8A96A',
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-cream text-charcoal font-body antialiased">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-charcoal/5">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+      <a href="index.html" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <h1 class="font-display font-bold text-lg">Mon profil</h1>
+      <div class="flex-1"></div>
+      <button id="edit-toggle" class="owner-only text-sm text-terra-600 font-medium hover:underline">
+        Modifier
+      </button>
+      <button id="follow-btn-header" class="visitor-only hidden text-sm bg-charcoal text-cream px-3 py-1.5 rounded-lg font-semibold hover:bg-charcoal/90 transition">
+        + Suivre
+      </button>
+    </div>
+  </header>
+
+  <!-- LOADING -->
+  <div id="loading" class="text-center py-16">
+    <div class="inline-block w-8 h-8 border-4 border-terra-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- CONTENU -->
+  <main id="profile-content" class="hidden max-w-3xl mx-auto px-4 py-6 pb-24 sm:pb-8">
+
+    <!-- Bandeau de vérification (rempli par JS) -->
+    <div id="verification-banner" class="mb-4"></div>
+
+    <!-- Carte profil -->
+    <div class="bg-white rounded-2xl p-6 border border-charcoal/5 mb-6">
+      <div class="flex items-start gap-4">
+        <div class="relative shrink-0">
+          <div id="avatar" class="w-20 h-20 rounded-full bg-terra-100 flex items-center justify-center font-display font-bold text-terra-600 text-3xl overflow-hidden cursor-pointer hover:opacity-80 transition" title="Changer ma photo de profil">
+            ?
+          </div>
+          <button id="avatar-edit-btn" type="button" class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-terra-500 text-cream flex items-center justify-center shadow-lg hover:bg-terra-600 transition" title="Changer ma photo">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </button>
+          <input type="file" id="avatar-input" accept="image/*" class="hidden">
+          <div id="avatar-loading" class="hidden absolute inset-0 rounded-full bg-black/50 flex items-center justify-center pointer-events-none">
+            <div class="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 id="display-name" class="font-display text-2xl font-bold mb-1"></h2>
+          <p id="username" class="text-sm text-charcoal/60 mb-2"></p>
+          <div class="flex flex-wrap gap-2">
+            <span id="role-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-terra-500/10 text-terra-600 border border-terra-500/20"></span>
+            <span id="city" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-charcoal/5"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 border-t border-charcoal/5 grid grid-cols-3 gap-3 text-center">
+        <div>
+          <div id="stat-annonces" class="font-display text-2xl font-bold">—</div>
+          <div class="text-xs text-charcoal/60">Annonces</div>
+        </div>
+        <div>
+          <div id="stat-ventes" class="font-display text-2xl font-bold">—</div>
+          <div class="text-xs text-charcoal/60">Ventes</div>
+        </div>
+        <div>
+          <div id="stat-favoris" class="font-display text-2xl font-bold">—</div>
+          <div class="text-xs text-charcoal/60">Favoris</div>
+        </div>
+      </div>
+
+
+
+      <!-- Lien wallet -->
+      <a href="wallet.html" class="owner-only mt-4 flex items-center justify-between p-4 bg-gradient-to-r from-terra-50 to-terra-100 border border-terra-200 rounded-2xl hover:from-terra-100 hover:to-terra-200 transition">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-terra-500 flex items-center justify-center text-cream">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="2" y="6" width="20" height="14" rx="2"/>
+              <path d="M2 10h20"/>
+              <circle cx="18" cy="15" r="1.5" fill="currentColor"/>
+            </svg>
+          </div>
+          <div>
+            <div class="font-semibold text-sm text-terra-700">Mon portefeuille</div>
+            <div class="text-xs text-terra-600">Voir mon solde et mes gains</div>
+          </div>
+        </div>
+        <svg width="16" height="16" fill="none" stroke="#B8543D" stroke-width="2" viewBox="0 0 24 24">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </a>
+
+      <!-- Lien wallet -->
+
+    </div>
+
+    <!-- Formulaire d'édition (caché) -->
+    <div id="edit-form" class="hidden bg-white rounded-2xl p-6 border border-charcoal/5 mb-6">
+      <h3 class="font-display font-bold text-lg mb-4">Modifier mon profil</h3>
+      <form id="profile-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-mono uppercase text-charcoal/50 mb-2">Nom complet</label>
+          <input type="text" id="edit-name" required
+            class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-mono uppercase text-charcoal/50 mb-2">Ville</label>
+          <input type="text" id="edit-city"
+            class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-mono uppercase text-charcoal/50 mb-2">WhatsApp</label>
+          <input type="tel" id="edit-whatsapp"
+            class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-mono uppercase text-charcoal/50 mb-2">Bio</label>
+          <textarea id="edit-bio" rows="3"
+            class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none resize-none"
+            placeholder="Parlez de vous..."></textarea>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" id="cancel-edit" class="flex-1 py-3 rounded-xl border border-charcoal/10 font-semibold text-sm hover:bg-charcoal/5 transition">
+            Annuler
+          </button>
+          <button type="submit" class="flex-1 py-3 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold text-sm transition">
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+
+    
+    <!-- Onglets -->
+    <div class="flex mb-4 bg-white rounded-2xl p-1 border border-charcoal/5">
+      <button id="tab-mes-annonces" class="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-terra-500 text-cream transition">
+        Mes annonces
+      </button>
+      <button id="tab-favoris" class="flex-1 py-2.5 rounded-xl font-semibold text-sm text-charcoal/60 hover:text-charcoal transition">
+        Favoris
+      </button>
+    </div>
+
+    <!-- Mes annonces -->
+    <div id="section-annonces" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+
+    <!-- Favoris -->
+    <div id="section-favoris" class="hidden grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+
+    <!-- Actions bas de page -->
+    <div class="owner-only mt-8 space-y-3">
+      <button id="logout-btn" class="w-full py-3 rounded-xl border border-red-200 bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition">
+        Se déconnecter
+      </button>
+      <p class="text-center text-xs text-charcoal/40">KWATTA v1.0 — Fait avec ❤️</p>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let currentUser = null;
+    let currentProfile = null;
+    let myListings = [];
+    let myFavorites = [];
+
+    function formatPrice(p) {
+      return new Intl.NumberFormat('fr-FR').format(p) + ' FCFA';
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    (async () => {
+      const { data: { session } } = await window.kwatta_db.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = session.user;
+      await loadProfile();
+      await loadMyListings();
+      await loadFavorites();
+      $('loading').classList.add('hidden');
+      $('profile-content').classList.remove('hidden');
+    })();
+
+    // ============================================
+    // CHARGER LE PROFIL
+    // ============================================
+    async function loadProfile() {
+      // Détermine quel profil charger
+      const urlParams = new URLSearchParams(window.location.search);
+      const profileId = urlParams.get('id');
+      const isOwnProfile = !profileId || profileId === currentUser.id;
+      window.isOwnProfile = isOwnProfile;
+      window.viewedUserId = isOwnProfile ? currentUser.id : profileId;
+
+      // 1) Charge le profil PUBLIC
+      const { data: publicData, error } = await window.kwatta_db
+        .from('profiles')
+        .select('*')
+        .eq('id', window.viewedUserId)
+        .single();
+
+      if (error) { console.error(error); return; }
+
+      // 2) Charge le profil PRIVÉ (seulement si c'est le sien)
+      let privateData = null;
+      if (isOwnProfile) {
+        const { data } = await window.kwatta_db
+          .rpc('get_my_private_profile');
+        privateData = data;
+      }
+
+      // Fusionne
+      const data = { ...publicData, ...(privateData || {}) };
+      currentProfile = data;
+
+      // Cache/affiche les sections selon le mode
+      document.querySelectorAll('.owner-only').forEach(el => {
+        el.classList.toggle('hidden', !isOwnProfile);
+      });
+      document.querySelectorAll('.visitor-only').forEach(el => {
+        el.classList.toggle('hidden', isOwnProfile);
+      });
+
+      // Change le titre de la page
+      const headerTitle = document.querySelector('header h1');
+      if (headerTitle) {
+        headerTitle.textContent = isOwnProfile ? 'Mon profil' : 'Profil';
+      }
+
+      // Affiche
+      const name = data.display_name || data.username || 'Utilisateur';
+      $('display-name').textContent = name;
+      $('username').textContent = '@' + (data.username || 'anonyme');
+      $('avatar').textContent = name[0].toUpperCase();
+      $('city').textContent = '📍 ' + (data.city || 'Cameroun');
+      
+      const roleLabels = { buyer: '👤 Acheteur', seller: '🏪 Vendeur', admin: '⚙️ Admin' };
+      $('role-badge').textContent = roleLabels[data.role] || 'Acheteur';
+
+      // Plan + ventes
+      const planLabels = { gratuit: 'Gratuit', pro: 'Pro', business: 'Business' };
+
+
+      // Met à jour l'UI des plans
+      if (window.updatePlanUI) window.updatePlanUI(plan);
+
+      // Pré-remplit le formulaire
+      $('edit-name').value = data.display_name || '';
+      $('edit-city').value = data.city || '';
+      $('edit-whatsapp').value = data.whatsapp || '';
+      $('edit-bio').value = data.bio || '';
+
+      // Affiche le bandeau de vérification
+      renderVerificationBanner(data);
+    }
+
+    // ============================================
+    // BANDEAU DE VÉRIFICATION
+    // ============================================
+    function renderVerificationBanner(profile) {
+      const banner = $('verification-banner');
+      if (!banner) return;
+
+      const status = profile.verification_status || 'non_verifie';
+      const step = profile.verification_step || 0;
+      const isAdmin = profile.role === 'admin';
+
+      let html = '';
+
+      if (isAdmin || status === 'verifie') {
+        // Admin ou user vérifié : bandeau vert discret
+        html = `
+          <div class="bg-green-50 border border-green-200 rounded-2xl p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm shrink-0">✓</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-sm text-green-800">Compte vérifié</div>
+              <div class="text-xs text-green-700">Tu as le badge de confiance KWATTA.</div>
+            </div>
+          </div>
+        `;
+      } else if (status === 'non_verifie') {
+        // Étape 0 : email manquant
+        html = `
+          <div class="bg-red-50 border border-red-200 rounded-2xl p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center text-lg shrink-0">⚠️</div>
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-sm text-red-900">Complète ton profil</div>
+                <div class="text-xs text-red-700 mt-1">
+                  Tu dois vérifier ton email pour sécuriser ton compte et débloquer la vérification d'identité.
+                </div>
+                <button onclick="ouvrirVerifEmail()" class="mt-3 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-bold transition">
+                  ✉️ Vérifier mon email
+                </button>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-red-200 flex items-center gap-2">
+              <span class="text-xs text-red-700 font-semibold">Progression :</span>
+              <div class="flex-1 bg-red-200 rounded-full h-1.5 max-w-[200px]">
+                <div class="bg-red-500 h-1.5 rounded-full" style="width: 0%"></div>
+              </div>
+              <span class="text-xs text-red-700 font-bold">0/2</span>
+            </div>
+          </div>
+        `;
+      } else if (status === 'email_ok') {
+        // Étape 1 : email OK, CNI à faire
+        html = `
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center text-lg shrink-0">🪪</div>
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-sm text-amber-900">Vérifie ton identité (1/2)</div>
+                <div class="text-xs text-amber-700 mt-1">
+                  Upload ta CNI (Carte Nationale d'Identité) pour obtenir le badge ✓ Vérifié. Format PDF, JPG ou PNG. Max 2 MB.
+                </div>
+                <button onclick="ouvrirVerifCNI()" class="mt-3 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition">
+                  📤 Uploader ma CNI
+                </button>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-amber-200 flex items-center gap-2">
+              <span class="text-xs text-amber-700 font-semibold">Progression :</span>
+              <div class="flex-1 bg-amber-200 rounded-full h-1.5 max-w-[200px]">
+                <div class="bg-amber-500 h-1.5 rounded-full" style="width: 50%"></div>
+              </div>
+              <span class="text-xs text-amber-700 font-bold">1/2</span>
+            </div>
+          </div>
+        `;
+      } else if (status === 'cni_en_attente') {
+        // Étape 2 : en attente admin
+        html = `
+          <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg shrink-0">⏳</div>
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-sm text-blue-900">Vérification en cours (2/2)</div>
+                <div class="text-xs text-blue-700 mt-1">
+                  Ta CNI a bien été reçue. Un administrateur va l'examiner sous 24-48h. Tu peux continuer à utiliser KWATTA en attendant.
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-blue-200 flex items-center gap-2">
+              <span class="text-xs text-blue-700 font-semibold">Progression :</span>
+              <div class="flex-1 bg-blue-200 rounded-full h-1.5 max-w-[200px]">
+                <div class="bg-blue-500 h-1.5 rounded-full" style="width: 100%"></div>
+              </div>
+              <span class="text-xs text-blue-700 font-bold">2/2</span>
+            </div>
+          </div>
+        `;
+      } else if (status === 'cni_refuse') {
+        // CNI refusée : réessayer
+        html = `
+          <div class="bg-orange-50 border border-orange-300 rounded-2xl p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center text-lg shrink-0">❌</div>
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-sm text-orange-900">CNI refusée</div>
+                <div class="text-xs text-orange-700 mt-1">
+                  Ta CNI n'a pas pu être validée. Vérifie que la photo est nette, lisible, et que le document est valide. Tu peux réessayer.
+                </div>
+                <button onclick="ouvrirVerifCNI()" class="mt-3 px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition">
+                  🔄 Réessayer
+                </button>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-orange-200 flex items-center gap-2">
+              <span class="text-xs text-orange-700 font-semibold">Progression :</span>
+              <div class="flex-1 bg-orange-200 rounded-full h-1.5 max-w-[200px]">
+                <div class="bg-orange-500 h-1.5 rounded-full" style="width: 50%"></div>
+              </div>
+              <span class="text-xs text-orange-700 font-bold">1/2</span>
+            </div>
+          </div>
+        `;
+      }
+
+      banner.innerHTML = html;
+    }
+
+    // ============================================
+    // ACTIONS : ouvrir les modales de vérification
+    // (ces fonctions seront enrichies à l'étape suivante)
+    // ============================================
+    window.ouvrirVerifCNI = () => {
+      alert('Fonction en construction — on l\'ajoutera à l\'étape suivante.');
+    };
+
+    // ============================================
+    // CHARGER MES ANNONCES
+    // ============================================
+    async function loadMyListings() {
+      const targetUserId = window.viewedUserId || currentUser.id;
+
+      const { data } = await window.kwatta_db
+        .from('listings')
+        .select('*')
+        .eq('seller_id', targetUserId)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
+
+      myListings = data || [];
+      $('stat-annonces').textContent = myListings.length;
+      $('stat-ventes').textContent = myListings.filter(l => l.status === 'sold').length;
+
+      renderAnnonces(myListings);
+    }
+
+    function renderAnnonces(list) {
+      const grid = $('section-annonces');
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-8 text-charcoal/50">
+            <div class="text-5xl mb-2">📦</div>
+            <p class="text-sm">Vous n'avez pas encore d'annonces</p>
+            <a href="sell.html" class="inline-block mt-3 px-4 py-2 bg-terra-500 text-cream rounded-lg text-sm font-semibold">Vendre un article</a>
+          </div>`;
+        return;
+      }
+      grid.innerHTML = list.map(p => renderCardWithBoost(p)).join('');
+    }
+
+    // Carte enrichie avec bouton Booster
+    function renderCardWithBoost(p) {
+      const img = (p.images && p.images[0]) || 'https://placehold.co/400x500/f5f3ee/2D2A26?text=KWATTA';
+      const isBoosted = p.boosted_until && new Date(p.boosted_until) > new Date();
+      const isPending = p.status === 'pending_review';
+      const isSuspended = p.status === 'suspended';
+
+      const statusBadge = isPending
+        ? '<span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-yellow-100 text-yellow-700 text-[10px] font-bold">⏳ EN ATTENTE</span>'
+        : isSuspended
+        ? '<span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-red-100 text-red-700 text-[10px] font-bold">🚫 SUSPENDUE</span>'
+        : isBoosted
+        ? '<span class="absolute top-2 left-2 px-2 py-1 rounded-md bg-honey text-charcoal text-[10px] font-bold">🚀 BOOSTÉ</span>'
+        : '';
+
+      // Bouton booster : caché si déjà boosté ou pending/suspendu
+      let boostBtn = '';
+      if (!isBoosted && !isPending && !isSuspended) {
+        boostBtn = `
+          <button onclick="event.stopPropagation(); demanderBoost('${p.id}')" 
+                  class="mt-2 w-full py-1.5 rounded-lg bg-honey hover:bg-yellow-500 text-charcoal text-[11px] font-bold transition">
+            🚀 Booster (7j gratuit)
+          </button>`;
+      } else if (isBoosted) {
+        const endDate = new Date(p.boosted_until).toLocaleDateString('fr-FR');
+        boostBtn = `<div class="mt-2 text-[10px] text-center text-honey font-semibold">🚀 Boosté jusqu'au ${endDate}</div>`;
+      }
+
+      return `
+        <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'">
+          <div class="product-image-wrap relative">
+            ${statusBadge}
+            <img src="${img}" class="product-image" loading="lazy">
+          </div>
+          <div class="product-info">
+            <div class="product-title">${p.title}</div>
+            <div class="product-meta">
+              <span class="product-price">${formatPrice(p.price_xaf)}</span>
+            </div>
+            ${boostBtn}
+          </div>
+        </div>
+      `;
+    }
+
+    // Demande de boost
+    window.demanderBoost = async (listingId) => {
+      if (!confirm('Demander un boost gratuit de 7 jours pour cette annonce ?\n\nUn admin validera ta demande.')) return;
+
+      const { data, error } = await window.kwatta_db.rpc('demander_boost', {
+        p_listing_id: listingId,
+        p_duree_jours: 7,
+        p_note: null
+      });
+
+      if (error) {
+        console.error(error);
+        alert('Erreur : ' + error.message);
+        return;
+      }
+
+      if (data && !data.success) {
+        alert('Erreur : ' + data.error);
+        return;
+      }
+
+      alert('✅ Demande envoyée ! Un admin va la valider sous 24h.');
+      await loadMyListings();
+    };
+
+    // ============================================
+    // CHARGER FAVORIS
+    // ============================================
+    async function loadFavorites() {
+      const favs = JSON.parse(localStorage.getItem('kwatta_favs') || '[]');
+      $('stat-favoris').textContent = favs.length;
+
+      if (favs.length === 0) {
+        $('section-favoris').innerHTML = `
+          <div class="col-span-full text-center py-8 text-charcoal/50">
+            <div class="text-5xl mb-2">❤️</div>
+            <p class="text-sm">Aucun favori pour le moment</p>
+          </div>`;
+        return;
+      }
+
+      const { data } = await window.kwatta_db
+        .from('listings')
+        .select('*')
+        .in('id', favs);
+
+      myFavorites = data || [];
+      $('section-favoris').innerHTML = myFavorites.map(p => renderCard(p)).join('');
+    }
+
+    // ============================================
+    // CARTE PRODUIT
+    // ============================================
+    function renderCard(p) {
+      const img = (p.images && p.images[0]) || 'https://placehold.co/400x500/f5f3ee/2D2A26?text=KWATTA';
+      return `
+        <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'">
+          <div class="product-image-wrap">
+            <img src="${img}" class="product-image" loading="lazy">
+          </div>
+          <div class="product-info">
+            <div class="product-title">${p.title}</div>
+            <div class="product-meta">
+              <span class="product-price">${formatPrice(p.price_xaf)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ============================================
+    // TABS
+    // ============================================
+    $('tab-mes-annonces').addEventListener('click', () => {
+      $('tab-mes-annonces').classList.add('bg-terra-500', 'text-cream');
+      $('tab-mes-annonces').classList.remove('text-charcoal/60');
+      $('tab-favoris').classList.remove('bg-terra-500', 'text-cream');
+      $('tab-favoris').classList.add('text-charcoal/60');
+      $('section-annonces').classList.remove('hidden');
+      $('section-favoris').classList.add('hidden');
+    });
+
+    $('tab-favoris').addEventListener('click', () => {
+      $('tab-favoris').classList.add('bg-terra-500', 'text-cream');
+      $('tab-favoris').classList.remove('text-charcoal/60');
+      $('tab-mes-annonces').classList.remove('bg-terra-500', 'text-cream');
+      $('tab-mes-annonces').classList.add('text-charcoal/60');
+      $('section-favoris').classList.remove('hidden');
+      $('section-annonces').classList.add('hidden');
+    });
+
+    // ============================================
+    // EDIT
+    // ============================================
+    $('edit-toggle').addEventListener('click', () => {
+      $('edit-form').classList.toggle('hidden');
+    });
+    $('cancel-edit').addEventListener('click', () => {
+      $('edit-form').classList.add('hidden');
+    });
+
+    $('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // 1) Update le profil PUBLIC
+      const { error: e1 } = await window.kwatta_db
+        .from('profiles')
+        .update({
+          display_name: $('edit-name').value.trim(),
+          city: $('edit-city').value.trim(),
+          bio: $('edit-bio').value.trim(),
+        })
+        .eq('id', currentUser.id);
+
+      if (e1) { alert('Erreur : ' + e1.message); return; }
+
+      // 2) Update le profil PRIVÉ
+      const { error: e2 } = await window.kwatta_db
+        .from('profiles_private')
+        .update({
+          whatsapp: $('edit-whatsapp').value.trim() || null,
+        })
+        .eq('user_id', currentUser.id);
+
+      if (e2) { alert('Erreur : ' + e2.message); return; }
+
+      await loadProfile();
+      $('edit-form').classList.add('hidden');
+      alert('✅ Profil mis à jour');
+    });
+
+    // ============================================
+    // LOGOUT
+    // ============================================
+    $('logout-btn').addEventListener('click', async () => {
+      if (!confirm('Se déconnecter ?')) return;
+      await window.kwatta_db.auth.signOut();
+      window.location.href = 'index.html';
+    });
+
+    // ============================================
+    // UPLOAD AVATAR
+    // ============================================
+    function attachAvatarHandlers() {
+      const avatarEl = $('avatar');
+      const inputEl = $('avatar-input');
+      const editBtn = $('avatar-edit-btn');
+      const loadingEl = $('avatar-loading');
+      
+      if (!avatarEl || !inputEl) {
+        console.warn('[AVATAR] Éléments introuvables');
+        return;
+      }
+
+      const openPicker = () => inputEl.click();
+      avatarEl.addEventListener('click', openPicker);
+      if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); openPicker(); });
+
+      inputEl.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+          alert('Fichier invalide — choisis une image.');
+          inputEl.value = '';
+          return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+          alert('Image trop lourde (max 2 MB).');
+          inputEl.value = '';
+          return;
+        }
+
+        if (loadingEl) loadingEl.classList.remove('hidden');
+
+        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+        const path = currentUser.id + '/avatar.' + ext;
+
+        const { error: upErr } = await window.kwatta_db.storage
+          .from('avatar')
+          .upload(path, file, { cacheControl: '3600', upsert: true });
+
+        if (upErr) {
+          console.error('[AVATAR] upload:', upErr);
+          alert('Erreur upload : ' + upErr.message);
+          if (loadingEl) loadingEl.classList.add('hidden');
+          inputEl.value = '';
+          return;
+        }
+
+        const { data: { publicUrl } } = window.kwatta_db.storage
+          .from('avatar')
+          .getPublicUrl(path);
+
+        const urlWithCache = publicUrl + '?t=' + Date.now();
+
+        const { error: dbErr } = await window.kwatta_db
+          .from('profiles')
+          .update({ avatar_url: urlWithCache })
+          .eq('id', currentUser.id);
+
+        if (dbErr) {
+          console.error('[AVATAR] db:', dbErr);
+          alert('Erreur sauvegarde : ' + dbErr.message);
+          if (loadingEl) loadingEl.classList.add('hidden');
+          inputEl.value = '';
+          return;
+        }
+
+        // Affiche la nouvelle image
+        avatarEl.innerHTML = '<img src="' + urlWithCache + '" class="w-full h-full object-cover" alt="Avatar">';
+        if (loadingEl) loadingEl.classList.add('hidden');
+        inputEl.value = '';
+
+        console.log('[AVATAR] ✅ Photo mise à jour');
+      });
+    }
+
+    // Attache les handlers une fois le profil chargé
+    attachAvatarHandlers();
+
+    // ============================================
+    // METTRE À JOUR loadProfile POUR AFFICHER avatar_url
+    // ============================================
+    const _origLoadProfile = loadProfile;
+    loadProfile = async function() {
+      await _origLoadProfile.apply(this, arguments);
+      // Après le chargement, applique l'avatar si présent
+      if (currentProfile && currentProfile.avatar_url) {
+        const avatarEl = $('avatar');
+        if (avatarEl) {
+          avatarEl.innerHTML = '<img src="' + currentProfile.avatar_url + '" class="w-full h-full object-cover" alt="Avatar">';
+        }
+      }
+    };
+  </script>
+
+  <!-- ============================================
+       MODALE : Upload CNI (vérification identité)
+       ============================================ -->
+  <div id="cni-modal" class="hidden fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
+
+      <!-- Header -->
+      <div class="sticky top-0 bg-white border-b border-charcoal/5 px-6 py-4 flex items-center justify-between rounded-t-3xl sm:rounded-t-2xl z-10">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🪪</span>
+          <h2 class="font-display font-bold text-lg">Vérification d'identité</h2>
+        </div>
+        <button id="cni-close" class="w-8 h-8 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5">
+
+        <!-- Explication -->
+        <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl">
+          <div class="flex items-start gap-2">
+            <svg width="16" height="16" fill="none" stroke="#3B82F6" stroke-width="2" viewBox="0 0 24 24" class="mt-0.5 shrink-0">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            <div class="text-xs text-blue-700">
+              <strong>Pourquoi vérifier ?</strong><br>
+              Le badge <strong>✓ Vérifié</strong> rassure les acheteurs. Ta CNI reste confidentielle : elle n'est vue que par un administrateur KWATTA.
+            </div>
+          </div>
+        </div>
+
+        <!-- Conditions -->
+        <div class="text-xs text-charcoal/60 space-y-1">
+          <div class="flex items-center gap-2">
+            <svg width="12" height="12" fill="none" stroke="#10b981" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Format : JPG, PNG, PDF, Word</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg width="12" height="12" fill="none" stroke="#10b981" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Taille maximum : <strong>2 MB</strong></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg width="12" height="12" fill="none" stroke="#10b981" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Document net, lisible, valide</span>
+          </div>
+        </div>
+
+        <!-- Zone vide (drag & drop / clic) -->
+        <div id="cni-empty" class="border-2 border-dashed border-charcoal/15 rounded-2xl p-6 text-center cursor-pointer hover:border-terra-500/50 transition bg-cream/50">
+          <div class="text-5xl mb-3">📄</div>
+          <p class="font-semibold mb-1 text-sm">Ajoute ta CNI</p>
+          <p class="text-xs text-charcoal/50 mb-4">Photo ou fichier</p>
+          
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button type="button" id="cni-camera-btn" class="px-4 py-2.5 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold text-sm transition flex items-center gap-2">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              Caméra
+            </button>
+            <button type="button" id="cni-file-btn" class="px-4 py-2.5 rounded-xl border border-charcoal/15 hover:bg-charcoal/5 font-semibold text-sm transition flex items-center gap-2">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="9" cy="9" r="2"/>
+                <path d="m21 15-5-5L5 21"/>
+              </svg>
+              Fichier
+            </button>
+          </div>
+        </div>
+
+        <!-- Aperçu (caché par défaut) -->
+        <div id="cni-preview" class="hidden border-2 border-terra-500/30 rounded-2xl p-4 bg-terra-50">
+          <div class="flex items-start gap-3">
+            <div id="cni-preview-icon" class="text-4xl shrink-0">📄</div>
+            <div class="flex-1 min-w-0">
+              <div id="cni-preview-name" class="font-semibold text-sm truncate"></div>
+              <div id="cni-preview-size" class="text-xs text-charcoal/50 mt-0.5"></div>
+            </div>
+            <button type="button" id="cni-change-btn" class="text-xs text-terra-600 hover:underline font-semibold shrink-0">
+              Changer
+            </button>
+          </div>
+          <img id="cni-preview-img" src="" class="hidden mt-3 w-full max-h-48 object-contain rounded-lg border border-charcoal/10 bg-white" alt="Aperçu">
+        </div>
+
+        <!-- Inputs cachés -->
+        <input type="file" id="cni-file-input" accept="image/jpeg,image/png,image/webp,application/pdf,.doc,.docx" class="hidden">
+        <input type="file" id="cni-camera-input" accept="image/*" capture="environment" class="hidden">
+
+        <!-- Erreur -->
+        <p id="cni-error" class="text-sm text-red-600 hidden"></p>
+
+        <!-- Submit -->
+        <button type="button" id="cni-submit" disabled
+          class="w-full py-4 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-bold transition shadow-lg shadow-terra-500/30 disabled:opacity-50 disabled:cursor-not-allowed">
+          📤 Envoyer ma CNI
+        </button>
+
+        <p class="text-xs text-charcoal/50 text-center">
+          ⏱️ Un admin examine ta CNI sous 24-48h
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script upload CNI -->
+  <script src="js/verify-cni.js" defer></script>
+
+
+  <!-- ============================================
+       MODALE : Changer / vérifier l'email
+       ============================================ -->
+  <div id="email-modal" class="hidden fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
+
+      <!-- Header -->
+      <div class="sticky top-0 bg-white border-b border-charcoal/5 px-6 py-4 flex items-center justify-between rounded-t-3xl sm:rounded-t-2xl z-10">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">✉️</span>
+          <h2 class="font-display font-bold text-lg">Vérifier mon email</h2>
+        </div>
+        <button id="email-close" class="w-8 h-8 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5">
+
+        <!-- Explication -->
+        <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl">
+          <div class="flex items-start gap-2">
+            <svg width="16" height="16" fill="none" stroke="#3B82F6" stroke-width="2" viewBox="0 0 24 24" class="mt-0.5 shrink-0">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            <div class="text-xs text-blue-700">
+              <strong>Comment ça marche ?</strong><br>
+              Entre ton adresse email. Un lien de confirmation te sera envoyé.<br>
+              Clique sur ce lien pour activer la vérification.
+            </div>
+          </div>
+        </div>
+
+        <!-- Champ email -->
+        <div>
+          <label class="block text-xs font-mono uppercase text-charcoal/50 mb-2">Ton adresse email</label>
+          <input type="email" id="email-input" autocomplete="email"
+            class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition"
+            placeholder="ton.email@exemple.com">
+        </div>
+
+        <!-- Erreur -->
+        <p id="email-error" class="text-sm text-red-600 hidden"></p>
+
+        <!-- Submit -->
+        <button type="button" id="email-submit"
+          class="w-full py-4 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-bold transition shadow-lg shadow-terra-500/30 disabled:opacity-50">
+          📧 Envoyer le lien de confirmation
+        </button>
+
+        <p class="text-xs text-charcoal/50 text-center">
+          📬 Vérifie aussi tes spams si l'email n'arrive pas.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/verify-email.js" defer></script>
+
+  <script src="js/bottom-nav.js" defer></script>
+</body>
+
+
+</html>

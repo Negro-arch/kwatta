@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B8543D">
+  <title>Admin — KWATTA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <div class="admin-shell">
+
+    <!-- SIDEBAR -->
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <!-- CONTENU -->
+    <main class="admin-content">
+
+      <div class="admin-header">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <h1 class="admin-title">📊 Vue d'ensemble</h1>
+            <p class="admin-subtitle">Bonjour <strong id="hello-name">...</strong>, voici l'état de KWATTA aujourd'hui.</p>
+          </div>
+          <div id="last-refresh" style="font-size:12px; color:#7A7A7A;"></div>
+        </div>
+      </div>
+
+      <!-- LOADING -->
+      <div id="loading" style="text-align:center; padding:60px 0;">
+        <div class="admin-loading"></div>
+      </div>
+
+      <!-- CONTENU -->
+      <div id="dashboard-content" class="hidden">
+
+        <!-- KPIs principaux -->
+        <div class="kpi-grid">
+          <div class="kpi-card terra">
+            <div class="kpi-label">Commissions KWATTA</div>
+            <div class="kpi-value" id="kpi-commission">—</div>
+            <div class="kpi-sub">5% sur ventes terminées</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Chiffre d'affaires</div>
+            <div class="kpi-value" id="kpi-ca">—</div>
+            <div class="kpi-sub">Total des ventes terminées</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Solde vendeurs</div>
+            <div class="kpi-value" id="kpi-solde-vendeurs">—</div>
+            <div class="kpi-sub">Dû aux vendeurs (wallets)</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Retraits en attente</div>
+            <div class="kpi-value" id="kpi-retraits">—</div>
+            <div class="kpi-sub">À traiter</div>
+          </div>
+        </div>
+
+        <!-- KPIs secondaires -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Utilisateurs</div>
+            <div class="kpi-value" id="kpi-users">—</div>
+            <div class="kpi-sub" id="kpi-users-sub"></div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Annonces</div>
+            <div class="kpi-value" id="kpi-listings">—</div>
+            <div class="kpi-sub" id="kpi-listings-sub"></div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Transactions</div>
+            <div class="kpi-value" id="kpi-tx">—</div>
+            <div class="kpi-sub" id="kpi-tx-sub"></div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Messages</div>
+            <div class="kpi-value" id="kpi-msgs">—</div>
+            <div class="kpi-sub">Envoyés</div>
+          </div>
+        </div>
+
+        <!-- Deux colonnes : dernières activités -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:20px; margin-top:8px;">
+
+          <!-- Dernières annonces -->
+          <div class="admin-section">
+            <div class="admin-section-title">
+              <span>📦 Dernières annonces</span>
+              <a href="listings.html" class="admin-section-link">Voir tout →</a>
+            </div>
+            <div id="recent-listings"></div>
+          </div>
+
+          <!-- Derniers utilisateurs -->
+          <div class="admin-section">
+            <div class="admin-section-title">
+              <span>👥 Nouveaux utilisateurs</span>
+              <a href="users.html" class="admin-section-link">Voir tout →</a>
+            </div>
+            <div id="recent-users"></div>
+          </div>
+
+          <!-- Dernières transactions -->
+          <div class="admin-section">
+            <div class="admin-section-title">
+              <span>💳 Dernières transactions</span>
+              <a href="transactions.html" class="admin-section-link">Voir tout →</a>
+            </div>
+            <div id="recent-tx"></div>
+          </div>
+
+          <!-- Retraits en attente -->
+          <div class="admin-section">
+            <div class="admin-section-title">
+              <span>💰 Retraits à traiter</span>
+              <a href="wallet.html" class="admin-section-link">Voir tout →</a>
+            </div>
+            <div id="recent-withdrawals"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-init.js"></script>
+  <script src="js/admin.js"></script>
+
+  <script>
+    (async () => {
+      console.log('[ADMIN] Dashboard init...');
+
+      // Vérif auth admin
+      const auth = await window.AdminUtils.requireAdmin();
+      if (!auth) return;
+
+      console.log('[ADMIN] Connecté en tant qu\'admin:', auth.profile.username);
+
+      // Sidebar
+      window.AdminUtils.renderSidebar('dashboard', auth.profile);
+      document.getElementById('hello-name').textContent = auth.profile.display_name || auth.profile.username;
+
+      // Badges sidebar (annonces en attente, retraits en attente)
+      window.AdminUtils.loadSidebarBadges();
+
+      // Charge les KPIs
+      await loadAllKPIs();
+      await loadRecentListings();
+      await loadRecentUsers();
+      await loadRecentTransactions();
+      await loadRecentWithdrawals();
+
+      // Date refresh
+      document.getElementById('last-refresh').textContent =
+        '🔄 Mis à jour : ' + new Date().toLocaleTimeString('fr-FR');
+
+      // Affiche
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('dashboard-content').classList.remove('hidden');
+
+      console.log('[ADMIN] ✅ Dashboard prêt');
+    })();
+
+    // ============================================
+    // KPIs
+    // ============================================
+    async function loadAllKPIs() {
+      const U = window.AdminUtils;
+
+      // ============ Utilisateurs ============
+      const { count: totalUsers } = await window.kwatta_db
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      // Nouveaux cette semaine (7 derniers jours)
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const { count: newUsers } = await window.kwatta_db
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', weekAgo);
+
+      document.getElementById('kpi-users').textContent = U.formatNumber(totalUsers);
+      document.getElementById('kpi-users-sub').innerHTML =
+        newUsers > 0
+          ? '<span class="kpi-trend-up">+' + newUsers + ' cette semaine</span>'
+          : 'Aucun nouveau cette semaine';
+
+      // ============ Annonces ============
+      const { count: totalListings } = await window.kwatta_db
+        .from('listings')
+        .select('*', { count: 'exact', head: true });
+
+      const { count: pendingListings } = await window.kwatta_db
+        .from('listings')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending_review');
+
+      document.getElementById('kpi-listings').textContent = U.formatNumber(totalListings);
+      document.getElementById('kpi-listings-sub').innerHTML =
+        pendingListings > 0
+          ? '<span style="color:#92400e;">⏳ ' + pendingListings + ' en attente</span>'
+          : '✅ Aucune en attente';
+
+      // ============ Transactions + CA + Commissions ============
+      const { count: totalTx } = await window.kwatta_db
+        .from('transactions')
+        .select('*', { count: 'exact', head: true });
+
+      const { count: completedTx } = await window.kwatta_db
+        .from('transactions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'completed');
+
+      // CA : somme des transactions completed
+      const { data: caData } = await window.kwatta_db
+        .from('transactions')
+        .select('amount_xaf')
+        .eq('status', 'completed');
+
+      const totalCA = (caData || []).reduce((sum, t) => sum + (t.amount_xaf || 0), 0);
+      const totalCommission = Math.round(totalCA * 0.05);
+
+      document.getElementById('kpi-tx').textContent = U.formatNumber(totalTx);
+      document.getElementById('kpi-tx-sub').innerHTML =
+        completedTx > 0
+          ? '✅ ' + completedTx + ' terminée' + (completedTx > 1 ? 's' : '')
+          : 'Aucune terminée';
+
+      document.getElementById('kpi-ca').textContent = U.formatPrice(totalCA);
+      document.getElementById('kpi-commission').textContent = U.formatPrice(totalCommission);
+
+      // ============ Wallets ============
+      const { data: walletsData } = await window.kwatta_db
+        .from('wallets')
+        .select('solde_disponible, solde_en_attente');
+
+      const totalSoldeVendeurs = (walletsData || []).reduce(
+        (sum, w) => sum + (w.solde_disponible || 0) + (w.solde_en_attente || 0),
+        0
+      );
+      document.getElementById('kpi-solde-vendeurs').textContent = U.formatPrice(totalSoldeVendeurs);
+
+      // Retraits en attente
+      const { count: pendingWithdrawals } = await window.kwatta_db
+        .from('withdrawals')
+        .select('*', { count: 'exact', head: true })
+        .eq('statut', 'en_attente');
+      document.getElementById('kpi-retraits').textContent = U.formatNumber(pendingWithdrawals);
+
+      // ============ Messages ============
+      const { count: totalMsgs } = await window.kwatta_db
+        .from('messages')
+        .select('*', { count: 'exact', head: true });
+      document.getElementById('kpi-msgs').textContent = U.formatNumber(totalMsgs);
+    }
+
+    // ============================================
+    // RECENT LISTINGS
+    // ============================================
+    async function loadRecentListings() {
+      const U = window.AdminUtils;
+      const { data } = await window.kwatta_db
+        .from('listings')
+        .select('id, title, price_xaf, images, status, created_at, profiles(display_name, username)')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      const container = document.getElementById('recent-listings');
+      if (!data || data.length === 0) {
+        container.innerHTML = '<div class="admin-empty"><div class="admin-empty-icon">📦</div><div class="admin-empty-text">Aucune annonce</div></div>';
+        return;
+      }
+
+      const statusMap = {
+        'published':      { cls: 'badge-green',  txt: 'Publiée' },
+        'pending_review': { cls: 'badge-yellow', txt: 'En attente' },
+        'draft':          { cls: 'badge-gray',   txt: 'Brouillon' },
+        'sold':           { cls: 'badge-blue',   txt: 'Vendue' },
+        'suspended':      { cls: 'badge-red',    txt: 'Suspendue' },
+      };
+
+      container.innerHTML = data.map(l => {
+        const img = (l.images && l.images[0]) || 'https://placehold.co/100x100/f5f3ee/2D2A26?text=K';
+        const s = statusMap[l.status] || { cls: 'badge-gray', txt: l.status };
+        const seller = l.profiles?.display_name || l.profiles?.username || 'Inconnu';
+        return `
+          <div class="admin-row">
+            <img src="${img}" class="admin-row-img" onerror="this.src='https://placehold.co/100x100/f5f3ee/2D2A26?text=K'">
+            <div class="admin-row-content">
+              <div class="admin-row-title">${U.escapeHtml(l.title)}</div>
+              <div class="admin-row-sub">${U.formatPrice(l.price_xaf)} · ${U.escapeHtml(seller)}</div>
+            </div>
+            <span class="badge ${s.cls}">${s.txt}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================
+    // RECENT USERS
+    // ============================================
+    async function loadRecentUsers() {
+      const U = window.AdminUtils;
+      const { data } = await window.kwatta_db
+        .from('profiles')
+        .select('id, username, display_name, avatar_url, role, created_at')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      const container = document.getElementById('recent-users');
+      if (!data || data.length === 0) {
+        container.innerHTML = '<div class="admin-empty"><div class="admin-empty-icon">👥</div><div class="admin-empty-text">Aucun utilisateur</div></div>';
+        return;
+      }
+
+      const roleMap = {
+        'admin':  { cls: 'badge-red',   txt: 'Admin' },
+        'seller': { cls: 'badge-green', txt: 'Vendeur' },
+        'buyer':  { cls: 'badge-gray',  txt: 'Acheteur' },
+      };
+
+      container.innerHTML = data.map(u => {
+        const name = u.display_name || u.username || '?';
+        const initial = name[0].toUpperCase();
+        const avatarHtml = u.avatar_url
+          ? '<img src="' + u.avatar_url + '" alt="">'
+          : initial;
+        const r = roleMap[u.role] || { cls: 'badge-gray', txt: u.role };
+        return `
+          <div class="admin-row">
+            <div class="admin-row-img round" style="display:flex; align-items:center; justify-content:center; font-weight:700; color:#B8543D; background:#fbe8e2; overflow:hidden;">
+              ${avatarHtml}
+            </div>
+            <div class="admin-row-content">
+              <div class="admin-row-title">${U.escapeHtml(name)}</div>
+              <div class="admin-row-sub">@${U.escapeHtml(u.username)} · ${U.formatDate(u.created_at)}</div>
+            </div>
+            <span class="badge ${r.cls}">${r.txt}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================
+    // RECENT TX
+    // ============================================
+    async function loadRecentTransactions() {
+      const U = window.AdminUtils;
+      const { data } = await window.kwatta_db
+        .from('transactions')
+        .select('id, amount_xaf, status, created_at, listing_id, buyer_id, seller_id')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      const container = document.getElementById('recent-tx');
+      if (!data || data.length === 0) {
+        container.innerHTML = '<div class="admin-empty"><div class="admin-empty-icon">💳</div><div class="admin-empty-text">Aucune transaction</div></div>';
+        return;
+      }
+
+      const statusMap = {
+        'pending_payment': { cls: 'badge-yellow', txt: 'En attente' },
+        'payment_held':    { cls: 'badge-blue',   txt: 'Paiement bloqué' },
+        'shipped':         { cls: 'badge-blue',   txt: 'Expédié' },
+        'delivered':       { cls: 'badge-blue',   txt: 'Livré' },
+        'completed':       { cls: 'badge-green',  txt: 'Terminé' },
+        'disputed':        { cls: 'badge-red',    txt: 'Litige' },
+        'refunded':        { cls: 'badge-gray',   txt: 'Remboursé' },
+        'cancelled':       { cls: 'badge-gray',   txt: 'Annulé' },
+      };
+
+      container.innerHTML = data.map(t => {
+        const s = statusMap[t.status] || { cls: 'badge-gray', txt: t.status };
+        const commission = Math.round((t.amount_xaf || 0) * 0.05);
+        return `
+          <div class="admin-row">
+            <div class="admin-row-content">
+              <div class="admin-row-title">${U.formatPrice(t.amount_xaf)}</div>
+              <div class="admin-row-sub">Commission ${U.formatPrice(commission)} · ${U.formatDate(t.created_at)}</div>
+            </div>
+            <span class="badge ${s.cls}">${s.txt}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================
+    // RECENT WITHDRAWALS
+    // ============================================
+    async function loadRecentWithdrawals() {
+      const U = window.AdminUtils;
+      const { data } = await window.kwatta_db
+        .from('withdrawals')
+        .select('id, montant, methode, numero_beneficiaire, statut, created_at, user_id')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      const container = document.getElementById('recent-withdrawals');
+      if (!data || data.length === 0) {
+        container.innerHTML = '<div class="admin-empty"><div class="admin-empty-icon">💰</div><div class="admin-empty-text">Aucune demande de retrait</div></div>';
+        return;
+      }
+
+      const statusMap = {
+        'en_attente': { cls: 'badge-yellow', txt: 'En attente' },
+        'valide':     { cls: 'badge-green',  txt: 'Validé' },
+        'refuse':     { cls: 'badge-red',    txt: 'Refusé' },
+        'annule':     { cls: 'badge-gray',   txt: 'Annulé' },
+      };
+
+      const methodMap = {
+        'mtn_momo':     '📱 MTN',
+        'orange_money': '🟠 Orange',
+        'autre':        '💳 Autre',
+      };
+
+      container.innerHTML = data.map(w => {
+        const s = statusMap[w.statut] || { cls: 'badge-gray', txt: w.statut };
+        const m = methodMap[w.methode] || w.methode;
+        return `
+          <div class="admin-row">
+            <div class="admin-row-content">
+              <div class="admin-row-title">${U.formatPrice(w.montant)}</div>
+              <div class="admin-row-sub">${m} · ${U.escapeHtml(w.numero_beneficiaire)} · ${U.formatDate(w.created_at)}</div>
+            </div>
+            <span class="badge ${s.cls}">${s.txt}</span>
+          </div>
+        `;
+      }).join('');
+    }
+  </script>
+
+</body>
+</html>

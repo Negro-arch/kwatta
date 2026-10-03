@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B8543D">
+  <title>Transactions — Admin KWATTA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <div class="admin-shell">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-content">
+
+      <div class="admin-header">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <h1 class="admin-title">💳 Transactions</h1>
+            <p class="admin-subtitle" id="tx-count">Chargement...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs commissions -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">CA aujourd'hui</div>
+          <div class="kpi-value" id="ca-today">—</div>
+          <div class="kpi-sub" id="comm-today">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">CA cette semaine</div>
+          <div class="kpi-value" id="ca-week">—</div>
+          <div class="kpi-sub" id="comm-week">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">CA ce mois</div>
+          <div class="kpi-value" id="ca-month">—</div>
+          <div class="kpi-sub" id="comm-month">—</div>
+        </div>
+        <div class="kpi-card terra">
+          <div class="kpi-label">Commission totale KWATTA</div>
+          <div class="kpi-value" id="comm-total">—</div>
+          <div class="kpi-sub" id="ca-total">—</div>
+        </div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="admin-section" style="padding:16px;">
+        <div style="display:grid; grid-template-columns: 1fr auto auto; gap:12px; align-items:center;">
+          <div class="admin-search" style="max-width:none;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" id="search" class="admin-input" placeholder="Rechercher...">
+          </div>
+          <select id="filter-status" class="admin-input" style="width:auto;">
+            <option value="">Tous statuts</option>
+            <option value="pending_payment">⏳ En attente</option>
+            <option value="payment_held">💰 Paiement sécurisé</option>
+            <option value="shipped">🚚 Expédié</option>
+            <option value="delivered">📬 Livré</option>
+            <option value="completed">✅ Terminé</option>
+            <option value="disputed">⚠️ Litige</option>
+            <option value="refunded">💸 Remboursé</option>
+            <option value="cancelled">❌ Annulé</option>
+          </select>
+          <select id="filter-period" class="admin-input" style="width:auto;">
+            <option value="">Toutes périodes</option>
+            <option value="today">Aujourd'hui</option>
+            <option value="week">Cette semaine</option>
+            <option value="month">Ce mois</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="loading" style="text-align:center; padding:60px 0;">
+        <div class="admin-loading"></div>
+      </div>
+
+      <div id="tx-list" class="hidden"></div>
+
+      <div id="empty" class="hidden admin-empty">
+        <div class="admin-empty-icon">💳</div>
+        <div class="admin-empty-text">Aucune transaction trouvée</div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL détail -->
+  <div id="tx-modal" class="hidden admin-modal-backdrop">
+    <div class="admin-modal" style="max-width:600px;">
+      <div class="admin-modal-header">
+        <h2 class="font-display" style="font-size:18px; font-weight:700;" id="modal-title">Transaction</h2>
+        <button class="admin-modal-close" id="modal-close">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="admin-modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-init.js"></script>
+  <script src="js/admin.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let allTx = [];
+    const U = () => window.AdminUtils;
+
+    (async () => {
+      const auth = await U().requireAdmin();
+      if (!auth) return;
+      U().renderSidebar('transactions', auth.profile);
+      U().loadSidebarBadges();
+      await loadStats();
+      await loadTransactions();
+      $('loading').classList.add('hidden');
+      $('tx-list').classList.remove('hidden');
+    })();
+
+    // ============================================
+    // STATS
+    // ============================================
+    async function loadStats() {
+      const { data, error } = await window.kwatta_db
+        .from('v_tx_stats')
+        .select('*')
+        .single();
+
+      if (error || !data) {
+        console.warn('[TX-STATS]', error);
+        return;
+      }
+
+      $('ca-today').textContent = U().formatPrice(data.ca_aujourd_hui || 0);
+      $('comm-today').textContent = 'Commission : ' + U().formatPrice(Math.round((data.ca_aujourd_hui || 0) * 0.05));
+
+      $('ca-week').textContent = U().formatPrice(data.ca_semaine || 0);
+      $('comm-week').textContent = 'Commission : ' + U().formatPrice(Math.round((data.ca_semaine || 0) * 0.05));
+
+      $('ca-month').textContent = U().formatPrice(data.ca_mois || 0);
+      $('comm-month').textContent = 'Commission : ' + U().formatPrice(Math.round((data.ca_mois || 0) * 0.05));
+
+      $('comm-total').textContent = U().formatPrice(data.commission_totale || 0);
+      $('ca-total').textContent = 'CA total : ' + U().formatPrice(data.ca_total || 0);
+    }
+
+    // ============================================
+    // CHARGER TRANSACTIONS
+    // ============================================
+    async function loadTransactions() {
+      const { data, error } = await window.kwatta_db
+        .from('transactions')
+        .select('*, listing:listings(id, title, images), buyer:profiles!transactions_buyer_id_fkey(username, display_name, avatar_url), seller:profiles!transactions_seller_id_fkey(username, display_name, avatar_url)')
+        .order('created_at', { ascending: false })
+        .limit(200);
+
+      if (error) {
+        console.error('[TX]', error);
+        $('tx-count').textContent = 'Erreur de chargement';
+        return;
+      }
+      allTx = data || [];
+      renderTransactions();
+    }
+
+    // ============================================
+    // AFFICHER
+    // ============================================
+    function renderTransactions() {
+      const search = ($('search').value || '').toLowerCase().trim();
+      const filterStatus = $('filter-status').value;
+      const filterPeriod = $('filter-period').value;
+
+      let filtered = allTx;
+
+      if (search) {
+        filtered = filtered.filter(t =>
+          (t.listing?.title || '').toLowerCase().includes(search) ||
+          (t.buyer?.username || '').toLowerCase().includes(search) ||
+          (t.seller?.username || '').toLowerCase().includes(search)
+        );
+      }
+
+      if (filterStatus) filtered = filtered.filter(t => t.status === filterStatus);
+
+      if (filterPeriod) {
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfWeek = new Date(now); startOfWeek.setDate(now.getDate() - now.getDay()); startOfWeek.setHours(0,0,0,0);
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        let minDate;
+        if (filterPeriod === 'today') minDate = startOfDay;
+        else if (filterPeriod === 'week') minDate = startOfWeek;
+        else if (filterPeriod === 'month') minDate = startOfMonth;
+
+        filtered = filtered.filter(t => new Date(t.created_at) >= minDate);
+      }
+
+      $('tx-count').textContent = filtered.length + ' transaction' + (filtered.length > 1 ? 's' : '');
+
+      if (filtered.length === 0) {
+        $('tx-list').innerHTML = '';
+        $('empty').classList.remove('hidden');
+        return;
+      }
+      $('empty').classList.add('hidden');
+
+      const statusMap = {
+        'pending_payment': { cls: 'badge-yellow', txt: '⏳ En attente' },
+        'payment_held':    { cls: 'badge-blue',   txt: '💰 Sécurisé' },
+        'shipped':         { cls: 'badge-blue',   txt: '🚚 Expédié' },
+        'delivered':       { cls: 'badge-blue',   txt: '📬 Livré' },
+        'completed':       { cls: 'badge-green',  txt: '✅ Terminé' },
+        'disputed':        { cls: 'badge-red',    txt: '⚠️ Litige' },
+        'refunded':        { cls: 'badge-gray',   txt: '💸 Remboursé' },
+        'cancelled':       { cls: 'badge-gray',   txt: '❌ Annulé' },
+      };
+
+      $('tx-list').innerHTML = filtered.map(t => {
+        const s = statusMap[t.status] || { cls: 'badge-gray', txt: t.status };
+        const listingTitle = t.listing?.title || 'Annonce supprimée';
+        const img = (t.listing?.images && t.listing.images[0]) || 'https://placehold.co/100x100/f5f3ee/2D2A26?text=K';
+        const buyer = t.buyer?.display_name || t.buyer?.username || '?';
+        const seller = t.seller?.display_name || t.seller?.username || '?';
+        const commission = Math.round((t.amount_xaf || 0) * 0.05);
+
+        return `
+          <div class="admin-section" style="padding:14px 18px; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <img src="${img}" style="width:50px; height:50px; border-radius:10px; object-fit:cover; flex-shrink:0;" onerror="this.src='https://placehold.co/100x100/f5f3ee/2D2A26?text=K'">
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                  <div class="admin-row-title" style="font-size:14px;">${U().escapeHtml(listingTitle)}</div>
+                  <span class="badge ${s.cls}">${s.txt}</span>
+                </div>
+                <div class="admin-row-sub">
+                  <strong>${U().formatPrice(t.amount_xaf)}</strong> · 
+                  Acheteur @${U().escapeHtml(t.buyer?.username || '?')} → Vendeur @${U().escapeHtml(t.seller?.username || '?')} · 
+                  Commission ${U().formatPrice(commission)} · 
+                  ${U().formatDate(t.created_at)}
+                </div>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="openTxModal('${t.id}')">👁️ Détails</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    $('search').addEventListener('input', renderTransactions);
+    $('filter-status').addEventListener('change', renderTransactions);
+    $('filter-period').addEventListener('change', renderTransactions);
+
+    // ============================================
+    // MODAL DÉTAIL
+    // ============================================
+    function openTxModal(txId) {
+      const t = allTx.find(x => x.id === txId);
+      if (!t) return;
+
+      const commission = Math.round((t.amount_xaf || 0) * 0.05);
+      const montantVendeur = (t.amount_xaf || 0) - commission;
+
+      const statusMap = {
+        'pending_payment': 'En attente de paiement',
+        'payment_held': 'Paiement sécurisé',
+        'shipped': 'Expédié',
+        'delivered': 'Livré',
+        'completed': 'Terminé',
+        'disputed': 'Litige',
+        'refunded': 'Remboursé',
+        'cancelled': 'Annulé',
+      };
+
+      const buyerName = t.buyer?.display_name || t.buyer?.username || '?';
+      const sellerName = t.seller?.display_name || t.seller?.username || '?';
+
+      $('modal-title').textContent = t.listing?.title || 'Transaction';
+
+      $('modal-body').innerHTML = `
+        <div style="padding:12px; background:#FAF6F0; border-radius:12px; margin-bottom:16px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Montant total</div>
+              <div style="font-family:'Space Grotesk'; font-size:22px; font-weight:700;">${U().formatPrice(t.amount_xaf)}</div>
+            </div>
+            <div>
+              <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Commission KWATTA (5%)</div>
+              <div style="font-family:'Space Grotesk'; font-size:18px; font-weight:700; color:#B8543D;">${U().formatPrice(commission)}</div>
+            </div>
+          </div>
+          <div style="font-size:12px; color:#7A7A7A; margin-top:8px;">→ Vendeur reçoit : <strong>${U().formatPrice(montantVendeur)}</strong></div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+          <div style="padding:10px; background:#FAF6F0; border-radius:10px;">
+            <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Acheteur</div>
+            <div style="font-weight:600; font-size:13px;">${U().escapeHtml(buyerName)}</div>
+            <div style="font-size:11px; color:#7A7A7A;">@${U().escapeHtml(t.buyer?.username || '?')}</div>
+          </div>
+          <div style="padding:10px; background:#FAF6F0; border-radius:10px;">
+            <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Vendeur</div>
+            <div style="font-weight:600; font-size:13px;">${U().escapeHtml(sellerName)}</div>
+            <div style="font-size:11px; color:#7A7A7A;">@${U().escapeHtml(t.seller?.username || '?')}</div>
+          </div>
+        </div>
+
+        <div style="padding:10px; background:#FAF6F0; border-radius:10px; margin-bottom:16px;">
+          <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Statut actuel</div>
+          <div style="font-weight:600;">${statusMap[t.status] || t.status}</div>
+          ${t.refund_reason ? '<div style="font-size:12px; color:#991b1b; margin-top:6px;">💸 Raison remboursement : ' + U().escapeHtml(t.refund_reason) + '</div>' : ''}
+          ${t.admin_note ? '<div style="font-size:12px; color:#7A7A7A; margin-top:6px;">⚙️ Note admin : ' + U().escapeHtml(t.admin_note) + '</div>' : ''}
+        </div>
+
+        <div style="font-size:11px; color:#7A7A7A; margin-bottom:16px;">
+          Créée ${U().formatDate(t.created_at)}
+          ${t.refunded_at ? ' · Remboursée ' + U().formatDate(t.refunded_at) : ''}
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:11px; font-weight:600; text-transform:uppercase; color:#7A7A7A;">Forcer le statut</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+            <button class="btn btn-ghost btn-sm" onclick="setStatus('${t.id}', 'payment_held')">💰 Paiement sécurisé</button>
+            <button class="btn btn-ghost btn-sm" onclick="setStatus('${t.id}', 'shipped')">🚚 Expédié</button>
+            <button class="btn btn-ghost btn-sm" onclick="setStatus('${t.id}', 'delivered')">📬 Livré</button>
+            <button class="btn btn-ghost btn-sm" onclick="setStatus('${t.id}', 'completed')">✅ Terminé</button>
+            <button class="btn btn-ghost btn-sm" onclick="setStatus('${t.id}', 'disputed')">⚠️ Litige</button>
+            <button class="btn btn-ghost btn-sm" onclick="setStatus('${t.id}', 'cancelled')">❌ Annulé</button>
+          </div>
+
+          ${t.status !== 'refunded' ? `
+            <div style="border-top:1px solid rgba(45,42,38,0.05); margin-top:8px; padding-top:8px;"></div>
+            <button class="btn btn-danger" onclick="askRefund('${t.id}')">💸 Rembourser cette transaction</button>
+          ` : '<div style="text-align:center; padding:8px; color:#7A7A7A; font-size:12px;">Cette transaction a déjà été remboursée</div>'}
+        </div>
+      `;
+
+      $('tx-modal').classList.remove('hidden');
+    }
+
+    // ============================================
+    // ACTIONS
+    // ============================================
+    async function setStatus(txId, newStatus) {
+      const labels = {
+        payment_held: 'Paiement sécurisé',
+        shipped: 'Expédié',
+        delivered: 'Livré',
+        completed: 'Terminé',
+        disputed: 'Litige',
+        cancelled: 'Annulé',
+      };
+      if (!confirm('Changer le statut en "' + labels[newStatus] + '" ?')) return;
+
+      const note = prompt('Note admin (optionnel) :', '');
+      if (note === null) return;
+
+      const { data, error } = await window.kwatta_db.rpc('set_transaction_status', {
+        p_transaction_id: txId,
+        p_new_status: newStatus,
+        p_note: note || null
+      });
+
+      if (error || (data && !data.success)) { alert('Erreur : ' + (error?.message || data?.error)); return; }
+      alert('✅ Statut mis à jour');
+      closeModal();
+      await loadStats();
+      await loadTransactions();
+    }
+
+    async function askRefund(txId) {
+      if (!confirm('⚠️ Rembourser cette transaction ?\n\nLe statut passera à "Remboursé".\nLa gestion financière reste manuelle (Option A).')) return;
+
+      const reason = prompt('Raison du remboursement (optionnel) :', '');
+      if (reason === null) return;
+
+      const { data, error } = await window.kwatta_db.rpc('refund_transaction', {
+        p_transaction_id: txId,
+        p_reason: reason || null
+      });
+
+      if (error || (data && !data.success)) { alert('Erreur : ' + (error?.message || data?.error)); return; }
+      alert('✅ Transaction remboursée');
+      closeModal();
+      await loadStats();
+      await loadTransactions();
+    }
+
+    function closeModal() {
+      $('tx-modal').classList.add('hidden');
+    }
+
+    $('modal-close').addEventListener('click', closeModal);
+    $('tx-modal').addEventListener('click', (e) => {
+      if (e.target === $('tx-modal')) closeModal();
+    });
+
+    window.openTxModal = openTxModal;
+    window.setStatus = setStatus;
+    window.askRefund = askRefund;
+    window.closeModal = closeModal;
+  </script>
+
+</body>
+</html>

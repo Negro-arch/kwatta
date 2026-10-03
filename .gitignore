@@ -1,0 +1,30 @@
+# Backups KWATTA
+_backups_archive/
+*.backup
+*.backup2
+*.backup3
+*.backup-*
+*.bak-*
+*.broken
+
+# Node
+node_modules/
+package-lock.json
+package.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B8543D">
+  <title>Mon portefeuille — KWATTA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            terra: { 50:'#fdf5f2',100:'#fbe8e2',200:'#f5d0c5',300:'#ecad9b',400:'#d97a63',500:'#B8543D',600:'#a3442f',700:'#873727',800:'#6e2f23',900:'#5a2a20' },
+            cream: '#FAF6F0',
+            charcoal: '#2D2A26',
+            honey: '#E8A96A',
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-cream text-charcoal font-body antialiased">
+
+  <header class="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-charcoal/5">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+      <a href="index.html" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <h1 class="font-display font-bold text-lg">Mon portefeuille</h1>
+    </div>
+  </header>
+
+  <div id="loading" class="text-center py-16">
+    <div class="inline-block w-8 h-8 border-4 border-terra-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <main id="wallet-content" class="hidden max-w-3xl mx-auto px-4 py-6 pb-24 sm:pb-8 space-y-4">
+
+    <!-- Carte solde principal -->
+    <div class="bg-gradient-to-br from-terra-500 to-terra-700 rounded-2xl p-6 text-cream shadow-xl shadow-terra-500/20">
+      <div class="text-xs uppercase tracking-wider opacity-80 mb-1">Solde disponible</div>
+      <div id="solde-disponible" class="font-display text-4xl font-bold mb-4">— FCFA</div>
+      
+      <div class="grid grid-cols-2 gap-3 pt-4 border-t border-cream/20">
+        <div>
+          <div class="text-xs opacity-80">En attente</div>
+          <div id="solde-attente" class="font-display font-bold text-lg">— FCFA</div>
+        </div>
+        <div>
+          <div class="text-xs opacity-80">Total gagné</div>
+          <div id="total-gagne" class="font-display font-bold text-lg">— FCFA</div>
+        </div>
+      </div>
+
+      <button id="btn-retrait" class="mt-5 w-full py-3 rounded-xl bg-cream text-terra-600 font-bold hover:bg-white transition">
+        💸 Demander un retrait
+      </button>
+    </div>
+
+    <!-- Info -->
+    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4">
+      <div class="flex items-start gap-2">
+        <svg width="16" height="16" fill="none" stroke="#3B82F6" stroke-width="2" viewBox="0 0 24 24" class="mt-0.5 shrink-0">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        <div class="text-xs text-blue-700">
+          <strong>Comment ça marche ?</strong><br>
+          Quand une vente est terminée (acheteur a confirmé la réception), le montant est crédité ici. Tu peux ensuite demander un retrait vers ton Mobile Money. Minimum : <strong>2 000 FCFA</strong>. Commission KWATTA : <strong>5%</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglets -->
+    <div class="flex bg-white rounded-2xl p-1 border border-charcoal/5">
+      <button id="tab-historique" class="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-terra-500 text-cream transition">
+        Historique
+      </button>
+      <button id="tab-retraits" class="flex-1 py-2.5 rounded-xl font-semibold text-sm text-charcoal/60 hover:text-charcoal transition">
+        Mes retraits
+      </button>
+    </div>
+
+    <div id="section-historique" class="space-y-2"></div>
+    <div id="section-retraits" class="hidden space-y-2"></div>
+  </main>
+
+  <!-- MODALE : demander un retrait -->
+  <div id="withdraw-modal" class="hidden fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
+      
+      <div class="sticky top-0 bg-white border-b border-charcoal/5 px-6 py-4 flex items-center justify-between">
+        <h2 class="font-display font-bold text-lg">Demander un retrait</h2>
+        <button id="withdraw-close" class="w-8 h-8 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="p-3 bg-cream rounded-xl border border-charcoal/5 text-sm">
+          Disponible : <strong id="modal-disponible" class="text-terra-600">— FCFA</strong>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-2 text-sm">Montant à retirer</label>
+          <div class="relative">
+            <input type="number" id="withdraw-amount" min="2000" step="100"
+              class="w-full px-4 py-3 pr-16 bg-cream border border-charcoal/10 rounded-xl text-lg font-bold focus:border-terra-500 outline-none">
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-charcoal/50">FCFA</span>
+          </div>
+          <p class="text-xs text-charcoal/50 mt-1">Minimum 2 000 FCFA</p>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-2 text-sm">Méthode</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" class="method-btn px-3 py-3 rounded-xl border border-charcoal/10 bg-cream text-sm font-semibold hover:border-terra-500 transition" data-method="mtn_momo">
+              📱 MTN
+            </button>
+            <button type="button" class="method-btn px-3 py-3 rounded-xl border border-charcoal/10 bg-cream text-sm font-semibold hover:border-terra-500 transition" data-method="orange_money">
+              🟠 Orange
+            </button>
+            <button type="button" class="method-btn px-3 py-3 rounded-xl border border-charcoal/10 bg-cream text-sm font-semibold hover:border-terra-500 transition" data-method="autre">
+              💳 Autre
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-2 text-sm">Numéro bénéficiaire</label>
+          <input type="tel" id="withdraw-numero" placeholder="+237 6XX XXX XXX"
+            class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-2 text-sm">Nom du bénéficiaire (optionnel)</label>
+          <input type="text" id="withdraw-nom" placeholder="Ex: Jean Dupont"
+            class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none">
+        </div>
+
+        <p id="withdraw-error" class="text-sm text-red-600 hidden"></p>
+
+        <button id="withdraw-submit"
+          class="w-full py-4 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-bold transition disabled:opacity-50">
+          Envoyer la demande
+        </button>
+
+        <p class="text-xs text-charcoal/50 text-center">
+          Un admin KWATTA traitera ta demande sous 24-48h.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let currentUser = null;
+    let myWallet = null;
+    let withdrawalMethod = null;
+
+    function formatPrice(p) {
+      return new Intl.NumberFormat('fr-FR').format(p) + ' FCFA';
+    }
+
+    function formatDate(d) {
+      const date = new Date(d);
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000);
+      if (diff < 60) return 'à l\'instant';
+      if (diff < 3600) return 'il y a ' + Math.floor(diff / 60) + ' min';
+      if (diff < 86400) return 'il y a ' + Math.floor(diff / 3600) + 'h';
+      if (diff < 604800) return 'il y a ' + Math.floor(diff / 86400) + 'j';
+      return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    const TX_LABELS = {
+      'vente':            { label: '💰 Vente',           sign: '+' },
+      'commission':       { label: '📊 Commission',      sign: '-' },
+      'retrait_demande':  { label: '⏳ Retrait demandé', sign: '-' },
+      'retrait_valide':   { label: '✅ Retrait validé',  sign: '' },
+      'retrait_refuse':   { label: '❌ Retrait refusé',  sign: '+' },
+      'remboursement':    { label: '↩️ Remboursement',   sign: '+' },
+      'ajustement':       { label: '⚙️ Ajustement',      sign: '' },
+    };
+
+    // ============================================
+    // INIT
+    // ============================================
+    (async () => {
+      const { data: { session } } = await window.kwatta_db.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+        return;
+      }
+      currentUser = session.user;
+      await loadWallet();
+      await loadTransactions();
+      await loadWithdrawals();
+
+      $('loading').classList.add('hidden');
+      $('wallet-content').classList.remove('hidden');
+    })();
+
+    async function loadWallet() {
+      const { data, error } = await window.kwatta_db
+        .from('wallets')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (error || !data) {
+        console.error('Wallet introuvable:', error);
+        return;
+      }
+      myWallet = data;
+      $('solde-disponible').textContent = formatPrice(data.solde_disponible || 0);
+      $('solde-attente').textContent = formatPrice(data.solde_en_attente || 0);
+      $('total-gagne').textContent = formatPrice(data.total_gagne || 0);
+      $('modal-disponible').textContent = formatPrice(data.solde_disponible || 0);
+    }
+
+    async function loadTransactions() {
+      const { data, error } = await window.kwatta_db
+        .from('wallet_transactions')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) { console.error(error); return; }
+
+      const list = $('section-historique');
+      if (!data || data.length === 0) {
+        list.innerHTML = `
+          <div class="text-center py-12 text-charcoal/50">
+            <div class="text-5xl mb-2">📭</div>
+            <p class="text-sm">Aucune transaction pour le moment</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = data.map(t => {
+        const info = TX_LABELS[t.type] || { label: t.type, sign: '' };
+        const isCredit = ['vente', 'retrait_refuse', 'remboursement'].includes(t.type);
+        const color = isCredit ? 'text-green-600' : 'text-charcoal/70';
+        const amountTxt = (isCredit ? '+' : '-') + formatPrice(t.montant);
+
+        return `
+          <div class="bg-white rounded-xl p-4 border border-charcoal/5 flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-sm">${info.label}</div>
+              ${t.description ? '<div class="text-xs text-charcoal/60 mt-0.5">' + t.description + '</div>' : ''}
+              <div class="text-xs text-charcoal/40 mt-1">${formatDate(t.created_at)}</div>
+            </div>
+            <div class="font-display font-bold text-sm ${color} whitespace-nowrap">${amountTxt}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadWithdrawals() {
+      const { data, error } = await window.kwatta_db
+        .from('withdrawals')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      if (error) { console.error(error); return; }
+
+      const list = $('section-retraits');
+      if (!data || data.length === 0) {
+        list.innerHTML = `
+          <div class="text-center py-12 text-charcoal/50">
+            <div class="text-5xl mb-2">💸</div>
+            <p class="text-sm">Aucun retrait pour le moment</p>
+          </div>`;
+        return;
+      }
+
+      const statusLabels = {
+        'en_attente': '⏳ En attente',
+        'valide': '✅ Validé',
+        'refuse': '❌ Refusé',
+        'annule': '⚪ Annulé',
+      };
+      const statusColors = {
+        'en_attente': 'bg-yellow-100 text-yellow-700',
+        'valide': 'bg-green-100 text-green-700',
+        'refuse': 'bg-red-100 text-red-700',
+        'annule': 'bg-gray-100 text-gray-700',
+      };
+
+      list.innerHTML = data.map(w => `
+        <div class="bg-white rounded-xl p-4 border border-charcoal/5">
+          <div class="flex items-start justify-between gap-3 mb-2">
+            <div class="font-display font-bold text-lg">${formatPrice(w.montant)}</div>
+            <span class="px-2 py-1 rounded-full text-xs font-bold ${statusColors[w.statut]}">${statusLabels[w.statut]}</span>
+          </div>
+          <div class="text-xs text-charcoal/60 space-y-0.5">
+            <div>📱 ${w.methode === 'mtn_momo' ? 'MTN MoMo' : w.methode === 'orange_money' ? 'Orange Money' : 'Autre'} · ${w.numero_beneficiaire}</div>
+            <div>📅 ${formatDate(w.created_at)}</div>
+            ${w.note_admin ? '<div class="mt-1 p-2 bg-cream rounded text-charcoal/70">💬 ' + w.note_admin + '</div>' : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================
+    // ONGLETS
+    // ============================================
+    $('tab-historique').addEventListener('click', () => {
+      $('tab-historique').classList.add('bg-terra-500', 'text-cream');
+      $('tab-historique').classList.remove('text-charcoal/60');
+      $('tab-retraits').classList.remove('bg-terra-500', 'text-cream');
+      $('tab-retraits').classList.add('text-charcoal/60');
+      $('section-historique').classList.remove('hidden');
+      $('section-retraits').classList.add('hidden');
+    });
+
+    $('tab-retraits').addEventListener('click', () => {
+      $('tab-retraits').classList.add('bg-terra-500', 'text-cream');
+      $('tab-retraits').classList.remove('text-charcoal/60');
+      $('tab-historique').classList.remove('bg-terra-500', 'text-cream');
+      $('tab-historique').classList.add('text-charcoal/60');
+      $('section-retraits').classList.remove('hidden');
+      $('section-historique').classList.add('hidden');
+    });
+
+    // ============================================
+    // MODALE RETRAIT
+    // ============================================
+    $('btn-retrait').addEventListener('click', () => {
+      $('withdraw-modal').classList.remove('hidden');
+      $('withdraw-amount').value = '';
+      $('withdraw-numero').value = '';
+      $('withdraw-nom').value = '';
+      $('withdraw-error').classList.add('hidden');
+      withdrawalMethod = null;
+      document.querySelectorAll('.method-btn').forEach(b => {
+        b.classList.remove('border-terra-500', 'bg-terra-50');
+      });
+    });
+
+    $('withdraw-close').addEventListener('click', () => {
+      $('withdraw-modal').classList.add('hidden');
+    });
+    $('withdraw-modal').addEventListener('click', (e) => {
+      if (e.target === $('withdraw-modal')) $('withdraw-modal').classList.add('hidden');
+    });
+
+    document.querySelectorAll('.method-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        withdrawalMethod = btn.dataset.method;
+        document.querySelectorAll('.method-btn').forEach(b => {
+          b.classList.remove('border-terra-500', 'bg-terra-50');
+        });
+        btn.classList.add('border-terra-500', 'bg-terra-50');
+      });
+    });
+
+    // ============================================
+    // SUBMIT RETRAIT
+    // ============================================
+    $('withdraw-submit').addEventListener('click', async () => {
+      const errEl = $('withdraw-error');
+      errEl.classList.add('hidden');
+
+      const montant = parseInt($('withdraw-amount').value);
+      const numero = $('withdraw-numero').value.trim();
+      const nom = $('withdraw-nom').value.trim() || null;
+
+      if (!montant || montant < 2000) {
+        errEl.textContent = 'Montant minimum : 2 000 FCFA';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (!withdrawalMethod) {
+        errEl.textContent = 'Choisis une méthode de retrait.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (!numero) {
+        errEl.textContent = 'Entre ton numéro.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (montant > (myWallet?.solde_disponible || 0)) {
+        errEl.textContent = 'Solde insuffisant.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const btn = $('withdraw-submit');
+      btn.disabled = true;
+      btn.textContent = 'Envoi...';
+
+      const { data, error } = await window.kwatta_db.rpc('demander_retrait', {
+        p_montant: montant,
+        p_methode: withdrawalMethod,
+        p_numero: numero,
+        p_nom: nom
+      });
+
+      btn.disabled = false;
+      btn.textContent = 'Envoyer la demande';
+
+      if (error) {
+        console.error(error);
+        errEl.textContent = 'Erreur : ' + error.message;
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (data && !data.success) {
+        errEl.textContent = 'Erreur : ' + data.error;
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      $('withdraw-modal').classList.add('hidden');
+      alert('✅ Demande de retrait envoyée ! Un admin la traitera sous 24-48h.');
+      await loadWallet();
+      await loadTransactions();
+      await loadWithdrawals();
+
+      // Bascule sur l'onglet retraits
+      $('tab-retraits').click();
+    });
+  </script>
+  <script src="js/bottom-nav.js" defer></script>
+</body>
+</html>

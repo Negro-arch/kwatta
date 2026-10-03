@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B8543D">
+  <title>Utilisateurs — Admin KWATTA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <div class="admin-shell">
+
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-content">
+
+      <div class="admin-header">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <h1 class="admin-title">👥 Utilisateurs</h1>
+            <p class="admin-subtitle" id="users-count">Chargement...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="admin-section" style="padding:16px;">
+        <div style="display:grid; grid-template-columns: 1fr auto auto; gap:12px; align-items:center;">
+          <div class="admin-search" style="max-width:none;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" id="search" class="admin-input" placeholder="Rechercher par username, nom ou email...">
+          </div>
+
+          <select id="filter-role" class="admin-input" style="width:auto;">
+            <option value="">Tous les rôles</option>
+            <option value="admin">Admin</option>
+            <option value="seller">Vendeur</option>
+            <option value="buyer">Acheteur</option>
+          </select>
+
+          <select id="filter-status" class="admin-input" style="width:auto;">
+            <option value="">Tous statuts</option>
+            <option value="active">Actifs</option>
+            <option value="banned">Bannis</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div id="loading" style="text-align:center; padding:60px 0;">
+        <div class="admin-loading"></div>
+      </div>
+
+      <!-- Liste -->
+      <div id="users-list" class="hidden"></div>
+
+      <!-- Empty -->
+      <div id="empty" class="hidden admin-empty">
+        <div class="admin-empty-icon">👥</div>
+        <div class="admin-empty-text">Aucun utilisateur trouvé</div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- MODAL : voir utilisateur -->
+  <div id="user-modal" class="hidden admin-modal-backdrop">
+    <div class="admin-modal" style="max-width:520px;">
+      <div class="admin-modal-header">
+        <h2 class="font-display" style="font-size:18px; font-weight:700;" id="modal-title">Utilisateur</h2>
+        <button class="admin-modal-close" id="modal-close">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="admin-modal-body" id="modal-body">
+        <!-- Rempli par JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-init.js"></script>
+  <script src="js/admin.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let allUsers = [];
+    let currentAdminId = null;
+    const U = () => window.AdminUtils;
+
+    // ============================================
+    // INIT
+    // ============================================
+    (async () => {
+      const auth = await U().requireAdmin();
+      if (!auth) return;
+
+      currentAdminId = auth.user.id;
+      U().renderSidebar('users', auth.profile);
+      U().loadSidebarBadges();
+
+      await loadUsers();
+      $('loading').classList.add('hidden');
+      $('users-list').classList.remove('hidden');
+    })();
+
+    // ============================================
+    // CHARGER USERS
+    // ============================================
+    async function loadUsers() {
+      // Appel de la fonction SQL (retourne public + privé en 1 requête)
+      const { data, error } = await window.kwatta_db.rpc('admin_list_users');
+
+      if (error) {
+        console.error('[USERS] Erreur:', error);
+        $('users-count').textContent = 'Erreur de chargement';
+        return;
+      }
+
+      if (data && !data.success) {
+        console.error('[USERS]', data.error);
+        $('users-count').textContent = 'Erreur : ' + data.error;
+        return;
+      }
+
+      allUsers = (data && data.users) || [];
+      renderUsers();
+    }
+
+    // ============================================
+    // AFFICHER USERS
+    // ============================================
+    function renderUsers() {
+      const search = ($('search').value || '').toLowerCase().trim();
+      const filterRole = $('filter-role').value;
+      const filterStatus = $('filter-status').value;
+
+      let filtered = allUsers;
+
+      if (search) {
+        filtered = filtered.filter(u =>
+          (u.username || '').toLowerCase().includes(search) ||
+          (u.display_name || '').toLowerCase().includes(search)
+        );
+      }
+
+      if (filterRole) {
+        filtered = filtered.filter(u => u.role === filterRole);
+      }
+
+      if (filterStatus === 'active') {
+        filtered = filtered.filter(u => !u.banned);
+      } else if (filterStatus === 'banned') {
+        filtered = filtered.filter(u => u.banned);
+      }
+
+      $('users-count').textContent = filtered.length + ' utilisateur' + (filtered.length > 1 ? 's' : '') + ' trouvé' + (filtered.length > 1 ? 's' : '');
+
+      if (filtered.length === 0) {
+        $('users-list').innerHTML = '';
+        $('empty').classList.remove('hidden');
+        return;
+      }
+      $('empty').classList.add('hidden');
+
+      const roleMap = {
+        'admin':  { cls: 'badge-red',   txt: 'Admin' },
+        'seller': { cls: 'badge-green', txt: 'Vendeur' },
+        'buyer':  { cls: 'badge-gray',  txt: 'Acheteur' },
+      };
+
+      $('users-list').innerHTML = filtered.map(u => {
+        const name = u.display_name || u.username || '?';
+        const initial = name[0].toUpperCase();
+        const avatarHtml = u.avatar_url
+          ? '<img src="' + u.avatar_url + '" alt="">'
+          : initial;
+        const r = roleMap[u.role] || { cls: 'badge-gray', txt: u.role };
+        const bannedBadge = u.banned
+          ? '<span class="badge badge-red">🚫 Banni</span>'
+          : '';
+
+        return `
+          <div class="admin-section" style="padding:14px 18px; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div class="admin-row-img round" style="width:50px; height:50px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#B8543D; background:#fbe8e2; overflow:hidden; flex-shrink:0;">
+                ${avatarHtml}
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <div class="admin-row-title" style="font-size:15px;">${U().escapeHtml(name)}</div>
+                  <span class="badge ${r.cls}">${r.txt}</span>
+                  ${bannedBadge}
+                </div>
+                <div class="admin-row-sub">@${U().escapeHtml(u.username)} · ${U().escapeHtml(u.city || 'Cameroun')} · Inscrit ${U().formatDate(u.created_at)}</div>
+              </div>
+              <div style="display:flex; gap:6px; flex-shrink:0;">
+                <button class="btn btn-ghost btn-sm" onclick="openUserModal('${u.id}')">👁️ Détails</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================
+    // RECHERCHE + FILTRES
+    // ============================================
+    $('search').addEventListener('input', renderUsers);
+    $('filter-role').addEventListener('change', renderUsers);
+    $('filter-status').addEventListener('change', renderUsers);
+
+    // ============================================
+    // MODAL USER
+    // ============================================
+    async function openUserModal(userId) {
+      const u = allUsers.find(x => x.id === userId);
+      if (!u) return;
+
+      const name = u.display_name || u.username || '?';
+      const initial = name[0].toUpperCase();
+      const avatarHtml = u.avatar_url
+        ? '<img src="' + u.avatar_url + '" style="width:100%; height:100%; object-fit:cover;" alt="">'
+        : initial;
+
+      // Charge le wallet
+      const { data: wallet } = await window.kwatta_db
+        .from('wallets')
+        .select('solde_disponible, solde_en_attente, total_gagne, total_retire')
+        .eq('user_id', userId)
+        .single();
+
+      const roleMap = {
+        'admin': 'Admin', 'seller': 'Vendeur', 'buyer': 'Acheteur',
+      };
+
+      $('modal-title').textContent = name;
+
+      $('modal-body').innerHTML = `
+        <div style="text-align:center; margin-bottom:20px;">
+          <div class="admin-row-img round" style="width:80px; height:80px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700; color:#B8543D; background:#fbe8e2; overflow:hidden;">
+            ${avatarHtml}
+          </div>
+          <div style="font-family:'Space Grotesk'; font-size:20px; font-weight:700;">${U().escapeHtml(name)}</div>
+          <div style="font-size:13px; color:#7A7A7A;">@${U().escapeHtml(u.username)}</div>
+          ${u.banned ? '<div class="badge badge-red" style="margin-top:8px;">🚫 Banni' + (u.ban_reason ? ' — ' + U().escapeHtml(u.ban_reason) : '') + '</div>' : ''}
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+          <div style="padding:10px; background:#FAF6F0; border-radius:10px;">
+            <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Rôle</div>
+            <div style="font-weight:600;">${roleMap[u.role] || u.role}</div>
+          </div>
+          <div style="padding:10px; background:#FAF6F0; border-radius:10px;">
+            <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Ville</div>
+            <div style="font-weight:600;">${U().escapeHtml(u.city || '—')}</div>
+          </div>
+          <div style="padding:10px; background:#FAF6F0; border-radius:10px;">
+            <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Inscrit le</div>
+            <div style="font-weight:600; font-size:12px;">${new Date(u.created_at).toLocaleDateString('fr-FR')}</div>
+          </div>
+          <div style="padding:10px; background:#FAF6F0; border-radius:10px;">
+            <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Ventes</div>
+            <div style="font-weight:600;">${u.total_sales || 0}</div>
+          </div>
+        </div>
+
+        <div style="padding:12px; background:linear-gradient(135deg, #B8543D, #a3442f); border-radius:12px; color:#FAF6F0; margin-bottom:16px;">
+          <div style="font-size:11px; opacity:0.8; text-transform:uppercase; letter-spacing:0.05em;">Portefeuille</div>
+          <div style="font-family:'Space Grotesk'; font-size:22px; font-weight:700;">${U().formatPrice(wallet?.solde_disponible || 0)}</div>
+          <div style="font-size:11px; opacity:0.8; margin-top:4px;">
+            En attente : ${U().formatPrice(wallet?.solde_en_attente || 0)} · 
+            Total gagné : ${U().formatPrice(wallet?.total_gagne || 0)}
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <!-- Changer rôle -->
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="changeRole('${u.id}', 'buyer')" ${u.role === 'buyer' ? 'disabled' : ''}>→ Acheteur</button>
+            <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="changeRole('${u.id}', 'seller')" ${u.role === 'seller' ? 'disabled' : ''}>→ Vendeur</button>
+            <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="changeRole('${u.id}', 'admin')" ${u.role === 'admin' ? 'disabled' : ''}>→ Admin</button>
+          </div>
+
+          <!-- Ban / Unban -->
+          ${u.banned
+            ? `<button class="btn btn-success" onclick="unbanUser('${u.id}')">✅ Débannir cet utilisateur</button>`
+            : `<button class="btn btn-danger" onclick="askBanReason('${u.id}')" ${u.role === 'admin' ? 'disabled title="Impossible de bannir un admin"' : ''}>🚫 Bannir cet utilisateur</button>`
+          }
+        </div>
+      `;
+
+      $('user-modal').classList.remove('hidden');
+    }
+
+    // ============================================
+    // CHANGER RÔLE
+    // ============================================
+    async function changeRole(userId, newRole) {
+      const labels = { admin: 'Admin', seller: 'Vendeur', buyer: 'Acheteur' };
+      if (!confirm('Changer le rôle en ' + labels[newRole] + ' ?')) return;
+
+      const { data, error } = await window.kwatta_db.rpc('set_user_role', {
+        p_user_id: userId,
+        p_new_role: newRole,
+      });
+
+      if (error || (data && !data.success)) {
+        alert('Erreur : ' + (error?.message || data?.error));
+        return;
+      }
+
+      alert('✅ Rôle mis à jour');
+      await loadUsers();
+      closeUserModal();
+    }
+
+    // ============================================
+    // BANNIR
+    // ============================================
+    async function askBanReason(userId) {
+      const reason = prompt('Raison du ban (optionnel) :', '');
+      if (reason === null) return; // Annulé
+
+      const { data, error } = await window.kwatta_db.rpc('ban_user', {
+        p_user_id: userId,
+        p_reason: reason || null,
+      });
+
+      if (error || (data && !data.success)) {
+        alert('Erreur : ' + (error?.message || data?.error));
+        return;
+      }
+
+      alert('✅ Utilisateur banni');
+      await loadUsers();
+      closeUserModal();
+    }
+
+    // ============================================
+    // DÉBANNIR
+    // ============================================
+    async function unbanUser(userId) {
+      if (!confirm('Débannir cet utilisateur ?')) return;
+
+      const { data, error } = await window.kwatta_db.rpc('unban_user', {
+        p_user_id: userId,
+      });
+
+      if (error || (data && !data.success)) {
+        alert('Erreur : ' + (error?.message || data?.error));
+        return;
+      }
+
+      alert('✅ Utilisateur débanni');
+      await loadUsers();
+      closeUserModal();
+    }
+
+    // ============================================
+    // FERMER MODAL
+    // ============================================
+    function closeUserModal() {
+      $('user-modal').classList.add('hidden');
+    }
+
+    $('modal-close').addEventListener('click', closeUserModal);
+    $('user-modal').addEventListener('click', (e) => {
+      if (e.target === $('user-modal')) closeUserModal();
+    });
+
+    // Expose pour les onclick
+    window.openUserModal = openUserModal;
+    window.changeRole = changeRole;
+    window.askBanReason = askBanReason;
+    window.unbanUser = unbanUser;
+    window.closeUserModal = closeUserModal;
+  </script>
+
+</body>
+</html>
