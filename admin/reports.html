@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="/admin/css/admin.css">
 </head>
 <body>
 
@@ -80,8 +80,8 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase-init.js"></script>
-  <script src="js/admin.js"></script>
+  <script src="/js/supabase-init.js"></script>
+  <script src="/admin/js/admin.js"></script>
 
   <script>
     const $ = (id) => document.getElementById(id);
@@ -269,7 +269,7 @@
 
               <!-- Voir la cible -->
               <div style="flex-shrink:0;">
-                ${r.type === 'listing' ? '<a href="../product.html?id=' + r.target_id + '" target="_blank" class="btn btn-ghost btn-sm">🔗 Voir</a>' : ''}
+                ${r.type === 'listing' ? '<a href="/product.html?id=' + r.target_id + '" target="_blank" class="btn btn-ghost btn-sm">🔗 Voir</a>' : ''}
                 ${r.type === 'user' ? '<a href="users.html" class="btn btn-ghost btn-sm">👤 User</a>' : ''}
                 ${r.type === 'transaction' ? '<a href="transactions.html" class="btn btn-ghost btn-sm">💳 Voir</a>' : ''}
               </div>
