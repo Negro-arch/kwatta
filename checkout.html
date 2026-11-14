@@ -26,6 +26,9 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme-green.css">
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
 </head>
 <body class="bg-cream text-charcoal font-body antialiased">
 
@@ -36,7 +39,11 @@
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
       </a>
       <h1 class="font-display font-bold text-lg">Paiement</h1>
-    </div>
+    <button id="lang-toggle" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center text-xs font-bold" title="FR / EN" onclick="if(window.kwattaToggleLang) window.kwattaToggleLang()">
+        <span id="current-lang">EN</span>
+      </button>
+      </div>
+    
   </header>
 
   <!-- LOADING -->
@@ -434,5 +441,7 @@
       }[method] || method;
     }
   </script>
+  <script src="js/idle-logout.js" defer></script>
+
 </body>
 </html>

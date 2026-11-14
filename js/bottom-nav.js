@@ -1,21 +1,15 @@
 // ============================================
-// KWATTA — Bottom Navigation (injecté partout)
+// KWATTA — Bottom Navigation (version finale)
 // ============================================
 (function() {
   'use strict';
 
-  // Ne pas injecter si on est sur une page admin
+  // Ne pas injecter sur les pages admin
   if (window.location.pathname.includes('/admin/')) return;
 
-  // Ne pas injecter si on est déjà sur une page qui l'a en dur
-  if (document.querySelector('.bottom-nav')) {
-    console.log('[BOTTOM-NAV] Déjà présent, skip');
-    return;
-  }
+  // Ne pas injecter si déjà présent
+  if (document.querySelector('.bottom-nav')) return;
 
-  // ============================================
-  // Détermine la page actuelle pour surligner le bon item
-  // ============================================
   function getCurrentPage() {
     const path = window.location.pathname;
     if (path.endsWith('index.html') || path.endsWith('/')) return 'home';
@@ -26,66 +20,175 @@
     return '';
   }
 
-  // ============================================
-  // Injecte le bottom-nav
-  // ============================================
   function inject() {
+    // ⚠️ Ne PAS injecter sur PC (≥640px)
+    if (window.innerWidth >= 640) {
+      console.log('[BOTTOM-NAV] Desktop détecté, nav non injectée');
+      return;
+    }
+
     const current = getCurrentPage();
 
+    // Créer la nav
     const nav = document.createElement('nav');
     nav.className = 'bottom-nav';
+
+    // Styles inline FORCÉS — rien ne peut les écraser
+    nav.style.cssText = `
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      inset: auto 0 0 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      box-sizing: border-box !important;
+      display: flex !important;
+      justify-content: space-around !important;
+      align-items: center !important;
+      background: #ffffff !important;
+      border-top: 1px solid #E2E7E2 !important;
+      box-shadow: 0 -4px 20px rgba(12,26,22,0.08) !important;
+      padding: 6px 0 8px !important;
+      margin: 0 !important;
+      z-index: 99999 !important;
+      transform: none !important;
+      will-change: auto !important;
+      contain: none !important;
+    `;
+
+    // HTML avec styles inline sur chaque élément
     nav.innerHTML = `
-      <a href="index.html" class="bottom-nav-item ${current === 'home' ? 'active' : ''}">
-        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <a href="index.html" style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 12px; color:${current === 'home' ? '#0E5C43' : '#5C6F69'}; font-size:10px; font-weight:500; text-decoration:none; min-width:60px; background:transparent; border:none;">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="stroke:${current === 'home' ? '#0E5C43' : '#5C6F69'};">
           <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
-        <span>Accueil</span>
+        <span id="nav-label-home">Accueil</span>
       </a>
 
-      <a href="search.html" class="bottom-nav-item ${current === 'search' ? 'active' : ''}">
-        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 12px; color:${current === 'search' ? '#0E5C43' : '#5C6F69'}; font-size:10px; font-weight:500; text-decoration:none; min-width:60px; background:transparent; border:none;">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="stroke:${current === 'search' ? '#0E5C43' : '#5C6F69'};">
           <circle cx="11" cy="11" r="8"/>
           <path d="m21 21-4.35-4.35"/>
         </svg>
-        <span>Rechercher</span>
+        <span id="nav-label-search">Rechercher</span>
       </a>
 
-      <a href="sell.html" class="bottom-nav-item bottom-nav-center ${current === 'sell' ? 'active' : ''}">
-        <div class="w-12 h-12 rounded-full bg-terra-500 flex items-center justify-center -mt-6 shadow-lg shadow-terra-500/40">
+      <a href="sell.html" style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 12px; color:#0E5C43; font-size:10px; font-weight:500; text-decoration:none; min-width:60px; background:transparent; border:none; position:relative;">
+        <div style="width:48px; height:48px; border-radius:50%; background:#0E5C43; display:flex; align-items:center; justify-content:center; margin-top:-20px; box-shadow:0 4px 12px rgba(14,92,67,0.4);">
           <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24">
             <path d="M12 5v14M5 12h14"/>
           </svg>
         </div>
-        <span>Vendre</span>
+        <span style="color:#0E5C43;">Vendre</span>
       </a>
 
-      <a href="messages.html" class="bottom-nav-item ${current === 'messages' ? 'active' : ''}">
-        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <a href="messages.html" style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 12px; color:${current === 'messages' ? '#0E5C43' : '#5C6F69'}; font-size:10px; font-weight:500; text-decoration:none; min-width:60px; background:transparent; border:none;">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="stroke:${current === 'messages' ? '#0E5C43' : '#5C6F69'};">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
-        <span>Messages</span>
+        <span id="nav-label-messages">Messages</span>
       </a>
 
-      <a href="profile.html" class="bottom-nav-item ${current === 'profile' ? 'active' : ''}">
-        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <a href="profile.html" style="display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 12px; color:${current === 'profile' ? '#0E5C43' : '#5C6F69'}; font-size:10px; font-weight:500; text-decoration:none; min-width:60px; background:transparent; border:none;">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="stroke:${current === 'profile' ? '#0E5C43' : '#5C6F69'};">
           <circle cx="12" cy="8" r="4"/>
           <path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/>
         </svg>
-        <span>Profil</span>
+        <span id="nav-label-profile">Profil</span>
       </a>
     `;
 
     document.body.appendChild(nav);
+
+    // Ajouter du padding au body pour ne pas cacher le contenu
+    document.body.style.paddingBottom = '80px';
+    document.body.style.margin = '0';
+    document.body.style.width = '100vw';
+    document.body.style.maxWidth = '100vw';
+    document.body.style.minWidth = '100vw';
+    document.body.style.overflowX = 'hidden';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.position = 'relative';
+
+    // Forcer le body à ne pas avoir de max-width qui décale la nav
+    document.body.style.overflowX = 'hidden';
+    document.body.style.width = '100%';
+
     console.log('[BOTTOM-NAV] Injecté sur', current);
+    
+    // Traduire les labels de la nav
+    function translateNav() {
+      if (!window.kwattaT) {
+        // Attendre que kwattaT soit prêt
+        setTimeout(translateNav, 100);
+        return;
+      }
+      
+      const labels = {
+        'nav-label-home': 'nav.home',
+        'nav-label-search': 'nav.search',
+        'nav-label-sell': 'nav.sell',
+        'nav-label-messages': 'nav.messages',
+        'nav-label-profile': 'nav.profile',
+      };
+      
+      Object.entries(labels).forEach(([id, key]) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.textContent = window.kwattaT(key);
+        }
+      });
+    }
+    
+    translateNav();
+    
+    // Ré-traduire quand la langue change
+    document.addEventListener('languageChanged', translateNav);
+    
+    // Appliquer la traduction sur les textes de la nav
+    if (window.kwattaApplyLang) {
+      window.kwattaApplyLang();
+    }
   }
 
-  // ============================================
-  // Attend que le DOM soit prêt
-  // ============================================
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inject);
   } else {
     inject();
   }
+
+  // Retirer la nav si on passe en desktop
+  window.addEventListener('resize', () => {
+    const nav = document.querySelector('.bottom-nav');
+    if (window.innerWidth >= 640 && nav) {
+      nav.remove();
+      document.body.style.paddingBottom = '';
+      console.log('[BOTTOM-NAV] Retirée (desktop)');
+    } else if (window.innerWidth < 640 && !nav) {
+      inject();
+    }
+  });
+
+  // Forcer le body à ne pas avoir de max-width
+  const styleFix = document.createElement('style');
+  styleFix.textContent = `
+    html, body {
+      max-width: 100% !important;
+      width: 100% !important;
+      min-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow-x: hidden !important;
+    }
+    .bottom-nav {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  `;
+  document.head.appendChild(styleFix);
 })();

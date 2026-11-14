@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#B8543D">
+  <meta name="theme-color" content="#0E5C43">
   <title>Vendre — KWATTA</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -11,21 +11,57 @@
       theme: {
         extend: {
           colors: {
-            terra: { 50:'#fdf5f2',100:'#fbe8e2',200:'#f5d0c5',300:'#ecad9b',400:'#d97a63',500:'#B8543D',600:'#a3442f',700:'#873727',800:'#6e2f23',900:'#5a2a20' },
-            cream: '#FAF6F0',
-            charcoal: '#2D2A26',
-            honey: '#E8A96A',
+            green: { 50:'#E7F1EC',100:'#D6E9E0',200:'#B9D6C9',300:'#8FC2AE',400:'#4A9B7F',500:'#0E5C43',600:'#0A4433',700:'#083627',800:'#062A1F',900:'#041F17' },
+            terra: { 50:'#E7F1EC',500:'#0E5C43',600:'#0A4433' },
+            cream: '#F7F5F0',
+            ink: '#0C1A16',
+            charcoal: '#0C1A16',
+            amber: '#F2A93B',
+            honey: '#F2A93B',
           },
           fontFamily: {
-            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
-            body: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['"Sora"', 'system-ui', 'sans-serif'],
+            body: ['"Inter"', 'system-ui', 'sans-serif'],
           },
         }
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme-green.css">
+  <script src="js/locations.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <style>
+    .lang-toggle {
+      display: flex;
+      background: #F7F5F0;
+      border: 1px solid #E2E7E2;
+      border-radius: 100px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .lang-toggle button {
+      font-family: 'Sora', system-ui, sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 6px 12px;
+      border-radius: 100px;
+      color: #5C6F69;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .lang-toggle button.active {
+      background: #0E5C43;
+      color: #fff;
+    }
+  </style>
 </head>
 <body class="bg-cream text-charcoal font-body antialiased">
 
@@ -34,8 +70,15 @@
       <a href="index.html" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
       </a>
-      <h1 class="font-display font-bold text-lg">Vendre un article</h1>
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--green, #0E5C43);">
+        <span class="font-display font-bold text-sm" style="color: #fff;">K</span>
+      </div>
+      <h1 class="font-display font-bold text-lg" data-i18n="sell.title">Vendre un article</h1>
       <div class="flex-1"></div>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" data-lang-btn="en">EN</button>
+        <button type="button" data-lang-btn="fr" class="active">FR</button>
+      </div>
     </div>
   </header>
 
@@ -60,7 +103,7 @@
 
       <!-- PHOTOS -->
       <div class="bg-white rounded-2xl p-5 border border-charcoal/5">
-        <label class="block font-semibold mb-3">
+        <label class="block font-semibold mb-3" data-i18n="sell.photos">
           Photos <span class="text-red-500">*</span>
           <span class="text-xs text-charcoal/50 font-normal ml-2">(1 minimum, 5 maximum)</span>
         </label>
@@ -68,8 +111,8 @@
         <!-- Zone d'upload -->
         <div id="upload-zone" class="border-2 border-dashed border-charcoal/15 rounded-2xl p-6 text-center cursor-pointer hover:border-terra-500/50 transition">
           <div class="text-5xl mb-3">📷</div>
-          <p class="font-semibold mb-1">Ajouter des photos</p>
-          <p class="text-xs text-charcoal/50 mb-4">Depuis votre appareil ou la caméra</p>
+          <p class="font-semibold mb-1" data-i18n="sell.add_photos">Ajouter des photos</p>
+          <p class="text-xs text-charcoal/50 mb-4" data-i18n="sell.add_photos_sub">Depuis votre appareil ou la caméra</p>
           
           <div class="flex flex-wrap gap-2 justify-center">
             <button type="button" id="btn-gallery"
@@ -79,7 +122,7 @@
                 <circle cx="9" cy="9" r="2"/>
                 <path d="m21 15-5-5L5 21"/>
               </svg>
-              Galerie
+              <span data-i18n="sell.gallery">Galerie</span>
             </button>
             <button type="button" id="btn-camera"
               class="px-4 py-2.5 rounded-xl border border-charcoal/15 hover:bg-charcoal/5 font-semibold text-sm transition flex items-center gap-2">
@@ -87,7 +130,7 @@
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                 <circle cx="12" cy="13" r="4"/>
               </svg>
-              Caméra
+              <span data-i18n="sell.camera">Caméra</span>
             </button>
           </div>
 
@@ -99,13 +142,13 @@
         <!-- Aperçus -->
         <div id="photos-preview" class="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-4"></div>
         <p class="text-xs text-charcoal/50 mt-2">
-          <span id="photo-count">0</span>/5 photos · Format JPG, PNG, WEBP · Max 5MB
+          <span data-i18n="sell.photos_format">0/5 photos · Format JPG, PNG, WEBP · Max 5MB</span>
         </p>
       </div>
 
       <!-- TITRE -->
       <div class="bg-white rounded-2xl p-5 border border-charcoal/5">
-        <label class="block font-semibold mb-2">Titre <span class="text-red-500">*</span></label>
+        <label class="block font-semibold mb-2"><span data-i18n="sell.title_label">Titre</span> <span class="text-red-500">*</span></label>
         <input type="text" id="title" required minlength="5" maxlength="100"
           class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
           placeholder="Ex: Nike Air Max 90 taille 42 en très bon état">
@@ -114,7 +157,7 @@
 
       <!-- CATÉGORIE (avec autocomplete) -->
       <div class="bg-white rounded-2xl p-5 border border-charcoal/5">
-        <label class="block font-semibold mb-2">Catégorie <span class="text-red-500">*</span></label>
+        <label class="block font-semibold mb-2"><span data-i18n="sell.category">Catégorie</span> <span class="text-red-500">*</span></label>
         <div class="relative">
           <input type="text" id="category-input" required autocomplete="off"
             class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
@@ -134,7 +177,7 @@
 
       <!-- DESCRIPTION -->
       <div class="bg-white rounded-2xl p-5 border border-charcoal/5">
-        <label class="block font-semibold mb-2">Description <span class="text-red-500">*</span></label>
+        <label class="block font-semibold mb-2"><span data-i18n="sell.description">Description</span> <span class="text-red-500">*</span></label>
         <textarea id="description" required rows="5" minlength="20" maxlength="1000"
           class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none resize-none"
           placeholder="Décrivez votre article : état, dimensions, couleur, raison de la vente..."></textarea>
@@ -143,7 +186,7 @@
 
       <!-- PRIX -->
       <div class="bg-white rounded-2xl p-5 border border-charcoal/5">
-        <label class="block font-semibold mb-2">Prix <span class="text-red-500">*</span></label>
+        <label class="block font-semibold mb-2"><span data-i18n="sell.price">Prix</span> <span class="text-red-500">*</span></label>
         <div class="relative">
           <input type="number" id="price" required min="100" step="100"
             class="w-full px-4 py-3 pr-16 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
@@ -154,7 +197,7 @@
 
       <!-- ÉTAT -->
       <div class="bg-white rounded-2xl p-5 border border-charcoal/5">
-        <label class="block font-semibold mb-3">État <span class="text-red-500">*</span></label>
+        <label class="block font-semibold mb-3" data-i18n="sell.photos"><span data-i18n="sell.condition">État</span> <span class="text-red-500">*</span></label>
         <div class="grid grid-cols-2 gap-2">
           <label class="cursor-pointer">
             <input type="radio" name="condition" value="neuf_avec_etiquette" class="peer sr-only">
@@ -187,13 +230,13 @@
       <div class="bg-white rounded-2xl p-5 border border-charcoal/5">
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block font-semibold mb-2 text-sm">Marque</label>
+            <label class="block font-semibold mb-2 text-sm" data-i18n="sell.brand">Marque</label>
             <input type="text" id="brand"
               class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
               placeholder="Nike, Adidas...">
           </div>
           <div>
-            <label class="block font-semibold mb-2 text-sm">Taille</label>
+            <label class="block font-semibold mb-2 text-sm" data-i18n="sell.size">Taille</label>
             <input type="text" id="size"
               class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
               placeholder="M, 42, XL...">
@@ -203,9 +246,21 @@
 
       <!-- VILLE -->
       <div class="bg-white rounded-2xl p-5 border border-charcoal/5">
-        <label class="block font-semibold mb-2">Ville</label>
-        <input type="text" id="city" value="Bamenda"
-          class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none">
+        <label class="block font-semibold mb-2" data-i18n="sell.location">📍 Localisation</label>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <select id="city-select" class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none">
+              <option value="">— Ville —</option>
+              <option value="bamenda">Bamenda</option>
+              <option value="bambili">Bambili (Campus)</option>
+            </select>
+          </div>
+          <div>
+            <input type="text" id="quarter-input" placeholder="Quartier (ex: Ntambije)"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none">
+          </div>
+        </div>
+        <p class="text-xs text-charcoal/50 mt-1" data-i18n="sell.location_hint">Choisis d'abord la ville, puis le quartier</p>
       </div>
 
       <!-- Erreur -->
@@ -225,7 +280,7 @@
       <!-- Submit -->
       <button type="submit" id="submit-btn"
         class="w-full py-4 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold transition shadow-lg shadow-terra-500/30">
-        Publier l'article
+        <span data-i18n="sell.publish_btn">Publier l'article</span>
       </button>
 
     </form>
@@ -557,6 +612,11 @@
     // ============================================
     // SOUMISSION
     // ============================================
+    // ============================================
+    // SELECTS VILLE / QUARTIER
+    // ============================================
+    // (Le quartier est maintenant un champ libre, pas besoin d'event)
+
     $('sell-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const errEl = $('error-msg');
@@ -582,7 +642,16 @@
       const condition = document.querySelector('input[name="condition"]:checked').value;
       const brand = $('brand').value.trim() || null;
       const size = $('size').value.trim() || null;
-      const city = $('city').value.trim() || 'Bamenda';
+      const citySelect = $('city-select').value;
+      const quarterInput = $('quarter-input').value.trim();
+      
+      if (!citySelect) {
+        errEl.textContent = 'Choisis une ville.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      
+      const city = window.kwattaBuildLocation(citySelect, quarterInput);
 
       const btn = $('submit-btn');
       btn.disabled = true;
@@ -635,5 +704,7 @@
     });
   </script>
   <script src="js/bottom-nav.js" defer></script>
+  <script src="js/idle-logout.js" defer></script>
+
 </body>
 </html>

@@ -103,7 +103,7 @@ async function kwattaLoadProducts() {
                  .order('created_at', { ascending: false });
   }
   
-  const { data, error } = await query.limit(50);
+  const { data, error } = await query.limit(8);
   
   if (error) {
     console.error('Produits:', error);
@@ -147,10 +147,10 @@ function kwattaRenderProducts() {
 
     // État (traduit)
     const conditionLabels = {
-      'neuf_avec_etiquette': 'Neuf avec étiquette',
-      'tres_bon_etat': 'Très bon état',
-      'bon_etat': 'Bon état',
-      'satisfaisant': 'Satisfaisant',
+      'neuf_avec_etiquette': window.kwattaT ? window.kwattaT('condition.new') : 'Neuf avec étiquette',
+      'tres_bon_etat': window.kwattaT ? window.kwattaT('condition.very_good') : 'Très bon état',
+      'bon_etat': window.kwattaT ? window.kwattaT('condition.good') : 'Bon état',
+      'satisfaisant': window.kwattaT ? window.kwattaT('condition.fair') : 'Satisfaisant',
     };
     const conditionHtml = p.condition
       ? '<div class="product-condition">' + (conditionLabels[p.condition] || p.condition) + '</div>'
@@ -162,7 +162,7 @@ function kwattaRenderProducts() {
       : '';
 
     // Badge protection (visuel pour l'instant)
-    const protectionHtml = '<div class="product-protection" title="Achat protégé — système bientôt disponible">🛡️ Protégé</div>';
+    const protectionHtml = '<div class="product-protection" title="' + (window.kwattaT ? window.kwattaT('product.protected_tooltip') : 'Achat protégé') + '">🛡️ ' + (window.kwattaT ? window.kwattaT('product.protected') : 'Protégé') + '</div>';
 
     // Compteur de favoris (visible seulement si > 0)
     const favCountHtml = favCount > 0

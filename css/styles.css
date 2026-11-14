@@ -33,7 +33,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 .cat-pill.active {
   background: #B8543D;
   color: #FAF6F0;
-  border-color: #B8543D;
+  border-color: var(--green, #0E5C43);
   box-shadow: 0 4px 12px rgba(184, 84, 61, 0.25);
 }
 
@@ -86,7 +86,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   z-index: 2;
 }
 .product-fav:hover { background: white; transform: scale(1.1); }
-.product-fav.active svg { fill: #B8543D; stroke: #B8543D; }
+.product-fav.active svg { fill: #B8543D; stroke: var(--green, #0E5C43); }
 
 .product-badge {
   position: absolute;
@@ -182,10 +182,10 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   text-decoration: none;
   min-width: 60px;
 }
-.bottom-nav-item:hover, .bottom-nav-item.active { color: #B8543D; }
-.bottom-nav-item.active svg { stroke: #B8543D; }
-.bottom-nav-center { position: relative; color: #B8543D; }
-.bottom-nav-center span { color: #B8543D; }
+.bottom-nav-item:hover, .bottom-nav-item.active { color: var(--green, #0E5C43); }
+.bottom-nav-item.active svg { stroke: var(--green, #0E5C43); }
+.bottom-nav-center { position: relative; color: var(--green, #0E5C43); }
+.bottom-nav-center span { color: var(--green, #0E5C43); }
 
 /* ============================================
    ANIMATIONS
@@ -271,7 +271,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 .product-fav:hover { transform: scale(1.1); }
-.product-fav.active svg { fill: #B8543D; stroke: #B8543D; }
+.product-fav.active svg { fill: #B8543D; stroke: var(--green, #0E5C43); }
 
 .product-badge {
   position: absolute;
@@ -429,8 +429,8 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 }
 .cat-nav-link:hover,
 .cat-nav-item.open .cat-nav-link {
-  color: #B8543D;
-  border-bottom-color: #B8543D;
+  color: var(--green, #0E5C43);
+  border-bottom-color: var(--green, #0E5C43);
 }
 .cat-nav-link svg {
   margin-left: 4px;
@@ -473,7 +473,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   padding: 8px 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #B8543D;
+  color: var(--green, #0E5C43);
   text-decoration: none;
   border-radius: 6px;
   margin-bottom: 4px;
@@ -496,7 +496,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 .cat-mega-parent:hover,
 .cat-mega-parent.active {
   background: #fff;
-  color: #B8543D;
+  color: var(--green, #0E5C43);
   box-shadow: 0 2px 6px rgba(45, 42, 38, 0.06);
 }
 .cat-arrow {
@@ -506,7 +506,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 }
 .cat-mega-parent.active .cat-arrow {
   opacity: 1;
-  color: #B8543D;
+  color: var(--green, #0E5C43);
 }
 
 .cat-mega-col-right {
@@ -540,7 +540,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 }
 .cat-mega-subitem:hover {
   background: #fdf5f2;
-  color: #B8543D;
+  color: var(--green, #0E5C43);
 }
 
 /* ============================================
@@ -585,7 +585,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 .filter-pill.active {
   background: #B8543D;
   color: #FAF6F0;
-  border-color: #B8543D;
+  border-color: var(--green, #0E5C43);
 }
 
 /* Couleurs */
@@ -603,7 +603,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   border-color: rgba(184, 84, 61, 0.3);
 }
 .color-pill.active {
-  border-color: #B8543D;
+  border-color: var(--green, #0E5C43);
   box-shadow: 0 0 0 2px #fff, 0 0 0 4px #B8543D;
 }
 .color-pill span {
@@ -645,7 +645,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   padding: 4px 10px;
   background: #fdf5f2;
   border: 1px solid rgba(184, 84, 61, 0.2);
-  color: #B8543D;
+  color: var(--green, #0E5C43);
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 500;
@@ -653,7 +653,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 .active-filter-tag button {
   background: none;
   border: none;
-  color: #B8543D;
+  color: var(--green, #0E5C43);
   cursor: pointer;
   font-size: 12px;
   padding: 0;
@@ -871,7 +871,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   color: #2D2A26;
 }
 .product-fav:hover { transform: scale(1.05); }
-.product-fav.active svg { fill: #B8543D; stroke: #B8543D; }
+.product-fav.active svg { fill: #B8543D; stroke: var(--green, #0E5C43); }
 .product-fav-count {
   font-family: 'Space Grotesk', sans-serif;
   line-height: 1;

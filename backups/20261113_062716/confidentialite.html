@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confidentialité — KWATTA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; background: #FAF6F0; color: #2D2A26; }
+    h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(45,42,38,0.1); }
+    p, li { line-height: 1.75; margin-bottom: 0.75rem; color: #4a4a4a; }
+    ul { padding-left: 1.5rem; list-style: disc; margin-bottom: 1rem; }
+    strong { color: #2D2A26; }
+    a { color: #B8543D; text-decoration: underline; }
+    .box { padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid; background: rgba(184,84,61,0.05); border-color: #B8543D; }
+  </style>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <link rel="stylesheet" href="css/theme-green.css">
+</head>
+<body>
+  <header class="bg-white border-b border-charcoal/5">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-terra-500 flex items-center justify-center text-cream font-bold">K</div>
+        <span class="font-bold">KWATTA</span>
+      </a>
+      <a href="login.html" class="text-sm text-charcoal/60 hover:text-charcoal">← Retour</a>
+    </div>
+    <button id="lang-toggle" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center text-xs font-bold" title="FR / EN" onclick="if(window.kwattaToggleLang) window.kwattaToggleLang()">
+      <span id="current-lang">EN</span>
+    </button>
+  </header>
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <div class="inline-block px-3 py-1 rounded-full bg-terra-500/10 text-terra-600 text-xs mb-4">Dernière mise à jour : 25 septembre 2026</div>
+    <h1 class="text-3xl font-bold mb-4" style="font-family: 'Space Grotesk', sans-serif;">Politique de Confidentialité</h1>
+    
+    <div class="box">
+      <p class="m-0"><strong>En résumé :</strong> Nous collectons le minimum nécessaire pour faire fonctionner KWATTA. Nous ne vendons jamais vos données.</p>
+    </div>
+
+    <h2>1. Données collectées</h2>
+    <ul>
+      <li><strong>Compte</strong> : email, nom d'utilisateur, nom complet, numéro WhatsApp, ville</li>
+      <li><strong>Activité</strong> : annonces publiées, messages envoyés, favoris</li>
+      <li><strong>Technique</strong> : type d'appareil, adresse IP (anonymisée après 30 jours)</li>
+    </ul>
+
+    <h2>2. Utilisation</h2>
+    <ul>
+      <li>Fournir le service (afficher les annonces, la messagerie)</li>
+      <li>Sécuriser votre compte (détection de fraude)</li>
+      <li>Améliorer KWATTA (statistiques anonymisées)</li>
+      <li>Respecter nos obligations légales</li>
+    </ul>
+
+    <h2>3. Partage</h2>
+    <p>Nous ne vendons JAMAIS vos données. Elles peuvent être partagées avec :</p>
+    <ul>
+      <li><strong>Supabase</strong> (hébergeur de base de données, chiffré)</li>
+      <li><strong>Autorités légales</strong> (uniquement sur réquisition)</li>
+    </ul>
+
+    <h2>4. Sécurité</h2>
+    <ul>
+      <li>Chiffrement HTTPS</li>
+      <li>Mots de passe hachés (irréversibles)</li>
+      <li>Base de données isolée par utilisateur (RLS)</li>
+      <li>Sauvegardes quotidiennes</li>
+    </ul>
+
+    <h2>5. Vos droits</h2>
+    <ul>
+      <li><strong>Accès</strong> : voir toutes vos données</li>
+      <li><strong>Rectification</strong> : modifier vos infos</li>
+      <li><strong>Suppression</strong> : supprimer votre compte</li>
+      <li><strong>Portabilité</strong> : exporter vos données</li>
+    </ul>
+
+    <h2>6. Cookies</h2>
+    <p>Seulement pour la session (obligatoire). Aucun cookie publicitaire.</p>
+
+    <h2>7. Conservation</h2>
+    <ul>
+      <li>Compte actif : tant que vous utilisez KWATTA</li>
+      <li>Compte supprimé : effacé sous 30 jours</li>
+      <li>Logs techniques : 6 mois maximum</li>
+    </ul>
+
+    <h2>8. Contact</h2>
+    <p>Email : <a href="mailto:privacy@kwatta.cm">privacy@kwatta.cm</a></p>
+  </main>
+  <footer class="border-t border-charcoal/5 py-6 text-center text-xs text-charcoal/40">
+    © 2026 KWATTA. Tous droits réservés.
+  </footer>
+</body>
+</html>

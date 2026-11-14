@@ -38,14 +38,19 @@
         .single();
       currentProfile = profile;
       updateHeaderLoggedIn();
+      syncStartSellingVisibility(true);
     } else {
       currentUser = null;
       currentProfile = null;
       updateHeaderLoggedOut();
+      syncStartSellingVisibility(false);
     }
   }
 
   function updateHeaderLoggedIn() {
+    // Ajouter la classe 'connected' au body
+    document.body.classList.add('connected');
+
     const loginBtn = $('header-auth-btn');
     const profileBtn = $('header-profile-btn');
     
@@ -78,6 +83,9 @@
   }
 
   function updateHeaderLoggedOut() {
+    // Retirer la classe 'connected' du body
+    document.body.classList.remove('connected');
+
     const loginBtn = $('header-auth-btn');
     const profileBtn = $('header-profile-btn');
     
@@ -395,6 +403,42 @@
     });
   });
 
+
+
+  // ============================================
+  // MASQUER "Start selling" SI CONNECTÉ
+  // ============================================
+  function syncStartSellingVisibility(isLoggedIn) {
+    // Tous les liens qui contiennent "Start selling" / "Commencer à vendre"
+    const selectors = [
+      'a[href="sell.html"]',
+      'a[href="login.html"][data-en*="Start selling"]',
+      'a[data-en="Start selling"]',
+      '[data-en="Start selling"]'
+    ];
+    const links = new Set();
+    selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => links.add(el)));
+
+    links.forEach(el => {
+      // Ne jamais cacher le bouton "Sell" du header connecté
+      if (el.classList.contains('btn-primary') && el.textContent.trim().toLowerCase() === 'sell') return;
+
+      if (isLoggedIn) {
+        // Déjà connecté → on cache
+        el.style.display = 'none';
+        el.setAttribute('aria-hidden', 'true');
+      } else {
+        // Visiteur → on garde visible, redirige vers login si pas encore
+        el.style.display = '';
+        el.removeAttribute('aria-hidden');
+        // Assure la redirection vers login si pas connecté
+        if (el.getAttribute('href') === 'sell.html') {
+          el.setAttribute('href', 'login.html?redirect=sell.html');
+        }
+      }
+    });
+  }
+
   // Expose globalement
   window.kwattaOpenAuth = openAuthModal;
   window.kwattaCloseAuth = closeAuthModal;
@@ -409,9 +453,18 @@
 // ============================================
 // PROTECTION DES PAGES (visiteurs)
 // ============================================
-document.addEventListener('DOMContentLoaded', () => {
-  // Liens protégés
+// NOTE : une seule protection, redirection vers login.html
+document.addEventListener('DOMContentLoaded', async () => {
   const protectedLinks = ['sell.html', 'messages.html', 'profile.html', 'chat.html'];
+  
+  // Attendre que Supabase soit prêt
+  while (!window.kwatta_db) {
+    await new Promise(r => setTimeout(r, 100));
+  }
+  
+  // Récupérer la session une fois
+  const { data: { session } } = await window.kwatta_db.auth.getSession();
+  const isLoggedIn = !!session;
   
   document.querySelectorAll('a').forEach(link => {
     const href = link.getAttribute('href');
@@ -420,21 +473,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const isProtected = protectedLinks.some(p => href.includes(p));
     if (!isProtected) return;
     
+    // Si connecté, laisser passer
+    if (isLoggedIn) return;
+    
+    // Sinon, rediriger vers login
     link.addEventListener('click', (e) => {
-      if (!window.kwattaCurrentUser()) {
-        e.preventDefault();
-        window.kwattaOpenAuth('login');
-      }
-    });
-  });
-
-  // Bouton "Vendre un article" du hero
-  document.querySelectorAll('a[href="sell.html"]').forEach(link => {
-    link.addEventListener('click', (e) => {
-      if (!window.kwattaCurrentUser()) {
-        e.preventDefault();
-        window.kwattaOpenAuth('signup');
-      }
+      e.preventDefault();
+      window.location.href = 'login.html?redirect=' + encodeURIComponent(href);
     });
   });
 });

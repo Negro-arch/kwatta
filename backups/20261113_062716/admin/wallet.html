@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B8543D">
+  <title>Retraits — Admin KWATTA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+
+  <div class="admin-shell">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-content">
+
+      <div class="admin-header">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <h1 class="admin-title">💰 Retraits & Wallets</h1>
+            <p class="admin-subtitle" id="wallet-count">Chargement...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card terra">
+          <div class="kpi-label">Total dû aux vendeurs</div>
+          <div class="kpi-value" id="kpi-solde-total">—</div>
+          <div class="kpi-sub" id="kpi-solde-detail">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Retraits à traiter</div>
+          <div class="kpi-value" id="kpi-retraits-attente">—</div>
+          <div class="kpi-sub" id="kpi-retraits-montant">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total versé</div>
+          <div class="kpi-value" id="kpi-total-verse">—</div>
+          <div class="kpi-sub">Depuis le début</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Commissions KWATTA</div>
+          <div class="kpi-value" id="kpi-commission">—</div>
+          <div class="kpi-sub">Cumulées (5% par vente)</div>
+        </div>
+      </div>
+
+      <!-- Onglets -->
+      <div class="admin-section" style="padding:8px; display:flex; gap:6px; margin-bottom:16px;">
+        <button class="btn btn-primary btn-sm tab-btn" data-tab="demandes" style="flex:1;">📥 Demandes de retrait</button>
+        <button class="btn btn-ghost btn-sm tab-btn" data-tab="wallets" style="flex:1;">👛 Wallets vendeurs</button>
+      </div>
+
+      <!-- Filtres demandes -->
+      <div id="filters-demandes" class="admin-section" style="padding:16px;">
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <select id="filter-statut" class="admin-input" style="width:auto;">
+            <option value="en_attente" selected>⏳ En attente</option>
+            <option value="valide">✅ Validées</option>
+            <option value="refuse">❌ Refusées</option>
+            <option value="annule">⚪ Annulées</option>
+            <option value="">Toutes</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Filtres wallets -->
+      <div id="filters-wallets" class="admin-section hidden" style="padding:16px;">
+        <div class="admin-search" style="max-width:none;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="search-wallets" class="admin-input" placeholder="Rechercher un vendeur...">
+        </div>
+      </div>
+
+      <div id="loading" style="text-align:center; padding:60px 0;">
+        <div class="admin-loading"></div>
+      </div>
+
+      <div id="content-list" class="hidden"></div>
+
+      <div id="empty" class="hidden admin-empty">
+        <div class="admin-empty-icon" id="empty-icon">💰</div>
+        <div class="admin-empty-text" id="empty-text">Aucun élément</div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-init.js"></script>
+  <script src="/admin/js/admin.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const U = () => window.AdminUtils;
+
+    let currentTab = 'demandes';
+    let allWithdrawals = [];
+    let allWallets = [];
+
+    (async () => {
+      const auth = await U().requireAdmin();
+      if (!auth) return;
+      U().renderSidebar('wallet', auth.profile);
+      U().loadSidebarBadges();
+
+      await loadKPIs();
+      await loadWithdrawals();
+      await loadWallets();
+
+      $('loading').classList.add('hidden');
+      $('content-list').classList.remove('hidden');
+
+      // Event listeners onglets
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      $('filter-statut').addEventListener('change', () => {
+        loadWithdrawals().then(renderCurrent);
+      });
+
+      $('search-wallets').addEventListener('input', renderWallets);
+
+      renderCurrent();
+    })();
+
+    // ============================================
+    // KPIs
+    // ============================================
+    async function loadKPIs() {
+      // Tous les wallets
+      const { data: wallets } = await window.kwatta_db
+        .from('wallets')
+        .select('solde_disponible, solde_en_attente, total_retire');
+
+      const soldeDispo = (wallets || []).reduce((s, w) => s + (w.solde_disponible || 0), 0);
+      const soldeAttente = (wallets || []).reduce((s, w) => s + (w.solde_en_attente || 0), 0);
+      const totalVerse = (wallets || []).reduce((s, w) => s + (w.total_retire || 0), 0);
+
+      $('kpi-solde-total').textContent = U().formatPrice(soldeDispo + soldeAttente);
+      $('kpi-solde-detail').textContent = 
+        'Dispo : ' + U().formatPrice(soldeDispo) + ' · En attente : ' + U().formatPrice(soldeAttente);
+
+      // Retraits en attente
+      const { data: pending } = await window.kwatta_db
+        .from('withdrawals')
+        .select('montant')
+        .eq('statut', 'en_attente');
+
+      const nbPending = (pending || []).length;
+      const montantPending = (pending || []).reduce((s, w) => s + (w.montant || 0), 0);
+
+      $('kpi-retraits-attente').textContent = nbPending;
+      $('kpi-retraits-montant').textContent = U().formatPrice(montantPending) + ' à payer';
+
+      $('kpi-total-verse').textContent = U().formatPrice(totalVerse);
+
+      // Commission totale (5% du CA complet)
+      const { data: stats } = await window.kwatta_db
+        .from('v_tx_stats')
+        .select('commission_totale')
+        .single();
+
+      $('kpi-commission').textContent = U().formatPrice(stats?.commission_totale || 0);
+    }
+
+    // ============================================
+    // CHARGER LES DEMANDES DE RETRAIT
+    // ============================================
+    async function loadWithdrawals() {
+      const statut = $('filter-statut').value;
+      let q = window.kwatta_db
+        .from('withdrawals')
+        .select('*, user:profiles!withdrawals_user_id_fkey(username, display_name, avatar_url)')
+        .order('created_at', { ascending: false });
+
+      if (statut) q = q.eq('statut', statut);
+
+      const { data, error } = await q;
+      if (error) { console.error('[WITHDRAWALS]', error); return; }
+      allWithdrawals = data || [];
+    }
+
+    // ============================================
+    // CHARGER LES WALLETS
+    // ============================================
+    async function loadWallets() {
+      const { data, error } = await window.kwatta_db
+        .from('wallets')
+        .select('*, user:profiles!wallets_user_id_fkey(username, display_name, avatar_url)')
+        .order('solde_disponible', { ascending: false });
+
+      if (error) { console.error('[WALLETS]', error); return; }
+      allWallets = (data || []).filter(w => 
+        (w.solde_disponible || 0) > 0 || 
+        (w.solde_en_attente || 0) > 0 || 
+        (w.total_retire || 0) > 0 || 
+        (w.total_gagne || 0) > 0
+      );
+    }
+
+    // ============================================
+    // AFFICHER SELON ONGLET
+    // ============================================
+    function switchTab(tab) {
+      currentTab = tab;
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const isActive = btn.dataset.tab === tab;
+        btn.classList.toggle('btn-primary', isActive);
+        btn.classList.toggle('btn-ghost', !isActive);
+      });
+
+      $('filters-demandes').classList.toggle('hidden', tab !== 'demandes');
+      $('filters-wallets').classList.toggle('hidden', tab !== 'wallets');
+
+      renderCurrent();
+    }
+
+    function renderCurrent() {
+      if (currentTab === 'demandes') renderWithdrawals();
+      else renderWallets();
+    }
+
+    // ============================================
+    // RENDU DEMANDES
+    // ============================================
+    function renderWithdrawals() {
+      $('wallet-count').textContent = allWithdrawals.length + ' demande' + (allWithdrawals.length > 1 ? 's' : '');
+
+      if (allWithdrawals.length === 0) {
+        $('content-list').innerHTML = '';
+        $('empty-icon').textContent = '💰';
+        $('empty-text').textContent = 'Aucune demande de retrait';
+        $('empty').classList.remove('hidden');
+        return;
+      }
+      $('empty').classList.add('hidden');
+
+      const statusMap = {
+        'en_attente': { cls: 'badge-yellow', txt: '⏳ En attente' },
+        'valide':     { cls: 'badge-green',  txt: '✅ Validé' },
+        'refuse':     { cls: 'badge-red',    txt: '❌ Refusé' },
+        'annule':     { cls: 'badge-gray',   txt: '⚪ Annulé' },
+      };
+
+      const methodMap = {
+        'mtn_momo':     '📱 MTN MoMo',
+        'orange_money': '🟠 Orange Money',
+        'autre':        '💳 Autre',
+      };
+
+      $('content-list').innerHTML = allWithdrawals.map(w => {
+        const s = statusMap[w.statut] || { cls: 'badge-gray', txt: w.statut };
+        const m = methodMap[w.methode] || w.methode;
+        const userName = w.user?.display_name || w.user?.username || '?';
+
+        let actions = '';
+        if (w.statut === 'en_attente') {
+          actions = `
+            <div style="display:flex; gap:6px; flex-shrink:0;">
+              <button class="btn btn-danger btn-sm" onclick="refuserRetrait('${w.id}')">❌ Refuser</button>
+              <button class="btn btn-success btn-sm" onclick="validerRetrait('${w.id}')">✅ Marquer payé</button>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="admin-section" style="padding:16px; margin-bottom:10px;">
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+                  <div class="admin-row-title" style="font-family:'Space Grotesk'; font-size:20px; font-weight:700;">${U().formatPrice(w.montant)}</div>
+                  <span class="badge ${s.cls}">${s.txt}</span>
+                </div>
+                <div class="admin-row-sub">
+                  👤 @${U().escapeHtml(w.user?.username || '?')} (${U().escapeHtml(userName)})<br>
+                  ${m} · 📱 ${U().escapeHtml(w.numero_beneficiaire)}
+                  ${w.nom_beneficiaire ? ' · ' + U().escapeHtml(w.nom_beneficiaire) : ''}<br>
+                  📅 Demandé ${U().formatDate(w.created_at)}
+                  ${w.traite_le ? '<br>⚙️ Traité ' + U().formatDate(w.traite_le) : ''}
+                </div>
+                ${w.note_admin ? '<div style="margin-top:8px; padding:8px; background:#FAF6F0; border-radius:8px; font-size:12px;">💬 ' + U().escapeHtml(w.note_admin) + '</div>' : ''}
+              </div>
+              ${actions}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================
+    // RENDU WALLETS
+    // ============================================
+    function renderWallets() {
+      const search = ($('search-wallets').value || '').toLowerCase().trim();
+      let filtered = allWallets;
+
+      if (search) {
+        filtered = filtered.filter(w =>
+          (w.user?.username || '').toLowerCase().includes(search) ||
+          (w.user?.display_name || '').toLowerCase().includes(search)
+        );
+      }
+
+      $('wallet-count').textContent = filtered.length + ' wallet' + (filtered.length > 1 ? 's' : '');
+
+      if (filtered.length === 0) {
+        $('content-list').innerHTML = '';
+        $('empty-icon').textContent = '👛';
+        $('empty-text').textContent = 'Aucun wallet avec activité';
+        $('empty').classList.remove('hidden');
+        return;
+      }
+      $('empty').classList.add('hidden');
+
+      $('content-list').innerHTML = filtered.map(w => {
+        const userName = w.user?.display_name || w.user?.username || '?';
+        const initial = userName[0].toUpperCase();
+        const avatarHtml = w.user?.avatar_url
+          ? '<img src="' + w.user.avatar_url + '" style="width:100%;height:100%;object-fit:cover;">'
+          : initial;
+
+        return `
+          <div class="admin-section" style="padding:14px 18px; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div style="width:44px; height:44px; border-radius:50%; background:#fbe8e2; display:flex; align-items:center; justify-content:center; font-weight:700; color:#B8543D; overflow:hidden; flex-shrink:0;">
+                ${avatarHtml}
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div class="admin-row-title" style="font-size:14px;">${U().escapeHtml(userName)}</div>
+                <div class="admin-row-sub">@${U().escapeHtml(w.user?.username || '?')}</div>
+              </div>
+              <div style="text-align:right; flex-shrink:0;">
+                <div style="font-family:'Space Grotesk'; font-size:18px; font-weight:700; color:#B8543D;">${U().formatPrice(w.solde_disponible || 0)}</div>
+                <div style="font-size:11px; color:#7A7A7A;">
+                  ${w.solde_en_attente > 0 ? 'En attente : ' + U().formatPrice(w.solde_en_attente) : ''}
+                  ${w.total_retire > 0 ? (w.solde_en_attente > 0 ? ' · ' : '') + 'Versé : ' + U().formatPrice(w.total_retire) : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================
+    // ACTIONS
+    // ============================================
+    async function validerRetrait(id) {
+      const w = allWithdrawals.find(x => x.id === id);
+      if (!w) return;
+
+      if (!confirm('Confirmer avoir payé ' + U().formatPrice(w.montant) + ' à @' + (w.user?.username || '?') + ' ?\n\nLe montant sera marqué comme versé.')) return;
+
+      const note = prompt('Note (optionnel, ex: numéro de transaction) :', '');
+      if (note === null) return;
+
+      const { data, error } = await window.kwatta_db.rpc('valider_retrait', {
+        p_withdrawal_id: id,
+        p_note: note || null
+      });
+
+      if (error || (data && !data.success)) {
+        alert('Erreur : ' + (error?.message || data?.error));
+        return;
+      }
+
+      alert('✅ Retrait validé');
+      await loadKPIs();
+      await loadWithdrawals();
+      await loadWallets();
+      renderCurrent();
+    }
+
+    async function refuserRetrait(id) {
+      const w = allWithdrawals.find(x => x.id === id);
+      if (!w) return;
+
+      if (!confirm('Refuser ce retrait de ' + U().formatPrice(w.montant) + ' ?\n\nLe montant sera recrédité au vendeur.')) return;
+
+      const reason = prompt('Raison du refus :', '');
+      if (reason === null) return;
+
+      const { data, error } = await window.kwatta_db.rpc('refuser_retrait', {
+        p_withdrawal_id: id,
+        p_note: reason || null
+      });
+
+      if (error || (data && !data.success)) {
+        alert('Erreur : ' + (error?.message || data?.error));
+        return;
+      }
+
+      alert('✅ Retrait refusé — le vendeur a été recrédité');
+      await loadKPIs();
+      await loadWithdrawals();
+      await loadWallets();
+      renderCurrent();
+    }
+
+    window.validerRetrait = validerRetrait;
+    window.refuserRetrait = refuserRetrait;
+  </script>
+
+</body>
+</html>

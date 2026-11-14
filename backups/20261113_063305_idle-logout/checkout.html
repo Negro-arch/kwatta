@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#B8543D">
+  <title>Paiement — KWATTA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            terra: { 50:'#fdf5f2',100:'#fbe8e2',200:'#f5d0c5',300:'#ecad9b',400:'#d97a63',500:'#B8543D',600:'#a3442f',700:'#873727',800:'#6e2f23',900:'#5a2a20' },
+            cream: '#FAF6F0',
+            charcoal: '#2D2A26',
+            honey: '#E8A96A',
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme-green.css">
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body class="bg-cream text-charcoal font-body antialiased">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-charcoal/5">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+      <a href="javascript:history.back()" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <h1 class="font-display font-bold text-lg">Paiement</h1>
+    <button id="lang-toggle" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center text-xs font-bold" title="FR / EN" onclick="if(window.kwattaToggleLang) window.kwattaToggleLang()">
+        <span id="current-lang">EN</span>
+      </button>
+      </div>
+    
+  </header>
+
+  <!-- LOADING -->
+  <div id="loading" class="text-center py-16">
+    <div class="inline-block w-8 h-8 border-4 border-terra-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- CONTENU -->
+  <main id="checkout-content" class="hidden max-w-3xl mx-auto px-4 py-6 pb-40 space-y-4">
+
+    <!-- ÉTAPE 1 : Récap produit -->
+    <div class="bg-white rounded-2xl p-4 border border-charcoal/5">
+      <div class="text-xs text-charcoal/50 uppercase tracking-wider font-semibold mb-3">📦 Article</div>
+      <div class="flex items-start gap-3">
+        <img id="product-image" src="" class="w-20 h-20 rounded-xl object-cover bg-charcoal/5 shrink-0" onerror="this.src='https://placehold.co/100x100/f5f3ee/2D2A26?text=K'">
+        <div class="flex-1 min-w-0">
+          <div id="product-title" class="font-semibold text-sm mb-1 line-clamp-2">—</div>
+          <div id="product-seller" class="text-xs text-charcoal/50">—</div>
+          <div id="product-city" class="text-xs text-charcoal/50 mt-0.5">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 : Détails du prix -->
+    <div class="bg-white rounded-2xl p-4 border border-charcoal/5">
+      <div class="text-xs text-charcoal/50 uppercase tracking-wider font-semibold mb-3">💰 Détails du prix</div>
+      <div class="space-y-2 text-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-charcoal/70">Prix de l'article</span>
+          <span id="price-article" class="font-semibold">—</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-charcoal/70">
+            Frais de service
+            <span class="text-xs text-charcoal/40 ml-1">(3% + 300 FCFA)</span>
+          </span>
+          <span id="price-fee" class="font-semibold">—</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-charcoal/70">Livraison</span>
+          <span class="text-xs text-charcoal/50 italic">À discuter avec le vendeur</span>
+        </div>
+        <div class="pt-2 border-t border-charcoal/5 flex items-center justify-between">
+          <span class="font-semibold">Total à payer</span>
+          <span id="price-total" class="font-display font-bold text-xl text-terra-600">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 3 : Moyen de paiement -->
+    <div class="bg-white rounded-2xl p-4 border border-charcoal/5">
+      <div class="text-xs text-charcoal/50 uppercase tracking-wider font-semibold mb-3">💳 Moyen de paiement</div>
+      
+      <div class="space-y-2">
+        <!-- Mon portefeuille KWATTA -->
+        <button type="button" id="payment-wallet" class="payment-method w-full flex items-center gap-3 p-3 rounded-xl border-2 border-charcoal/10 hover:border-terra-500/50 transition text-left" data-method="wallet">
+          <div class="w-10 h-10 rounded-xl bg-terra-100 flex items-center justify-center text-lg shrink-0">💰</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-sm">Mon portefeuille KWATTA</div>
+            <div class="text-xs text-charcoal/50">
+              Solde : <strong id="wallet-balance" class="text-terra-600">Chargement...</strong>
+            </div>
+          </div>
+          <div class="check-icon hidden">
+            <svg width="20" height="20" fill="none" stroke="#10b981" stroke-width="2.5" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+        </button>
+
+        <!-- MTN -->
+        <button type="button" class="payment-method w-full flex items-center gap-3 p-3 rounded-xl border-2 border-charcoal/10 hover:border-terra-500/50 transition text-left" data-method="mtn_momo">
+          <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center text-lg shrink-0">📱</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-sm">MTN Mobile Money</div>
+            <div class="text-xs text-charcoal/50">Paiement via MTN MoMo</div>
+          </div>
+          <div class="check-icon hidden">
+            <svg width="20" height="20" fill="none" stroke="#10b981" stroke-width="2.5" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+        </button>
+
+        <!-- Orange -->
+        <button type="button" class="payment-method w-full flex items-center gap-3 p-3 rounded-xl border-2 border-charcoal/10 hover:border-terra-500/50 transition text-left" data-method="orange_money">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-lg shrink-0">🟠</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-sm">Orange Money</div>
+            <div class="text-xs text-charcoal/50">Paiement via Orange Money</div>
+          </div>
+          <div class="check-icon hidden">
+            <svg width="20" height="20" fill="none" stroke="#10b981" stroke-width="2.5" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+        </button>
+
+        <!-- Cash -->
+        <button type="button" class="payment-method w-full flex items-center gap-3 p-3 rounded-xl border-2 border-charcoal/10 hover:border-terra-500/50 transition text-left" data-method="cash">
+          <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-lg shrink-0">💵</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-sm">Espèces</div>
+            <div class="text-xs text-charcoal/50">À la remise en main propre</div>
+          </div>
+          <div class="check-icon hidden">
+            <svg width="20" height="20" fill="none" stroke="#10b981" stroke-width="2.5" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-3">
+      <div class="flex items-start gap-2">
+        <svg width="16" height="16" fill="none" stroke="#3B82F6" stroke-width="2" viewBox="0 0 24 24" class="mt-0.5 shrink-0">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <div class="text-xs text-blue-700">
+          <strong>Achat sécurisé.</strong> Le vendeur recevra ta commande dès validation. Il aura 48h pour expédier l'article. Le paiement sera libéré au vendeur après confirmation de réception.
+        </div>
+      </div>
+    </div>
+
+    <p id="error-msg" class="text-sm text-red-600 hidden"></p>
+
+  </main>
+
+  <!-- BARRE FIXE EN BAS -->
+  <div id="action-bar" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-charcoal/10 px-4 py-3 z-40" style="padding-bottom: max(12px, env(safe-area-inset-bottom));">
+    <div class="max-w-3xl mx-auto flex items-center gap-3">
+      <div class="flex-1 min-w-0">
+        <div class="text-xs text-charcoal/50">Total</div>
+        <div id="action-total" class="font-display font-bold text-lg text-charcoal">—</div>
+      </div>
+      <button id="confirm-btn" disabled
+        class="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold transition shadow-lg shadow-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        Confirmer
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    let currentUser = null;
+    let listing = null;
+    let selectedMethod = null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const listingId = urlParams.get('listing');
+
+    if (!listingId) {
+      window.location.href = 'index.html';
+    }
+
+    function formatPrice(p) {
+      return new Intl.NumberFormat('fr-FR').format(p) + ' FCFA';
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    (async () => {
+      // 1) Vérifier connecté
+      const { data: { session } } = await window.kwatta_db.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+        return;
+      }
+      currentUser = session.user;
+
+      // 2) Charger le listing
+      const { data, error } = await window.kwatta_db
+        .from('listings')
+        .select('id, title, price_xaf, images, seller_id, status, location_city, profiles!listings_seller_id_fkey(username, display_name, is_verified)')
+        .eq('id', listingId)
+        .single();
+
+      if (error || !data) {
+        console.error('Erreur:', error);
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // 3) Vérifs
+      if (data.status !== 'published') {
+        alert('Cet article n\'est plus disponible.');
+        window.location.href = 'index.html';
+        return;
+      }
+      if (data.seller_id === currentUser.id) {
+        alert('Tu ne peux pas acheter ton propre article.');
+        window.location.href = 'product.html?id=' + listingId;
+        return;
+      }
+
+      listing = data;
+
+      // 4) Afficher
+      const img = (data.images && data.images[0]) || 'https://placehold.co/100x100/f5f3ee/2D2A26?text=K';
+      $('product-image').src = img;
+      $('product-title').textContent = data.title;
+      $('product-seller').textContent = '@' + (data.profiles?.username || '?');
+      $('product-city').textContent = '📍 ' + (data.location_city || 'Cameroun');
+
+      // Calcul des frais : 3% + 300 FCFA
+      const buyerFee = Math.round(data.price_xaf * 0.03) + 300;
+      const totalToPay = data.price_xaf + buyerFee;
+
+      listing.buyer_fee = buyerFee;
+      listing.total_to_pay = totalToPay;
+
+      $('price-article').textContent = formatPrice(data.price_xaf);
+      $('price-fee').textContent = formatPrice(buyerFee);
+      $('price-total').textContent = formatPrice(totalToPay);
+      $('action-total').textContent = formatPrice(totalToPay);
+
+      $('loading').classList.add('hidden');
+      $('checkout-content').classList.remove('hidden');
+      $('action-bar').classList.remove('hidden');
+
+      // 5) Charge le solde du wallet
+      await loadWalletBalance();
+
+      // 6) Setup des méthodes de paiement
+      setupPaymentMethods();
+
+      // 6) Setup du bouton confirmer
+      $('confirm-btn').addEventListener('click', confirmOrder);
+    })();
+
+    // ============================================
+    // CHARGER LE SOLDE DU WALLET
+    // ============================================
+    async function loadWalletBalance() {
+      const { data: wallet } = await window.kwatta_db
+        .from('wallets')
+        .select('solde_disponible')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      const balance = wallet?.solde_disponible || 0;
+      listing.wallet_balance = balance;
+
+      const balanceEl = document.getElementById('wallet-balance');
+      if (balanceEl) {
+        balanceEl.textContent = formatPrice(balance);
+      }
+
+      // Désactive l'option si solde insuffisant
+      const walletBtn = document.getElementById('payment-wallet');
+      if (walletBtn) {
+        const total = listing.total_to_pay || listing.price_xaf;
+        if (balance < total) {
+          walletBtn.disabled = true;
+          walletBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          balanceEl.innerHTML = formatPrice(balance) + ' <span class="text-red-500 text-[10px] font-bold ml-1">— Solde insuffisant</span>';
+        }
+      }
+    }
+
+    // ============================================
+    // SÉLECTION DU MOYEN DE PAIEMENT
+    // ============================================
+    function setupPaymentMethods() {
+      document.querySelectorAll('.payment-method').forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Retire la sélection partout
+          document.querySelectorAll('.payment-method').forEach(b => {
+            b.classList.remove('border-terra-500', 'bg-terra-50');
+            b.classList.add('border-charcoal/10');
+            const icon = b.querySelector('.check-icon');
+            if (icon) icon.classList.add('hidden');
+          });
+
+          // Ajoute la sélection sur celui cliqué
+          btn.classList.remove('border-charcoal/10');
+          btn.classList.add('border-terra-500', 'bg-terra-50');
+          const icon = btn.querySelector('.check-icon');
+          if (icon) icon.classList.remove('hidden');
+
+          selectedMethod = btn.dataset.method;
+
+          // Active le bouton confirmer
+          $('confirm-btn').disabled = false;
+        });
+      });
+    }
+
+    // ============================================
+    // CONFIRMER LA COMMANDE
+    // ============================================
+    async function confirmOrder() {
+      const errEl = $('error-msg');
+      errEl.classList.add('hidden');
+
+      if (!selectedMethod) {
+        errEl.textContent = 'Choisis un moyen de paiement.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      // Confirmation
+      if (!confirm('Confirmer cette commande ?\n\nArticle : ' + formatPrice(listing.price_xaf) + '\nFrais de service : ' + formatPrice(listing.buyer_fee) + '\n\nTOTAL À PAYER : ' + formatPrice(listing.total_to_pay) + '\n\nMoyen de paiement : ' + getMethodLabel(selectedMethod))) {
+        return;
+      }
+
+      const btn = $('confirm-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Traitement...';
+
+      // ============================================
+      // CAS 1 : paiement par wallet
+      // ============================================
+      if (selectedMethod === 'wallet') {
+        // 1) Crée la transaction en attente de paiement
+        const { data: createData, error: createErr } = await window.kwatta_db.rpc('creer_transaction', {
+          p_listing_id: listingId,
+          p_payment_provider: 'cash',
+          p_initial_status: 'pending_payment'
+        });
+
+        if (createErr || (createData && !createData.success)) {
+          errEl.textContent = 'Erreur : ' + (createErr?.message || createData?.error);
+          errEl.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Confirmer';
+          return;
+        }
+
+        // 2) Paie avec le wallet
+        const { data: payData, error: payErr } = await window.kwatta_db.rpc('payer_avec_wallet', {
+          p_transaction_id: createData.transaction_id
+        });
+
+        if (payErr || (payData && !payData.success)) {
+          errEl.textContent = 'Erreur paiement : ' + (payErr?.message || payData?.error);
+          errEl.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Confirmer';
+          return;
+        }
+
+        alert('✅ Commande confirmée !\n\n' + formatPrice(payData.montant_debite) + ' débités de ton portefeuille.');
+        window.location.href = 'commandes.html';
+        return;
+      }
+
+      // ============================================
+      // CAS 2 : paiement externe (MTN, Orange, Espèces)
+      // ============================================
+      const { data, error } = await window.kwatta_db.rpc('creer_transaction', {
+        p_listing_id: listingId,
+        p_payment_provider: selectedMethod
+      });
+
+      if (error) {
+        console.error('[CHECKOUT] Erreur:', error);
+        errEl.textContent = 'Erreur : ' + error.message;
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Confirmer';
+        return;
+      }
+
+      if (data && !data.success) {
+        errEl.textContent = data.error;
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Confirmer';
+        return;
+      }
+
+      // Succès
+      alert('✅ Commande confirmée !\n\nLe vendeur a été notifié. Tu recevras une notification dès qu\'il expédie l\'article.');
+      window.location.href = 'commandes.html';
+    }
+
+    function getMethodLabel(method) {
+      return {
+        'wallet': 'Mon portefeuille KWATTA',
+        'mtn_momo': 'MTN Mobile Money',
+        'orange_money': 'Orange Money',
+        'cash': 'Espèces'
+      }[method] || method;
+    }
+  </script>
+</body>
+</html>

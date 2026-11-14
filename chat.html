@@ -26,13 +26,43 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme-green.css">
   <style>
     .message-bubble { max-width: 75%; word-wrap: break-word; }
     .message-mine { background: #B8543D; color: #FAF6F0; }
     .message-other { background: #fff; color: #2D2A26; border: 1px solid rgba(45,42,38,0.06); }
   </style>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <style>
+    .lang-toggle {
+      display: flex;
+      background: #F7F5F0;
+      border: 1px solid #E2E7E2;
+      border-radius: 100px;
+      padding: 3px;
+      gap: 2px;
+      z-index: 10;
+    }
+    .lang-toggle button {
+      font-family: 'Sora', system-ui, sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 100px;
+      color: #5C6F69;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .lang-toggle button.active {
+      background: #0E5C43;
+      color: #fff;
+    }
+  </style>
 </head>
-<body class="bg-cream text-charcoal font-body antialiased h-screen flex flex-col">
+<body class="bg-cream text-charcoal font-body antialiased" style="min-height: 100vh; padding-bottom: 140px;">
 
   <header class="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-charcoal/5">
     <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -51,8 +81,14 @@
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
         </svg>
       </a>
-    </div>
-  </header>
+
+      </div>
+    
+    <div class="lang-toggle" role="group" aria-label="Language" style="position:absolute; right:60px; top:50%; transform:translateY(-50%);">
+    <button type="button" data-lang-btn="en" class="active">EN</button>
+    <button type="button" data-lang-btn="fr">FR</button>
+  </div>
+</header>
 
   <!-- Bandeau produit -->
   <div id="product-banner" class="hidden max-w-3xl mx-auto w-full px-4 pt-3">
@@ -68,14 +104,14 @@
   </div>
 
   <!-- Messages -->
-  <main id="messages-container" class="flex-1 overflow-y-auto max-w-3xl mx-auto w-full px-4 py-4 space-y-3">
+  <main id="messages-container" class="max-w-3xl mx-auto w-full px-4 py-4 space-y-3" style="height: calc(100vh - 220px); overflow-y: auto;">
     <div class="text-center py-8">
       <div class="inline-block w-8 h-8 border-4 border-terra-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
   </main>
 
   <!-- Formulaire -->
-  <div class="sticky bottom-0 bg-cream/95 backdrop-blur border-t border-charcoal/5 p-3">
+  <div class="bg-cream/95 backdrop-blur border-t border-charcoal/5 p-3" style="position: fixed; bottom: 70px; left: 0; right: 0; z-index: 45;">
     <form id="message-form" class="max-w-3xl mx-auto flex items-end gap-2">
       <textarea id="message-input" rows="1" placeholder="Écrire un message..."
         class="flex-1 px-4 py-3 bg-white border border-charcoal/10 rounded-2xl text-sm focus:border-terra-500 outline-none resize-none max-h-32"
@@ -155,12 +191,9 @@
         $('other-avatar').textContent = name[0].toUpperCase();
       }
 
-      // Affiche le bouton WhatsApp si whatsapp dispo
-      if (profile.whatsapp) {
-        const phone = profile.whatsapp.replace(/[^0-9]/g, '');
-        $('whatsapp-link').href = `https://wa.me/${phone}`;
-        $('whatsapp-link').classList.remove('hidden');
-      }
+      // ⚠️ Le bouton WhatsApp sera affiché SEULEMENT après chargement des messages
+      // On stocke le whatsapp pour l'utiliser dans loadMessages()
+      window._otherWhatsapp = profile.whatsapp || null;
 
       // Charge le produit si présent
       if (currentListingId) {
@@ -203,6 +236,15 @@
       if (error) { console.error(error); return; }
 
       renderMessages(data || []);
+
+      // ✅ AFFICHER LE BOUTON WHATSAPP SEULEMENT SI DES MESSAGES EXISTENT
+      if (data && data.length > 0 && window._otherWhatsapp) {
+        const phone = window._otherWhatsapp.replace(/[^0-9]/g, '');
+        $('whatsapp-link').href = `https://wa.me/${phone}`;
+        $('whatsapp-link').classList.remove('hidden');
+      } else {
+        $('whatsapp-link').classList.add('hidden');
+      }
 
       // Marque comme lus les messages reçus
       await window.kwatta_db
@@ -305,5 +347,7 @@
     }
   </script>
   <script src="js/bottom-nav.js" defer></script>
+  <script src="js/idle-logout.js" defer></script>
+
 </body>
 </html>

@@ -1,0 +1,258 @@
+/* ============================================================
+   KWATTA — Theme Green (override global)
+   S'applique à toutes les pages pour adopter le design vert/ambre
+   ============================================================ */
+
+:root {
+  /* Couleurs principales */
+  --green: #0E5C43;
+  --green-dark: #0A4433;
+  --green-mid: #12734F;
+  --green-soft: #E7F1EC;
+  --amber: #F2A93B;
+  --amber-dark: #D98E1F;
+  --amber-soft: #FDF3E2;
+  --ink: #0C1A16;
+  --ink-2: #16302A;
+  --muted: #5C6F69;
+  --muted-2: #7C8C86;
+  --line: #E2E7E2;
+  --line-2: #EFF2EE;
+  --cream: #F7F5F0;
+  --white: #FFFFFF;
+  --red: #C8452F;
+
+  /* Fonts */
+  --font-head: 'Sora', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ============================================================
+   OVERRIDE TAILWIND — Terra → Green
+   ============================================================ */
+
+/* Backgrounds terra */
+.bg-terra-50 { background-color: var(--green-soft) !important; }
+.bg-terra-100 { background-color: #D6E9E0 !important; }
+.bg-terra-200 { background-color: #B9D6C9 !important; }
+.bg-terra-500 { background-color: var(--green) !important; }
+.bg-terra-600 { background-color: var(--green-dark) !important; }
+.bg-terra-700 { background-color: var(--green-dark) !important; }
+
+/* Text terra */
+.text-terra-500 { color: var(--green) !important; }
+.text-terra-600 { color: var(--green) !important; }
+.text-terra-700 { color: var(--green-dark) !important; }
+
+/* Border terra */
+.border-terra-500 { border-color: var(--green) !important; }
+.border-terra-500\/20 { border-color: rgba(14, 92, 67, 0.2) !important; }
+.border-terra-500\/30 { border-color: rgba(14, 92, 67, 0.3) !important; }
+.border-terra-200 { border-color: #B9D6C9 !important; }
+
+/* Hover terra */
+.hover\:bg-terra-600:hover { background-color: var(--green-dark) !important; }
+.hover\:bg-terra-500:hover { background-color: var(--green) !important; }
+.hover\:text-terra-500:hover { color: var(--green) !important; }
+.hover\:text-terra-600:hover { color: var(--green) !important; }
+
+/* Focus terra */
+.focus\:border-terra-500:focus { border-color: var(--green) !important; }
+
+/* Cream */
+.bg-cream { background-color: var(--cream) !important; }
+.text-cream { color: var(--white) !important; }
+
+/* Honey → Amber */
+.bg-honey { background-color: var(--amber) !important; }
+.text-honey { color: var(--amber) !important; }
+.hover\:bg-yellow-500:hover { background-color: var(--amber-dark) !important; }
+
+/* Charcoal → Ink */
+.text-charcoal { color: var(--ink) !important; }
+.text-charcoal\/50 { color: rgba(12, 26, 22, 0.5) !important; }
+.text-charcoal\/60 { color: rgba(12, 26, 22, 0.6) !important; }
+.text-charcoal\/70 { color: rgba(12, 26, 22, 0.7) !important; }
+.bg-charcoal { background-color: var(--ink) !important; }
+.bg-charcoal\/5 { background-color: rgba(12, 26, 22, 0.05) !important; }
+.border-charcoal\/5 { border-color: rgba(12, 26, 22, 0.05) !important; }
+.border-charcoal\/10 { border-color: rgba(12, 26, 22, 0.1) !important; }
+
+/* ============================================================
+   BODY — Police Inter
+   ============================================================ */
+body {
+  font-family: var(--font-body) !important;
+  color: var(--ink) !important;
+}
+
+.font-display {
+  font-family: var(--font-head) !important;
+}
+
+/* ============================================================
+   BOUTONS — arrondis modernes
+   ============================================================ */
+button, .btn {
+  font-family: var(--font-head) !important;
+}
+
+/* ============================================================
+   CARTES — ombres douces
+   ============================================================ */
+.bg-white {
+  background-color: var(--white) !important;
+}
+
+.rounded-2xl {
+  border-radius: 16px !important;
+}
+
+.rounded-xl {
+  border-radius: 12px !important;
+}
+
+/* ============================================================
+   INPUTS — focus vert
+   ============================================================ */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--green) !important;
+  box-shadow: 0 0 0 4px rgba(14, 92, 67, 0.1) !important;
+}
+
+/* ============================================================
+   FIX BOTTOM-NAV — Forcer fixed
+   ============================================================ */
+.bottom-nav {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 50 !important;
+  background: #fff !important;
+  border-top: 1px solid #E2E7E2 !important;
+  box-shadow: 0 -4px 20px rgba(12, 26, 22, 0.06) !important;
+}
+
+@media (min-width: 640px) {
+  .bottom-nav {
+    display: none !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .bottom-nav {
+    display: flex !important;
+  }
+  /* Ajouter du padding-bottom au body pour ne pas être caché par la nav */
+  body {
+    padding-bottom: 90px !important;
+  }
+}
+
+.bottom-nav-item {
+  color: #5C6F69 !important;
+}
+.bottom-nav-item.active {
+  color: #0E5C43 !important;
+}
+.bottom-nav-item.active svg {
+  stroke: #0E5C43 !important;
+}
+.bottom-nav-center {
+  color: #0E5C43 !important;
+}
+.bottom-nav-center span {
+  color: #0E5C43 !important;
+}
+
+/* ============================================================
+   FIX BOTTOM-NAV ULTIME — Forcer fixed et visible
+   ============================================================ */
+nav.bottom-nav,
+.bottom-nav {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: auto !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+  background: #ffffff !important;
+  border-top: 1px solid #E2E7E2 !important;
+  box-shadow: 0 -4px 20px rgba(12, 26, 22, 0.08) !important;
+  padding: 6px 0 8px !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Cacher sur desktop */
+@media (min-width: 640px) {
+  nav.bottom-nav,
+  .bottom-nav {
+    display: none !important;
+  }
+}
+
+/* Padding du body pour ne pas cacher le contenu */
+@media (max-width: 639px) {
+  body {
+    padding-bottom: 80px !important;
+  }
+}
+
+/* Items */
+.bottom-nav-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+  padding: 6px 12px !important;
+  color: #5C6F69 !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  min-width: 60px !important;
+  background: transparent !important;
+  border: none !important;
+}
+.bottom-nav-item.active {
+  color: #0E5C43 !important;
+}
+.bottom-nav-item.active svg {
+  stroke: #0E5C43 !important;
+}
+
+.bottom-nav-center {
+  position: relative !important;
+  color: #0E5C43 !important;
+}
+.bottom-nav-center span {
+  color: #0E5C43 !important;
+}
+
+/* ============================================================
+   FORCE BODY FULL WIDTH (corrige le max-width 440px)
+   ============================================================ */
+html body,
+body {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  min-width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+}
+
+@media (min-width: 640px) {
+  html body,
+  body {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+}

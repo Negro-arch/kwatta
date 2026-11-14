@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B8543D">
+  <title>Logs — Admin KWATTA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+
+  <div class="admin-shell">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-content">
+
+      <div class="admin-header">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <h1 class="admin-title">📜 Journal d'audit</h1>
+            <p class="admin-subtitle" id="logs-count">Chargement...</p>
+          </div>
+          <button id="export-csv" class="btn btn-ghost btn-sm">⬇️ Exporter CSV</button>
+        </div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="admin-section" style="padding:16px;">
+        <div style="display:grid; grid-template-columns: 1fr auto auto auto; gap:12px; align-items:center;">
+          <div class="admin-search" style="max-width:none;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" id="search" class="admin-input" placeholder="Rechercher par admin, action...">
+          </div>
+
+          <select id="filter-action" class="admin-input" style="width:auto;">
+            <option value="">Toutes actions</option>
+            <option value="ban_user">🚫 Ban user</option>
+            <option value="unban_user">✅ Unban user</option>
+            <option value="change_role">👤 Change rôle</option>
+            <option value="suspend_listing">🚫 Suspend listing</option>
+            <option value="publish_listing">✅ Publish listing</option>
+            <option value="verify_listing">✓ Verify listing</option>
+            <option value="unverify_listing">✗ Unverify listing</option>
+            <option value="delete_listing">🗑️ Delete listing</option>
+            <option value="refund_transaction">💸 Refund transaction</option>
+            <option value="set_tx_status">🔧 Set tx status</option>
+            <option value="valider_retrait">✅ Valider retrait</option>
+            <option value="refuser_retrait">❌ Refuser retrait</option>
+            <option value="approuver_boost">🚀 Approuver boost</option>
+            <option value="refuser_boost">❌ Refuser boost</option>
+            <option value="traiter_signalement">🚨 Traiter signalement</option>
+          </select>
+
+          <select id="filter-type" class="admin-input" style="width:auto;">
+            <option value="">Tous types</option>
+            <option value="profile">👤 Profil</option>
+            <option value="listing">📦 Annonce</option>
+            <option value="transaction">💳 Transaction</option>
+            <option value="withdrawal">💰 Retrait</option>
+            <option value="boost_request">🚀 Boost</option>
+            <option value="report">🚨 Signalement</option>
+          </select>
+
+          <select id="filter-periode" class="admin-input" style="width:auto;">
+            <option value="7">7 derniers jours</option>
+            <option value="1">Aujourd'hui</option>
+            <option value="30">30 derniers jours</option>
+            <option value="all">Tout</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="loading" style="text-align:center; padding:60px 0;">
+        <div class="admin-loading"></div>
+      </div>
+
+      <div id="logs-list" class="hidden"></div>
+
+      <div id="empty" class="hidden admin-empty">
+        <div class="admin-empty-icon">📜</div>
+        <div class="admin-empty-text">Aucun log</div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-init.js"></script>
+  <script src="/admin/js/admin.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const U = () => window.AdminUtils;
+    let allLogs = [];
+
+    (async () => {
+      const auth = await U().requireAdmin();
+      if (!auth) return;
+      U().renderSidebar('logs', auth.profile);
+      U().loadSidebarBadges();
+      await loadLogs();
+      $('loading').classList.add('hidden');
+      $('logs-list').classList.remove('hidden');
+    })();
+
+    async function loadLogs() {
+      let q = window.kwatta_db
+        .from('v_audit_logs')
+        .select('*')
+        .limit(500);
+
+      const periode = $('filter-periode').value;
+      if (periode !== 'all') {
+        const minDate = new Date();
+        minDate.setDate(minDate.getDate() - parseInt(periode));
+        minDate.setHours(0, 0, 0, 0);
+        q = q.gte('created_at', minDate.toISOString());
+      }
+
+      const { data, error } = await q;
+      if (error) { console.error('[LOGS]', error); return; }
+      allLogs = data || [];
+      renderLogs();
+    }
+
+    function renderLogs() {
+      const search = ($('search').value || '').toLowerCase().trim();
+      const filterAction = $('filter-action').value;
+      const filterType = $('filter-type').value;
+
+      let filtered = allLogs;
+
+      if (search) {
+        filtered = filtered.filter(l =>
+          (l.admin_username || '').toLowerCase().includes(search) ||
+          (l.admin_display_name || '').toLowerCase().includes(search) ||
+          (l.action || '').toLowerCase().includes(search) ||
+          (l.entity_id || '').toLowerCase().includes(search)
+        );
+      }
+      if (filterAction) filtered = filtered.filter(l => l.action === filterAction);
+      if (filterType) filtered = filtered.filter(l => l.entity_type === filterType);
+
+      $('logs-count').textContent = filtered.length + ' action' + (filtered.length > 1 ? 's' : '') + ' loggée' + (filtered.length > 1 ? 's' : '');
+
+      if (filtered.length === 0) {
+        $('logs-list').innerHTML = '';
+        $('empty').classList.remove('hidden');
+        return;
+      }
+      $('empty').classList.add('hidden');
+
+      const actionMeta = {
+        'ban_user':           { icon: '🚫', color: '#DC2626', label: 'Ban utilisateur' },
+        'unban_user':         { icon: '✅', color: '#059669', label: 'Unban utilisateur' },
+        'change_role':        { icon: '👤', color: '#3B82F6', label: 'Changement de rôle' },
+        'suspend_listing':    { icon: '🚫', color: '#DC2626', label: 'Suspension annonce' },
+        'publish_listing':    { icon: '✅', color: '#059669', label: 'Publication annonce' },
+        'verify_listing':     { icon: '✓',  color: '#3B82F6', label: 'Vérification annonce' },
+        'unverify_listing':   { icon: '✗',  color: '#7A7A7A', label: 'Retrait vérification' },
+        'delete_listing':     { icon: '🗑️', color: '#DC2626', label: 'Suppression annonce' },
+        'refund_transaction': { icon: '💸', color: '#DC2626', label: 'Remboursement' },
+        'set_tx_status':      { icon: '🔧', color: '#3B82F6', label: 'Changement statut tx' },
+        'valider_retrait':    { icon: '✅', color: '#059669', label: 'Validation retrait' },
+        'refuser_retrait':    { icon: '❌', color: '#DC2626', label: 'Refus retrait' },
+        'approuver_boost':    { icon: '🚀', color: '#E8A96A', label: 'Approbation boost' },
+        'refuser_boost':      { icon: '❌', color: '#DC2626', label: 'Refus boost' },
+        'traiter_signalement':{ icon: '🚨', color: '#DC2626', label: 'Traitement signalement' },
+      };
+
+      $('logs-list').innerHTML = filtered.map(l => {
+        const meta = actionMeta[l.action] || { icon: '⚙️', color: '#7A7A7A', label: l.action };
+        const adminName = l.admin_display_name || l.admin_username || 'Système';
+        const initial = adminName[0].toUpperCase();
+        const avatarHtml = l.admin_avatar
+          ? '<img src="' + l.admin_avatar + '" style="width:100%;height:100%;object-fit:cover;">'
+          : initial;
+
+        // Formate le metadata
+        let metaStr = '';
+        if (l.metadata && Object.keys(l.metadata).length > 0) {
+          const parts = [];
+          Object.entries(l.metadata).forEach(([k, v]) => {
+            if (v === null || v === undefined) return;
+            if (typeof v === 'object') v = JSON.stringify(v);
+            // Tronque si trop long
+            const vStr = String(v).length > 50 ? String(v).substring(0, 50) + '...' : String(v);
+            parts.push(k + ': ' + vStr);
+          });
+          if (parts.length > 0) metaStr = parts.join(' · ');
+        }
+
+        return `
+          <div class="admin-section" style="padding:12px 16px; margin-bottom:8px; border-left:4px solid ${meta.color};">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="font-size:20px; width:32px; text-align:center; flex-shrink:0;">${meta.icon}</div>
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:3px;">
+                  <div style="font-weight:600; font-size:13px;">${meta.label}</div>
+                  <span class="badge badge-gray" style="font-size:10px;">${l.entity_type}</span>
+                </div>
+                <div style="font-size:12px; color:#7A7A7A;">
+                  <div style="width:16px; height:16px; border-radius:50%; background:#fbe8e2; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#B8543D; overflow:hidden; vertical-align:middle; margin-right:4px;">${avatarHtml}</div>
+                  <strong>@${U().escapeHtml(l.admin_username || 'système')}</strong>
+                  ${adminName !== l.admin_username ? '(' + U().escapeHtml(adminName) + ')' : ''}
+                  · ${U().formatDate(l.created_at)}
+                </div>
+                ${l.entity_id ? '<div style="font-size:11px; color:#7A7A7A; font-family:monospace; margin-top:3px;">entity: ' + l.entity_id.substring(0, 12) + '...</div>' : ''}
+                ${metaStr ? '<div style="font-size:11px; color:#7A7A7A; margin-top:4px; padding:4px 8px; background:#FAF6F0; border-radius:6px; display:inline-block;">' + U().escapeHtml(metaStr) + '</div>' : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    $('search').addEventListener('input', renderLogs);
+    $('filter-action').addEventListener('change', renderLogs);
+    $('filter-type').addEventListener('change', renderLogs);
+    $('filter-periode').addEventListener('change', async () => {
+      $('loading').classList.remove('hidden');
+      $('logs-list').classList.add('hidden');
+      await loadLogs();
+      $('loading').classList.add('hidden');
+      $('logs-list').classList.remove('hidden');
+    });
+
+    // ============================================
+    // EXPORT CSV
+    // ============================================
+    $('export-csv').addEventListener('click', () => {
+      if (allLogs.length === 0) {
+        alert('Aucun log à exporter');
+        return;
+      }
+
+      const headers = ['Date', 'Admin', 'Action', 'Type', 'Entity ID', 'Metadata'];
+      const rows = allLogs.map(l => [
+        new Date(l.created_at).toISOString(),
+        l.admin_username || 'système',
+        l.action,
+        l.entity_type,
+        l.entity_id || '',
+        JSON.stringify(l.metadata || {}),
+      ]);
+
+      const csv = [headers, ...rows]
+        .map(row => row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(','))
+        .join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'kwatta-logs-' + new Date().toISOString().split('T')[0] + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+
+</body>
+</html>

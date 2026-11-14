@@ -26,6 +26,7 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme-green.css">
   <script src="js/stars.js" defer></script>
   <script src="js/verified-badge.js" defer></script>
 
@@ -63,6 +64,8 @@
     }
   }
 </style>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
 </head>
 <body class="bg-cream text-charcoal font-body antialiased">
 
@@ -85,7 +88,11 @@
           <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
         </svg>
       </button>
-    </div>
+    <button id="lang-toggle" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center text-xs font-bold" title="FR / EN" onclick="if(window.kwattaToggleLang) window.kwattaToggleLang()">
+        <span id="current-lang">EN</span>
+      </button>
+      </div>
+    
   </header>
 
   <!-- FIL D'ARIANE -->
@@ -138,7 +145,7 @@
           <div id="product-price" class="font-display text-3xl font-bold text-charcoal"></div>
           <div id="product-condition" class="text-sm text-charcoal/60 mt-1"></div>
         </div>
-        <span id="product-verified" class="hidden px-3 py-1 rounded-full text-xs font-semibold bg-terra-500/10 text-terra-600 border border-terra-500/20">
+        <span id="product-verified" class="hidden px-3 py-1 rounded-full text-xs font-semibold bg-terra-500/10 text-terra-600 border border-terra-500/20" data-i18n="product.verified">
           ✓ Vérifié
         </span>
       </div>
@@ -155,7 +162,7 @@
 
       <!-- Description -->
       <div class="bg-white rounded-2xl border border-charcoal/5 p-5">
-        <h2 class="font-display font-bold text-lg mb-2">Description</h2>
+        <h2 class="font-display font-bold text-lg mb-2" data-i18n="product.description">Description</h2>
         <p id="product-description" class="text-sm text-charcoal/70 leading-relaxed whitespace-pre-line"></p>
       </div>
       
@@ -187,7 +194,7 @@
               <line x1="19" y1="8" x2="19" y2="14"/>
               <line x1="22" y1="11" x2="16" y2="11"/>
             </svg>
-            <span id="btn-follow-text">Suivre</span>
+            <span id="btn-follow-text" data-i18n="product.follow">Suivre</span>
           </button>
 
           <div id="seller-badges" class="mt-3 flex flex-wrap gap-1.5"></div>
@@ -195,11 +202,11 @@
           <div class="mt-4 pt-4 border-t border-charcoal/5 grid grid-cols-2 gap-3 text-center">
             <div>
               <div id="seller-stat-followers" class="font-display font-bold text-base">0</div>
-              <div class="text-xs text-charcoal/50">Abonnés</div>
+              <div class="text-xs text-charcoal/50" data-i18n="product.followers">Abonnés</div>
             </div>
             <div>
               <div id="seller-stat-annonces" class="font-display font-bold text-base">0</div>
-              <div class="text-xs text-charcoal/50">Annonces</div>
+              <div class="text-xs text-charcoal/50" data-i18n="product.listings">Annonces</div>
             </div>
           </div>
 
@@ -217,7 +224,7 @@
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
             <div class="text-xs text-blue-700">
-              <strong>Achat sécurisé</strong> — Le numéro WhatsApp du vendeur sera partagé après validation de votre commande.
+              <strong data-i18n="product.secure_purchase">Achat sécurisé</strong> <span data-i18n="product.secure_purchase_desc">— Le numéro WhatsApp du vendeur sera partagé après validation de votre commande.</span>
             </div>
           </div>
         </div>
@@ -230,21 +237,21 @@
               <line x1="3" y1="6" x2="21" y2="6"/>
               <path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
-            Acheter maintenant
+            <span data-i18n="product.buy_now">Acheter maintenant</span>
           </button>
 
           <button id="offer-btn" class="w-full py-3.5 rounded-xl bg-honey hover:bg-yellow-500 text-charcoal font-semibold transition shadow-lg flex items-center justify-center gap-2">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
-            Faire une offre
+            <span data-i18n="product.make_offer">Faire une offre</span>
           </button>
 
           <button id="chat-btn" class="w-full py-3.5 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold transition flex items-center justify-center gap-2">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            Envoyer un message
+            <span data-i18n="product.send_message">Envoyer un message</span>
           </button>
         </div>
 
@@ -259,9 +266,9 @@
          ============================================ -->
     <section id="seller-items-section" class="hidden max-w-4xl mx-auto px-4 pb-12">
       <div class="flex items-center justify-between mb-4 mt-8">
-        <h2 class="font-display text-xl font-bold">🛍️ Autres articles du vendeur</h2>
+        <h2 class="font-display text-xl font-bold" data-i18n="product.other_listings">🛍️ Autres articles du vendeur</h2>
         <a id="seller-items-more" href="#" class="text-sm text-terra-600 hover:underline font-semibold">
-          Voir tout
+          <span data-i18n="product.view_all">Voir tout</span>
         </a>
       </div>
       <div id="seller-items-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
@@ -272,7 +279,7 @@
          ============================================ -->
     <section id="suggestions-section" class="hidden max-w-4xl mx-auto px-4 pb-12">
       <div class="flex items-center justify-between mb-4 mt-8">
-        <h2 class="font-display text-xl font-bold">💡 Vous aimerez aussi</h2>
+        <h2 class="font-display text-xl font-bold" data-i18n="product.suggestions">💡 Vous aimerez aussi</h2>
         <span id="suggestions-category" class="text-xs text-charcoal/50"></span>
       </div>
       <div id="suggestions-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3">
@@ -882,13 +889,13 @@
         <div class="p-3 bg-cream rounded-xl border border-charcoal/5">
           <div class="text-xs text-charcoal/50">Article</div>
           <div id="offer-listing-title" class="font-semibold text-sm"></div>
-          <div class="text-xs text-charcoal/60 mt-1">Prix affiché : <span id="offer-listing-price" class="font-bold"></span></div>
+          <div class="text-xs text-charcoal/60 mt-1"><span data-i18n="offer.price_displayed">Prix affiché :</span> <span id="offer-listing-price" class="font-bold"></span></div>
         </div>
 
         <!-- Pourcentage de réduction -->
         <div>
           <label class="block font-semibold mb-2">
-            Remise souhaitée
+            <span data-i18n="offer.discount">Remise souhaitée</span>
             <span class="text-xs text-charcoal/50 font-normal ml-2">(en %)</span>
           </label>
           <div class="relative">
@@ -904,7 +911,7 @@
 
         <!-- Montant calculé (lecture seule) -->
         <div>
-          <label class="block font-semibold mb-2">Votre offre</label>
+          <label class="block font-semibold mb-2" data-i18n="offer.your_offer">Votre offre</label>
           <div class="relative">
             <input type="number" id="offer-amount" readonly
               class="w-full px-4 py-4 pr-16 bg-terra-50 border-2 border-terra-200 rounded-xl text-2xl font-bold text-center text-terra-700 outline-none cursor-not-allowed"
@@ -916,7 +923,7 @@
 
         <!-- Message -->
         <div>
-          <label class="block font-semibold mb-2">Message (optionnel)</label>
+          <label class="block font-semibold mb-2" data-i18n="offer.message_optional">Message (optionnel)</label>
           <textarea id="offer-message" rows="3" maxlength="300"
             class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none resize-none"
             placeholder="Bonjour, je suis très intéressé par votre article..."></textarea>
@@ -926,16 +933,18 @@
 
         <button id="offer-submit"
           class="w-full py-4 rounded-xl bg-honey hover:bg-yellow-500 text-charcoal font-bold transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
-          Envoyer mon offre
+          <span data-i18n="offer.send">Envoyer mon offre</span>
         </button>
 
         <p class="text-xs text-charcoal/50 text-center">
-          ⏱️ Le vendeur a 48h pour répondre
+          <span data-i18n="offer.deadline">⏱️ Le vendeur a 48h pour répondre</span>
         </p>
       </div>
     </div>
   </div>
 
   <script src="js/bottom-nav.js" defer></script>
+  <script src="js/idle-logout.js" defer></script>
+
 </body>
 </html>

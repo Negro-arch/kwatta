@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KWATTA — Buy &amp; Sell on Bambili Campus and in Bamenda</title>
+<meta name="description" content="KWATTA is the peer-to-peer marketplace for students at Bambili campus (University of Bamenda) and the city of Bamenda. List an item, negotiate in-app, pay with your KWATTA wallet, MTN Mobile Money or Orange Money.">
+<meta name="theme-color" content="#0E5C43">
+<meta property="og:title" content="KWATTA — Buy &amp; Sell on Bambili Campus and in Bamenda">
+<meta property="og:description" content="The peer-to-peer marketplace built for Bambili students and Bamenda. Every user is both buyer and seller.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230E5C43'/%3E%3Cpath d='M10 8v16M10 16l8-8M10 16l8 8' stroke='%23F2A93B' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+/* ============================================================
+   KWATTA — design tokens
+   ============================================================ */
+:root{
+  --ink:#0C1A16;
+  --ink-2:#16302A;
+  --muted:#5C6F69;
+  --muted-2:#7C8C86;
+  --line:#E2E7E2;
+  --line-2:#EFF2EE;
+  --cream:#F7F5F0;
+  --white:#FFFFFF;
+  --green:#0E5C43;
+  --green-dark:#0A4433;
+  --green-mid:#12734F;
+  --green-soft:#E7F1EC;
+  --amber:#F2A93B;
+  --amber-dark:#D98E1F;
+  --amber-soft:#FDF3E2;
+  --red:#C8452F;
+  --red-soft:#FBEDEA;
+  --radius-s:10px;
+  --radius:16px;
+  --radius-l:24px;
+  --shadow-s:0 1px 2px rgba(12,26,22,.06), 0 2px 8px rgba(12,26,22,.05);
+  --shadow:0 4px 12px rgba(12,26,22,.07), 0 12px 32px rgba(12,26,22,.07);
+  --shadow-l:0 18px 50px rgba(12,26,22,.14);
+  --maxw:1180px;
+  --font-head:'Sora', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-body:'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  font-size:17px;
+  line-height:1.65;
+  color:var(--ink);
+  background:var(--white);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+h1,h2,h3,h4{font-family:var(--font-head);color:var(--ink);margin:0;line-height:1.15;letter-spacing:-.02em;font-weight:700}
+h1{font-size:clamp(2.1rem,5.2vw,3.6rem);font-weight:800}
+h2{font-size:clamp(1.7rem,3.6vw,2.5rem)}
+h3{font-size:1.15rem;font-weight:600;letter-spacing:-.01em}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px;border-radius:6px}
+::selection{background:var(--amber);color:var(--ink)}
+
+/* ============================================================
+   Layout helpers
+   ============================================================ */
+.container{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 22px}
+.section{padding:88px 0;position:relative}
+.section--tight{padding:64px 0}
+.section--cream{background:var(--cream)}
+.section--ink{background:var(--ink);color:#DCE6E1}
+.section--ink h2,.section--ink h3{color:#fff}
+.section--green{background:var(--green);color:#D6E9E0}
+.section--green h2,.section--green h3{color:#fff}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-head);font-size:.76rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--green-mid);
+  background:var(--green-soft);border-radius:100px;padding:7px 15px;margin-bottom:18px;
+}
+.section--ink .eyebrow,.section--green .eyebrow{background:rgba(255,255,255,.12);color:#B9E3CE}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex:none}
+.section-head{max-width:720px;margin-bottom:52px}
+.section-head.center{margin-left:auto;margin-right:auto;text-align:center}
+.section-head p{margin-top:16px;color:var(--muted);font-size:1.06rem}
+.section--ink .section-head p,.section--green .section-head p{color:#A9C4BA}
+.lead{font-size:1.1rem;color:var(--muted)}
+.grid{display:grid;gap:22px}
+.g-2{grid-template-columns:repeat(2,1fr)}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-4{grid-template-columns:repeat(4,1fr)}
+.scroll-margin{scroll-margin-top:96px}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:var(--font-head);font-weight:600;font-size:.95rem;
+  padding:14px 24px;border-radius:100px;transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+  white-space:nowrap;border:1.5px solid transparent;
+}
+.btn svg{width:17px;height:17px;flex:none}
+.btn-primary{background:var(--amber);color:#3A2606;box-shadow:0 6px 18px rgba(242,169,59,.35)}
+.btn-primary:hover{background:var(--amber-dark);transform:translateY(-2px);box-shadow:0 10px 26px rgba(242,169,59,.42)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 6px 18px rgba(14,92,67,.28)}
+.btn-green:hover{background:var(--green-dark);transform:translateY(-2px)}
+.btn-ghost{border-color:var(--line);background:var(--white);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--green);color:var(--green);transform:translateY(-2px)}
+.btn-outline-light{border-color:rgba(255,255,255,.35);color:#fff}
+.btn-outline-light:hover{background:rgba(255,255,255,.12);transform:translateY(-2px)}
+.btn-lg{padding:17px 30px;font-size:1rem}
+.btn-block{width:100%}
+
+/* ============================================================
+   Header / nav
+   ============================================================ */
+.announce{
+  background:var(--ink);color:#C9D8D2;font-size:.82rem;text-align:center;
+  padding:9px 18px;font-weight:500;letter-spacing:.01em;
+}
+.announce strong{color:var(--amber);font-weight:600}
+.site-header{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line-2);transition:box-shadow .25s ease}
+.site-header.scrolled{box-shadow:0 6px 24px rgba(12,26,22,.08)}
+.nav-wrap{display:flex;align-items:center;gap:20px;height:70px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-head);font-weight:800;font-size:1.28rem;letter-spacing:-.03em;color:var(--ink);flex:none}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:var(--green);display:grid;place-items:center;flex:none}
+.brand-mark svg{width:19px;height:19px}
+.brand span.k{color:var(--green)}
+.nav-links{display:flex;align-items:center;gap:4px;margin-left:auto}
+.nav-links a{
+  font-size:.9rem;font-weight:500;color:var(--ink-2);padding:9px 13px;border-radius:100px;
+  transition:background .18s ease,color .18s ease;
+}
+.nav-links a:hover{background:var(--green-soft);color:var(--green)}
+.nav-actions{display:flex;align-items:center;gap:12px;flex:none}
+.lang-toggle{display:flex;align-items:center;background:var(--cream);border:1px solid var(--line);border-radius:100px;padding:3px;gap:2px}
+.lang-toggle button{
+  font-family:var(--font-head);font-size:.78rem;font-weight:600;letter-spacing:.04em;
+  padding:6px 12px;border-radius:100px;color:var(--muted);transition:all .18s ease;
+}
+.lang-toggle button.active{background:var(--green);color:#fff}
+.menu-btn{display:none;width:42px;height:42px;border-radius:12px;border:1px solid var(--line);align-items:center;justify-content:center}
+.menu-btn svg{width:20px;height:20px}
+.mobile-drawer{
+  display:none;position:fixed;inset:0;z-index:80;background:rgba(12,26,22,.5);
+  opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+.mobile-drawer.open{opacity:1;pointer-events:auto}
+.drawer-panel{
+  position:absolute;top:0;right:0;bottom:0;width:min(86vw,340px);background:#fff;
+  padding:24px 22px;display:flex;flex-direction:column;gap:6px;
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;
+}
+.mobile-drawer.open .drawer-panel{transform:none}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.drawer-panel a.drawer-link{font-family:var(--font-head);font-weight:600;font-size:1rem;padding:13px 12px;border-radius:12px;color:var(--ink)}
+.drawer-panel a.drawer-link:hover{background:var(--green-soft);color:var(--green)}
+.drawer-panel .btn{margin-top:14px}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero{position:relative;padding:70px 0 84px;background:linear-gradient(180deg,#FBFCFA 0%,var(--cream) 100%);overflow:hidden}
+.hero::before{
+  content:"";position:absolute;width:620px;height:620px;border-radius:50%;
+  background:radial-gradient(circle,rgba(14,92,67,.10),transparent 68%);
+  top:-260px;right:-180px;pointer-events:none;
+}
+.hero::after{
+  content:"";position:absolute;width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle,rgba(242,169,59,.16),transparent 68%);
+  bottom:-220px;left:-160px;pointer-events:none;
+}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;position:relative;z-index:1}
+.hero h1{margin-bottom:20px}
+.hero h1 .hl{color:var(--green);position:relative;white-space:nowrap}
+.hero h1 .hl::after{
+  content:"";position:absolute;left:0;right:0;bottom:.06em;height:.28em;
+  background:var(--amber);opacity:.35;border-radius:4px;z-index:-1;
+}
+.hero-sub{font-size:1.1rem;color:var(--muted);max-width:560px;margin-bottom:30px}
+.hero-cta{display:flex;flex-wrap:wrap;gap:13px;margin-bottom:22px}
+.hero-micro{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.86rem;color:var(--muted);font-weight:500}
+.hero-micro span{display:inline-flex;align-items:center;gap:7px}
+.hero-micro svg{width:15px;height:15px;color:var(--green-mid);flex:none}
+.hero-trust{display:flex;align-items:center;gap:14px;margin-top:30px;padding-top:26px;border-top:1px solid var(--line)}
+.avatars{display:flex}
+.avatars i{
+  width:38px;height:38px;border-radius:50%;border:2.5px solid #fff;margin-left:-11px;
+  display:grid;place-items:center;font-style:normal;font-family:var(--font-head);
+  font-size:.78rem;font-weight:700;color:#fff;
+}
+.avatars i:first-child{margin-left:0}
+.hero-trust p{font-size:.87rem;color:var(--muted);line-height:1.45}
+.hero-trust strong{color:var(--ink);font-weight:600}
+
+/* Phone mockup */
+.phone-stage{position:relative;display:flex;justify-content:center;padding:10px 0}
+.phone{
+  position:relative;width:300px;background:#0C1A16;border-radius:42px;padding:11px;
+  box-shadow:var(--shadow-l);z-index:2;
+}
+.phone::after{
+  content:"";position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:104px;height:22px;background:#0C1A16;border-radius:0 0 16px 16px;z-index:5;
+}
+.phone-screen{background:#F7F5F0;border-radius:32px;overflow:hidden;height:560px;display:flex;flex-direction:column}
+.app-top{background:var(--green);color:#fff;padding:30px 16px 14px;display:flex;align-items:center;justify-content:space-between}
+.app-top .app-logo{font-family:var(--font-head);font-weight:800;font-size:1rem;letter-spacing:-.02em}
+.app-top .app-logo em{font-style:normal;color:var(--amber)}
+.app-avatar{width:28px;height:28px;border-radius:50%;background:var(--amber);display:grid;place-items:center;font-size:.7rem;font-weight:700;color:#3A2606;font-family:var(--font-head)}
+.app-search{margin:12px 14px 0;background:#fff;border-radius:100px;padding:10px 14px;display:flex;align-items:center;gap:9px;font-size:.78rem;color:var(--muted-2);box-shadow:var(--shadow-s)}
+.app-search svg{width:14px;height:14px;color:var(--green-mid);flex:none}
+.app-chips{display:flex;gap:7px;padding:12px 14px 4px;overflow:hidden}
+.app-chips span{font-size:.68rem;font-weight:600;padding:5px 11px;border-radius:100px;background:#fff;color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.app-chips span.on{background:var(--green);color:#fff;border-color:var(--green)}
+.app-list{padding:10px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.app-card{background:#fff;border-radius:14px;padding:9px;display:flex;gap:10px;box-shadow:var(--shadow-s)}
+.app-thumb{width:62px;height:62px;border-radius:10px;overflow:hidden;flex:none;background:var(--green-soft)}
+.app-thumb img{width:100%;height:100%;object-fit:cover}
+.app-card-body{min-width:0;flex:1}
+.app-card-body h4{font-family:var(--font-body);font-size:.78rem;font-weight:600;margin:0 0 3px;line-height:1.3;color:var(--ink)}
+.app-price{font-family:var(--font-head);font-size:.82rem;font-weight:700;color:var(--green)}
+.app-meta{display:flex;align-items:center;gap:5px;font-size:.64rem;color:var(--muted-2);margin-top:3px}
+.app-meta svg{width:10px;height:10px;color:var(--green-mid)}
+.app-badge{display:inline-flex;align-items:center;gap:3px;font-size:.58rem;font-weight:700;color:var(--green);background:var(--green-soft);padding:2px 6px;border-radius:100px;margin-top:4px}
+.app-badge svg{width:9px;height:9px}
+.app-nav{margin-top:auto;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:11px 8px 14px}
+.app-nav i{display:flex;flex-direction:column;align-items:center;gap:3px;font-style:normal;font-size:.55rem;color:var(--muted-2);font-weight:600}
+.app-nav i svg{width:17px;height:17px}
+.app-nav i.on{color:var(--green)}
+.app-nav i.sell svg{width:34px;height:34px;padding:8px;background:var(--amber);color:#3A2606;border-radius:50%;margin-top:-16px;box-shadow:0 6px 14px rgba(242,169,59,.4)}
+.float-card{
+  position:absolute;background:#fff;border-radius:14px;padding:12px 15px;box-shadow:var(--shadow-l);
+  display:flex;align-items:center;gap:11px;z-index:3;animation:floaty 5s ease-in-out infinite;
+}
+.float-card .fc-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}
+.float-card .fc-ico svg{width:17px;height:17px}
+.float-card b{display:block;font-family:var(--font-head);font-size:.82rem;font-weight:700;line-height:1.2}
+.float-card small{font-size:.68rem;color:var(--muted-2);font-weight:500}
+.fc-offer{top:64px;left:-14px;animation-delay:.4s}
+.fc-offer .fc-ico{background:var(--amber-soft);color:var(--amber-dark)}
+.fc-wallet{bottom:78px;right:-16px}
+.fc-wallet .fc-ico{background:var(--green-soft);color:var(--green)}
+.fc-verified{bottom:8px;left:6px;animation-delay:1.1s}
+.fc-verified .fc-ico{background:var(--green-soft);color:var(--green)}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+/* ============================================================
+   Stats strip
+   ============================================================ */
+.stats{background:var(--ink);color:#fff;padding:44px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;text-align:center}
+.stat b{display:block;font-family:var(--font-head);font-size:clamp(1.6rem,3.4vw,2.3rem);font-weight:800;color:var(--amber);letter-spacing:-.03em;line-height:1.1}
+.stat span{font-size:.85rem;color:#9FB8AE;font-weight:500}
+.stats-note{text-align:center;font-size:.72rem;color:#6E8880;margin-top:22px}
+
+/* ============================================================
+   Feature cards
+   ============================================================ */
+.feature{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px;
+  transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.feature:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:#CFE0D7}
+.f-ico{
+  width:46px;height:46px;border-radius:13px;background:var(--green-soft);color:var(--green);
+  display:grid;place-items:center;margin-bottom:16px;
+}
+.f-ico svg{width:22px;height:22px}
+.feature h3{margin-bottom:8px}
+.feature p{font-size:.93rem;color:var(--muted);line-height:1.6}
+.feature.amber .f-ico{background:var(--amber-soft);color:var(--amber-dark)}
+
+/* ============================================================
+   How it works
+   ============================================================ */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;position:relative}
+.step{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 20px 24px}
+.step-num{
+  width:38px;height:38px;border-radius:12px;background:var(--green);color:#fff;
+  display:grid;place-items:center;font-family:var(--font-head);font-weight:700;font-size:1rem;margin-bottom:15px;
+}
+.step:last-child .step-num{background:var(--amber);color:#3A2606}
+.step h3{font-size:1rem;margin-bottom:8px}
+.step p{font-size:.87rem;color:var(--muted);line-height:1.55}
+.step-arrow{position:absolute;top:44px;right:-13px;width:22px;height:22px;color:#C3D3CB;z-index:2}
+.step:last-child .step-arrow{display:none}
+.commission-note{
+  margin-top:30px;background:var(--green-soft);border:1px solid #CFE4D9;border-radius:var(--radius);
+  padding:22px 26px;display:flex;gap:16px;align-items:flex-start;
+}
+.commission-note svg{width:24px;height:24px;color:var(--green);flex:none;margin-top:2px}
+.commission-note p{font-size:.94rem;color:var(--ink-2)}
+.commission-note strong{color:var(--green);font-weight:600}
+
+/* ============================================================
+   Payments
+   ============================================================ */
+.pay-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px;
+  display:flex;flex-direction:column;gap:12px;transition:transform .22s ease, box-shadow .22s ease;
+}
+.pay-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.pay-logo{
+  width:52px;height:52px;border-radius:14px;display:grid;place-items:center;
+  font-family:var(--font-head);font-weight:800;font-size:.72rem;color:#fff;letter-spacing:-.02em;text-align:center;line-height:1.05;
+}
+.pay-logo svg{width:24px;height:24px}
+.pay-mtn{background:#FFCC00;color:#1A1A1A}
+.pay-om{background:#FF6600;color:#fff}
+.pay-wallet{background:var(--green);color:#fff}
+.pay-cash{background:var(--ink);color:var(--amber)}
+.pay-card h3{font-size:1.05rem}
+.pay-card p{font-size:.9rem;color:var(--muted);line-height:1.6}
+.pay-tag{font-size:.72rem;font-weight:600;color:var(--green);background:var(--green-soft);padding:4px 10px;border-radius:100px;align-self:flex-start;font-family:var(--font-head)}
+
+/* ============================================================
+   Trust & safety
+   ============================================================ */
+.trust-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.trust-list{display:flex;flex-direction:column;gap:16px}
+.trust-item{display:flex;gap:15px;align-items:flex-start;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);padding:18px 20px}
+.trust-item .t-ico{width:40px;height:40px;border-radius:11px;background:rgba(242,169,59,.16);color:var(--amber);display:grid;place-items:center;flex:none}
+.trust-item .t-ico svg{width:20px;height:20px}
+.trust-item h3{font-size:1rem;margin-bottom:5px}
+.trust-item p{font-size:.88rem;color:#A9C4BA;line-height:1.55}
+.verify-card{background:#fff;border-radius:var(--radius-l);padding:30px;box-shadow:var(--shadow-l);color:var(--ink)}
+.verify-card h3{font-size:1.15rem;margin-bottom:6px;color:var(--ink)}
+.verify-card > p{font-size:.9rem;color:var(--muted);margin-bottom:22px}
+.verify-step{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-top:1px solid var(--line-2)}
+.verify-step:first-of-type{border-top:0;padding-top:0}
+.vs-num{width:30px;height:30px;border-radius:9px;background:var(--green-soft);color:var(--green);display:grid;place-items:center;font-family:var(--font-head);font-weight:700;font-size:.82rem;flex:none}
+.verify-step h4{font-family:var(--font-body);font-size:.92rem;font-weight:600;margin:0 0 3px}
+.verify-step p{font-size:.83rem;color:var(--muted);line-height:1.5}
+.badge-demo{
+  margin-top:22px;background:var(--green-soft);border-radius:14px;padding:16px 18px;
+  display:flex;align-items:center;gap:13px;
+}
+.badge-demo .bd-ico{width:42px;height:42px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;flex:none}
+.badge-demo .bd-ico svg{width:21px;height:21px}
+.badge-demo b{display:block;font-family:var(--font-head);font-size:.92rem;color:var(--green)}
+.badge-demo small{font-size:.78rem;color:var(--muted)}
+
+/* ============================================================
+   Students / categories
+   ============================================================ */
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.cat{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px 18px;
+  display:flex;flex-direction:column;gap:11px;transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.cat:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:#CFE0D7}
+.cat-ico{width:42px;height:42px;border-radius:12px;background:var(--cream);display:grid;place-items:center;font-size:1.25rem}
+.cat h3{font-size:.98rem}
+.cat p{font-size:.82rem;color:var(--muted);line-height:1.5}
+.campus-split{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center;margin-top:56px}
+.campus-img{border-radius:var(--radius-l);overflow:hidden;box-shadow:var(--shadow-l);position:relative}
+.campus-img img{width:100%;height:400px;object-fit:cover}
+.campus-img .img-tag{
+  position:absolute;left:18px;bottom:18px;background:rgba(255,255,255,.95);border-radius:100px;
+  padding:9px 16px;font-size:.8rem;font-weight:600;font-family:var(--font-head);color:var(--green);
+  display:flex;align-items:center;gap:8px;box-shadow:var(--shadow);
+}
+.campus-img .img-tag svg{width:15px;height:15px}
+.campus-points{display:flex;flex-direction:column;gap:18px;margin-top:26px}
+.campus-point{display:flex;gap:14px;align-items:flex-start}
+.campus-point .cp-ico{width:36px;height:36px;border-radius:10px;background:var(--amber-soft);color:var(--amber-dark);display:grid;place-items:center;flex:none}
+.campus-point .cp-ico svg{width:18px;height:18px}
+.campus-point h4{font-family:var(--font-body);font-size:.95rem;font-weight:600;margin:0 0 3px}
+.campus-point p{font-size:.87rem;color:var(--muted);line-height:1.55}
+
+/* ============================================================
+   Admin dashboard
+   ============================================================ */
+.admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.admin-card{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);border-radius:var(--radius);
+  padding:24px 22px;transition:background .2s ease, transform .2s ease;
+}
+.admin-card:hover{background:rgba(255,255,255,.09);transform:translateY(-3px)}
+.admin-card .a-ico{width:42px;height:42px;border-radius:12px;background:rgba(242,169,59,.15);color:var(--amber);display:grid;place-items:center;margin-bottom:15px}
+.admin-card .a-ico svg{width:20px;height:20px}
+.admin-card h3{font-size:1rem;margin-bottom:8px}
+.admin-card p{font-size:.87rem;color:#A9C4BA;line-height:1.55}
+.admin-card ul{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.admin-card li{font-size:.82rem;color:#C4D8D0;display:flex;gap:8px;align-items:flex-start}
+.admin-card li svg{width:13px;height:13px;color:var(--amber);flex:none;margin-top:4px}
+
+/* ============================================================
+   Bilingual note
+   ============================================================ */
+.bilingual{
+  background:var(--amber-soft);border:1px solid #F3DFB8;border-radius:var(--radius-l);
+  padding:34px 38px;display:flex;gap:26px;align-items:center;flex-wrap:wrap;
+}
+.bilingual .bi-ico{width:58px;height:58px;border-radius:16px;background:var(--amber);color:#3A2606;display:grid;place-items:center;flex:none}
+.bilingual .bi-ico svg{width:28px;height:28px}
+.bilingual .bi-body{flex:1;min-width:260px}
+.bilingual h3{font-size:1.2rem;margin-bottom:7px}
+.bilingual p{font-size:.94rem;color:#6B5326;line-height:1.6}
+.bilingual .bi-flags{display:flex;gap:10px;flex:none}
+.bi-flag{
+  background:#fff;border-radius:12px;padding:11px 16px;text-align:center;box-shadow:var(--shadow-s);
+  font-family:var(--font-head);font-weight:700;font-size:.85rem;color:var(--ink);min-width:96px;
+}
+.bi-flag small{display:block;font-family:var(--font-body);font-weight:500;font-size:.7rem;color:var(--muted-2);margin-top:2px}
+
+/* ============================================================
+   Testimonials
+   ============================================================ */
+.testi{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px;
+  display:flex;flex-direction:column;gap:16px;height:100%;
+}
+.stars{display:flex;gap:3px}
+.stars svg{width:16px;height:16px;color:var(--amber)}
+.testi blockquote{margin:0;font-size:.95rem;color:var(--ink-2);line-height:1.65}
+.testi-who{display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:16px;border-top:1px solid var(--line-2)}
+.testi-av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-family:var(--font-head);font-weight:700;font-size:.85rem;color:#fff;flex:none}
+.testi-who b{display:block;font-family:var(--font-head);font-size:.9rem;font-weight:600}
+.testi-who small{font-size:.78rem;color:var(--muted-2)}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq-wrap{max-width:820px;margin:0 auto}
+.faq-item{background:#fff;border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;transition:border-color .2s ease, box-shadow .2s ease}
+.faq-item.open{border-color:#CFE0D7;box-shadow:var(--shadow-s)}
+.faq-q{
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:20px 24px;text-align:left;font-family:var(--font-head);font-weight:600;font-size:1rem;color:var(--ink);
+}
+.faq-q .fq-ico{width:28px;height:28px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;flex:none;transition:transform .25s ease, background .25s ease}
+.faq-q .fq-ico svg{width:15px;height:15px}
+.faq-item.open .fq-ico{background:var(--green);color:#fff;transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.faq-a p{padding:0 24px 22px;font-size:.93rem;color:var(--muted);line-height:1.65}
+
+/* ============================================================
+   Final CTA + form
+   ============================================================ */
+.cta-section{background:var(--green);position:relative;overflow:hidden}
+.cta-section::before{
+  content:"";position:absolute;width:560px;height:560px;border-radius:50%;
+  background:radial-gradient(circle,rgba(242,169,59,.18),transparent 70%);top:-240px;right:-160px;
+}
+.cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;position:relative;z-index:1}
+.cta-copy h2{color:#fff;margin-bottom:18px}
+.cta-copy > p{color:#B9D6C9;font-size:1.05rem;margin-bottom:26px}
+.cta-points{display:flex;flex-direction:column;gap:13px}
+.cta-points li{display:flex;gap:11px;align-items:flex-start;color:#D6E9E0;font-size:.94rem}
+.cta-points svg{width:19px;height:19px;color:var(--amber);flex:none;margin-top:2px}
+.signup-card{background:#fff;border-radius:var(--radius-l);padding:34px;box-shadow:var(--shadow-l)}
+.signup-card h3{font-size:1.3rem;margin-bottom:6px}
+.signup-card > p{font-size:.9rem;color:var(--muted);margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.82rem;font-weight:600;color:var(--ink-2);margin-bottom:7px;font-family:var(--font-head)}
+.field input,.field select{
+  width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;
+  font-family:var(--font-body);font-size:.94rem;color:var(--ink);background:#fff;transition:border-color .18s ease, box-shadow .18s ease;
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px rgba(14,92,67,.1)}
+.field input.err,.field select.err{border-color:var(--red);box-shadow:0 0 0 4px rgba(200,69,47,.1)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.err-msg{display:none;font-size:.78rem;color:var(--red);margin-top:6px;font-weight:500}
+.err-msg.show{display:block}
+.radio-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.radio-row label{
+  display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 8px;
+  border:1.5px solid var(--line);border-radius:12px;font-size:.85rem;font-weight:600;color:var(--muted);
+  cursor:pointer;transition:all .18s ease;font-family:var(--font-head);margin:0;
+}
+.radio-row input{position:absolute;opacity:0;width:0;height:0}
+.radio-row label:has(input:checked){border-color:var(--green);background:var(--green-soft);color:var(--green)}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:18px 0 20px}
+.consent input{width:18px;height:18px;margin-top:2px;accent-color:var(--green);flex:none}
+.consent span{font-size:.8rem;color:var(--muted);line-height:1.5}
+.form-note{font-size:.76rem;color:var(--muted-2);text-align:center;margin-top:14px}
+.form-success{
+  display:none;text-align:center;padding:22px 10px;
+}
+.form-success.show{display:block}
+.form-success .fs-ico{width:62px;height:62px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;margin:0 auto 18px}
+.form-success .fs-ico svg{width:30px;height:30px}
+.form-success h3{margin-bottom:8px}
+.form-success p{font-size:.92rem;color:var(--muted)}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.site-footer{background:var(--ink);color:#9FB8AE;padding:64px 0 0}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:40px;padding-bottom:44px}
+.footer-brand .brand{color:#fff;margin-bottom:16px}
+.footer-brand p{font-size:.88rem;line-height:1.65;max-width:300px}
+.footer-col h4{font-family:var(--font-head);font-size:.82rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#fff;margin-bottom:16px}
+.footer-col ul{display:flex;flex-direction:column;gap:10px}
+.footer-col a{font-size:.88rem;color:#9FB8AE;transition:color .18s ease}
+.footer-col a:hover{color:var(--amber)}
+.footer-contact li{display:flex;gap:10px;align-items:flex-start;font-size:.88rem}
+.footer-contact svg{width:16px;height:16px;color:var(--amber);flex:none;margin-top:4px}
+.footer-lang{display:flex;align-items:center;gap:10px;margin-top:20px}
+.footer-lang span{font-size:.8rem;color:#7C948C}
+.footer-lang .lang-toggle{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}
+.footer-lang .lang-toggle button{color:#9FB8AE}
+.footer-lang .lang-toggle button.active{background:var(--amber);color:#3A2606}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:22px 0;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.footer-bottom p{font-size:.8rem;color:#7C948C}
+.footer-bottom .fb-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-bottom .fb-links a{font-size:.8rem;color:#7C948C}
+.footer-bottom .fb-links a:hover{color:var(--amber)}
+
+/* ============================================================
+   Reveal animations
+   ============================================================ */
+.js .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1)}
+.js .reveal.in{opacity:1;transform:none}
+.js .reveal.d1{transition-delay:.08s}
+.js .reveal.d2{transition-delay:.16s}
+.js .reveal.d3{transition-delay:.24s}
+.js .reveal.d4{transition-delay:.32s}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .js .reveal{opacity:1;transform:none;transition:none}
+  .float-card{animation:none}
+  *{transition-duration:.01ms !important}
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width:1080px){
+  .nav-links{display:none}
+  .menu-btn{display:flex}
+  .mobile-drawer{display:block}
+  .hero-grid{grid-template-columns:1fr;gap:48px}
+  .hero-sub{max-width:none}
+  .phone-stage{order:-1}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .step-arrow{display:none}
+  .g-4,.cat-grid{grid-template-columns:repeat(2,1fr)}
+  .admin-grid{grid-template-columns:repeat(2,1fr)}
+  .trust-grid,.campus-split,.cta-grid{grid-template-columns:1fr;gap:40px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:34px}
+}
+@media (max-width:760px){
+  body{font-size:16px}
+  .section{padding:64px 0}
+  .section--tight{padding:48px 0}
+  .container{padding:0 18px}
+  .g-2,.g-3,.g-4,.cat-grid,.admin-grid,.steps{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:22px}
+  .hero{padding:44px 0 60px}
+  .hero-cta .btn{width:100%}
+  .hero-trust{flex-direction:column;align-items:flex-start;gap:12px}
+  .phone{width:270px}
+  .phone-screen{height:520px}
+  .fc-offer{left:-6px;top:40px}
+  .fc-wallet{right:-6px;bottom:60px}
+  .fc-verified{display:none}
+  .bilingual{padding:26px 22px;gap:18px}
+  .bilingual .bi-flags{width:100%}
+  .bi-flag{flex:1}
+  .signup-card{padding:26px 22px}
+  .field-row,.radio-row{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr;gap:30px}
+  .footer-bottom{flex-direction:column;align-items:flex-start}
+  .campus-img img{height:280px}
+  .faq-q{padding:17px 18px;font-size:.94rem}
+  .faq-a p{padding:0 18px 20px}
+}
+@media (max-width:400px){
+  .phone{width:246px}
+  .phone-screen{height:490px}
+  .float-card{padding:10px 12px}
+  .float-card b{font-size:.76rem}
+}
+/* ============================================================
+   Cartes produits (adapter au design vert/ambre)
+   ============================================================ */
+.products-grid .product-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.products-grid .product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+.products-grid .product-image-wrap {
+  position: relative;
+  aspect-ratio: 4/5;
+  background: var(--green-soft);
+  overflow: hidden;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.products-grid .product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .3s ease;
+}
+.products-grid .product-card:hover .product-image {
+  transform: scale(1.04);
+}
+.products-grid .product-fav {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  z-index: 2;
+}
+.products-grid .product-fav.active svg { fill: var(--red); stroke: var(--red); }
+.products-grid .product-info { padding: 12px 14px 14px; }
+.products-grid .product-brand {
+  font-size: 10px; font-weight: 700; color: var(--muted-2);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;
+}
+.products-grid .product-title {
+  font-size: 13px; font-weight: 500; color: var(--ink);
+  line-height: 1.35; margin-bottom: 4px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.products-grid .product-condition {
+  font-size: 11px; color: var(--muted-2); margin-bottom: 6px; font-style: italic;
+}
+.products-grid .product-price {
+  font-family: var(--font-head);
+  font-size: 15px; font-weight: 700; color: var(--green);
+}
+.products-grid .product-city {
+  font-size: 11px; color: var(--muted-2); margin-top: 4px;
+}
+.products-grid .product-protection {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--green-soft); color: var(--green);
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.03em; margin-left: auto;
+}
+.products-grid .product-fav-count {
+  font-family: var(--font-head); line-height: 1;
+  font-size: 10px; font-weight: 700;
+}
+@media (min-width: 640px) {
+  .products-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+@media (min-width: 1024px) {
+  .products-grid { grid-template-columns: repeat(4, 1fr) !important; }
+}
+/* ============================================================
+   MODE CONNECTÉ — Cache le marketing, montre les produits
+   ============================================================ */
+body.connected .phone-stage {
+  display: none !important;
+}
+
+body.connected .hero-trust {
+  display: none !important;
+}
+
+body.connected .marketing-only {
+  display: none !important;
+}
+
+body.connected .products-section {
+  display: block !important;
+}
+
+/* CTA signup caché en mode connecté */
+body.connected .cta-section {
+  display: none !important;
+}
+
+/* Ajuster le hero en mode connecté */
+body.connected .hero {
+  padding: 40px 0 40px;
+}
+
+body.connected .hero::before,
+body.connected .hero::after {
+  display: none;
+}
+
+body.connected .hero-grid {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+</style>
+  <style>
+    /* Force le body à prendre toute la largeur (corrige le max-width 440px) */
+    body {
+      max-width: 100vw !important;
+      width: 100vw !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow-x: hidden !important;
+    }
+    @media (min-width: 640px) {
+      body {
+        max-width: 100% !important;
+        width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============ SVG icon sprite ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 7.6 7 9 4-1.4 7-4.5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.5-4.5A8 8 0 1 1 21 12Z"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6Z"/><circle cx="7.5" cy="7.5" r="1.4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1"/><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5a2 2 0 0 1-2-2Z"/><circle cx="16.5" cy="13.5" r="1.2"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7Z"/><path d="M10.5 20a2 2 0 0 0 3 0"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2.6 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9L12 2.6Z"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h10v9H3z"/><path d="M13 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19a6.5 6.5 0 0 1 13 0"/><path d="M16 5.5a3.2 3.2 0 0 1 0 6"/><path d="M18 19a6.4 6.4 0 0 0-2-4.6"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3.5 6h.01"/><path d="M3.5 12h.01"/><path d="M3.5 18h.01"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></symbol>
+    <symbol id="i-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 5.2 2 2 0 0 1 6.5 3Z"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.4"/><path d="m3.5 7 8.5 6 8.5-6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17"/><path d="M3.5 15h17"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18Z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2 2 0 0 1 5 6.5h2l1.4-2h7.2L17 6.5h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><circle cx="12" cy="13" r="3.4"/></symbol>
+    <symbol id="i-id" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.4"/><circle cx="8.5" cy="11" r="2.2"/><path d="M5 16.5a3.8 3.8 0 0 1 7 0"/><path d="M15 10h4"/><path d="M15 13.5h4"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5c3.5 0 7 3.5 7 7 0 0-2 5-7.5 8.5L9 15 5 11c3.5-5.5 8.5-7.5 8.5-7.5Z"/><circle cx="14.5" cy="9.5" r="1.6"/><path d="M6.5 17.5 4 20"/><path d="M9 20l-1.5 1.5"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-2.3-1.6L14.4 21l-2.4-1.6L9.6 21l-2.3-1.6L5 21Z"/><path d="M9 8h6"/><path d="M9 12h6"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 5h11l-1.5 4L16 13H5"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5Z"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="11" rx="1.8"/><path d="M2 19h20"/></symbol>
+    <symbol id="i-phone-dev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 5.5h3"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 4 6l2 4 2-1v12h8V9l2 1 2-4-5-3-3 2Z"/></symbol>
+    <symbol id="i-bed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-7h18v7"/><path d="M3 18h18"/><path d="M6.5 11V8a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3"/></symbol>
+    <symbol id="i-bowl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0Z"/><path d="M8 7c0-1.5 1-2 1-3"/><path d="M12 7c0-1.5 1-2 1-3"/><path d="M16 7c0-1.5 1-2 1-3"/></symbol>
+    <symbol id="i-tools" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 6.5a3.5 3.5 0 0 0 4.6 4.6L21 13l-8 8-2-2 8-8-1.9-1.9Z"/><path d="M9 3 3 9l3 3 6-6Z"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1Z"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-9.4A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7 3c0 5-7 9.4-7 9.4Z"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4 2v-8Z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4"/><path d="M12 17v4"/><path d="M3 12h4"/><path d="M17 12h4"/><path d="m6.3 6.3 2.8 2.8"/><path d="m14.9 14.9 2.8 2.8"/><path d="m17.7 6.3-2.8 2.8"/><path d="m9.1 14.9-2.8 2.8"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ Announcement ============ -->
+<div class="announce">
+  <span data-en="Now live in <strong>Bambili campus</strong> and across <strong>Bamenda</strong> — free to join, no listing fees." data-fr="Désormais disponible à <strong>Bambili</strong> et dans tout <strong>Bamenda</strong> — inscription gratuite, aucune frais d'annonce.">Now live in <strong>Bambili campus</strong> and across <strong>Bamenda</strong> — free to join, no listing fees.</span>
+</div>
+
+<!-- ============ Header ============ -->
+<header class="site-header" id="siteHeader">
+  <div class="container nav-wrap">
+    <a class="brand" href="#top" aria-label="KWATTA home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#F2A93B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16"/><path d="M7 12l7-8"/><path d="M7 12l7 8"/></svg>
+      </span>
+      <span><span class="k">K</span>WATTA</span>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#what" data-en="What is KWATTA" data-fr="C'est quoi KWATTA">What is KWATTA</a>
+      <a href="#how" data-en="How it works" data-fr="Comment ça marche">How it works</a>
+      <a href="#payments" data-en="Payments" data-fr="Paiements">Payments</a>
+      <a href="#trust" data-en="Trust &amp; safety" data-fr="Confiance &amp; sécurité">Trust &amp; safety</a>
+      <a href="#students" data-en="For students" data-fr="Pour les étudiants">For students</a>
+      <a href="#faq" data-en="FAQ" data-fr="FAQ">FAQ</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" data-lang-btn="en" class="active">EN</button>
+        <button type="button" data-lang-btn="fr">FR</button>
+      </div>
+      <div id="header-auth-container" style="display:flex; align-items:center; gap:8px;">
+        <a class="btn btn-ghost" href="login.html" data-en="Log in" data-fr="Connexion">Log in</a>
+        <a class="btn btn-primary" href="sell.html" data-en="Start selling" data-fr="Commencer à vendre">Start selling</a>
+      </div>
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false">
+        <svg><use href="#i-menu"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ Mobile drawer ============ -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="drawer-panel">
+    <div class="drawer-head">
+      <span class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#F2A93B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16"/><path d="M7 12l7-8"/><path d="M7 12l7 8"/></svg></span><span><span class="k">K</span>WATTA</span></span>
+      <button class="menu-btn" id="drawerClose" type="button" aria-label="Close menu"><svg><use href="#i-close"/></svg></button>
+    </div>
+    <a class="drawer-link" href="#what" data-en="What is KWATTA" data-fr="C'est quoi KWATTA">What is KWATTA</a>
+    <a class="drawer-link" href="#how" data-en="How it works" data-fr="Comment ça marche">How it works</a>
+    <a class="drawer-link" href="#payments" data-en="Payments" data-fr="Paiements">Payments</a>
+    <a class="drawer-link" href="#trust" data-en="Trust &amp; safety" data-fr="Confiance &amp; sécurité">Trust &amp; safety</a>
+    <a class="drawer-link" href="#students" data-en="For students" data-fr="Pour les étudiants">For students</a>
+    <a class="drawer-link" href="#sellers" data-en="For sellers &amp; admins" data-fr="Vendeurs &amp; admins">For sellers &amp; admins</a>
+    <a class="drawer-link" href="#faq" data-en="FAQ" data-fr="FAQ">FAQ</a>
+    <a class="btn btn-primary btn-block" href="sell.html" data-en="Start selling" data-fr="Commencer à vendre">Start selling</a>
+    <a class="btn btn-ghost btn-block" href="search.html" data-en="Browse items" data-fr="Parcourir les annonces">Browse items</a>
+  </div>
+</div>
+
+<main id="top">
+
+<!-- ============ Hero ============ -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow reveal"><span class="dot"></span><span data-en="Bambili campus &amp; Bamenda" data-fr="Campus de Bambili &amp; Bamenda">Bambili campus &amp; Bamenda</span></span>
+      <h1 class="reveal d1" data-en="Buy and sell anything on campus — <span class='hl'>safely, in minutes</span>." data-fr="Achetez et vendez tout sur le campus — <span class='hl'>en toute sécurité, en quelques minutes</span>.">Buy and sell anything on campus — <span class="hl">safely, in minutes</span>.</h1>
+      <p class="hero-sub reveal d2" data-en="KWATTA is the peer-to-peer marketplace built for students at Bambili and the city of Bamenda. List what you no longer need, find what you do, negotiate in-app, and get paid through your KWATTA wallet, MTN Mobile Money or Orange Money." data-fr="KWATTA est la place de marché pair-à-pair conçue pour les étudiants de Bambili et la ville de Bamenda. Publiez ce dont vous n'avez plus besoin, trouvez ce qu'il vous faut, négociez dans l'application et recevez votre argent via votre portefeuille KWATTA, MTN Mobile Money ou Orange Money.">KWATTA is the peer-to-peer marketplace built for students at Bambili and the city of Bamenda. List what you no longer need, find what you do, negotiate in-app, and get paid through your KWATTA wallet, MTN Mobile Money or Orange Money.</p>
+      <div class="hero-cta reveal d3">
+        <a id="hero-cta-sell" class="btn btn-primary btn-lg" href="login.html"><span data-en="Start selling — it's free" data-fr="Commencer à vendre — c'est gratuit">Start selling — it's free</span><svg><use href="#i-arrow-right"/></svg></a>
+        <a class="btn btn-ghost btn-lg" href="search.html"><svg><use href="#i-search"/></svg><span data-en="Browse items" data-fr="Parcourir les annonces">Browse items</span></a>
+      </div>
+      <div class="hero-micro reveal d3">
+        <span><svg><use href="#i-check"/></svg><span data-en="No listing fees" data-fr="Aucun frais d'annonce">No listing fees</span></span>
+        <span><svg><use href="#i-check"/></svg><span data-en="Verified sellers" data-fr="Vendeurs vérifiés">Verified sellers</span></span>
+        <span><svg><use href="#i-check"/></svg><span data-en="English &amp; French" data-fr="Anglais &amp; français">English &amp; French</span></span>
+      </div>
+      <div class="hero-trust reveal d4">
+        <div class="avatars">
+          <i style="background:#0E5C43">AN</i>
+          <i style="background:#D98E1F">TB</i>
+          <i style="background:#C8452F">MN</i>
+          <i style="background:#12734F">EF</i>
+        </div>
+        <p data-en="<strong>Students and residents</strong> across Bambili, Mile 4, Mile 6, Nkwen and Mankon are already trading on KWATTA." data-fr="<strong>Étudiants et habitants</strong> de Bambili, Mile 4, Mile 6, Nkwen et Mankon échangent déjà sur KWATTA."><strong>Students and residents</strong> across Bambili, Mile 4, Mile 6, Nkwen and Mankon are already trading on KWATTA.</p>
+      </div>
+    </div>
+
+    <div class="phone-stage reveal d2">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="app-top">
+            <span class="app-logo">K<em>W</em>ATTA</span>
+            <span class="app-avatar">AN</span>
+          </div>
+          <div class="app-search">
+            <svg><use href="#i-search"/></svg>
+            <span data-en="Search laptops, books, phones…" data-fr="Rechercher PC, livres, téléphones…">Search laptops, books, phones…</span>
+          </div>
+          <div class="app-chips">
+            <span class="on" data-en="All" data-fr="Tout">All</span>
+            <span data-en="Books" data-fr="Livres">Books</span>
+            <span data-en="Phones" data-fr="Téléphones">Phones</span>
+            <span data-en="Laptops" data-fr="PC">Laptops</span>
+            <span data-en="Hostel" data-fr="Chambre">Hostel</span>
+          </div>
+          <div class="app-list">
+            <article class="app-card">
+              <div class="app-thumb"><img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=200&q=80" alt="Smartphone listed for sale on KWATTA" loading="lazy"></div>
+              <div class="app-card-body">
+                <h4 data-en="Tecno Spark 10 — 128GB, clean" data-fr="Tecno Spark 10 — 128Go, propre">Tecno Spark 10 — 128GB, clean</h4>
+                <div class="app-price">45,000 FCFA</div>
+                <div class="app-meta"><svg><use href="#i-pin"/></svg><span data-en="Bambili, Mile 4" data-fr="Bambili, Mile 4">Bambili, Mile 4</span></div>
+                <span class="app-badge"><svg><use href="#i-check-circle"/></svg><span data-en="Verified" data-fr="Vérifié">Verified</span></span>
+              </div>
+            </article>
+            <article class="app-card">
+              <div class="app-thumb"><img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=200&q=80" alt="Students using KWATTA on campus" loading="lazy"></div>
+              <div class="app-card-body">
+                <h4 data-en="HP EliteBook 840 — i5, 8GB RAM" data-fr="HP EliteBook 840 — i5, 8Go RAM">HP EliteBook 840 — i5, 8GB RAM</h4>
+                <div class="app-price">135,000 FCFA</div>
+                <div class="app-meta"><svg><use href="#i-pin"/></svg><span data-en="Bambili campus" data-fr="Campus de Bambili">Bambili campus</span></div>
+                <span class="app-badge"><svg><use href="#i-check-circle"/></svg><span data-en="Verified" data-fr="Vérifié">Verified</span></span>
+              </div>
+            </article>
+            <article class="app-card">
+              <div class="app-thumb"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=200&q=80" alt="Delivery handover in Bamenda" loading="lazy"></div>
+              <div class="app-card-body">
+                <h4 data-en="Hostel mattress + reading lamp" data-fr="Matelas + lampe de lecture">Hostel mattress + reading lamp</h4>
+                <div class="app-price">18,500 FCFA</div>
+                <div class="app-meta"><svg><use href="#i-pin"/></svg><span data-en="Nkwen, Bamenda" data-fr="Nkwen, Bamenda">Nkwen, Bamenda</span></div>
+              </div>
+            </article>
+          </div>
+          <div class="app-nav">
+            <i class="on"><svg><use href="#i-home"/></svg><span data-en="Home" data-fr="Accueil">Home</span></i>
+            <i><svg><use href="#i-search"/></svg><span data-en="Search" data-fr="Chercher">Search</span></i>
+            <i class="sell"><svg><use href="#i-plus"/></svg></i>
+            <i><svg><use href="#i-chat"/></svg><span data-en="Chat" data-fr="Chat">Chat</span></i>
+            <i><svg><use href="#i-user"/></svg><span data-en="Me" data-fr="Moi">Me</span></i>
+          </div>
+        </div>
+      </div>
+      <div class="float-card fc-offer">
+        <span class="fc-ico"><svg><use href="#i-tag"/></svg></span>
+        <span><b data-en="New offer: 42,000 FCFA" data-fr="Nouvelle offre : 42 000 FCFA">New offer: 42,000 FCFA</b><small data-en="Counter or accept" data-fr="Contre-offre ou accepter">Counter or accept</small></span>
+      </div>
+      <div class="float-card fc-wallet">
+        <span class="fc-ico"><svg><use href="#i-wallet"/></svg></span>
+        <span><b data-en="Wallet: 128,500 FCFA" data-fr="Portefeuille : 128 500 FCFA">Wallet: 128,500 FCFA</b><small data-en="Withdraw anytime" data-fr="Retrait à tout moment">Withdraw anytime</small></span>
+      </div>
+      <div class="float-card fc-verified">
+        <span class="fc-ico"><svg><use href="#i-shield"/></svg></span>
+        <span><b data-en="ID verified" data-fr="Identité vérifiée">ID verified</b><small data-en="Badge unlocked" data-fr="Badge débloqué">Badge unlocked</small></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Produits réels ============ -->
+<section class="section products-section" id="products-section" style="padding:64px 0; display:none;">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-en="Latest listings" data-fr="Dernières annonces">Latest listings</span></span>
+      <h2 data-en="Fresh on KWATTA right now" data-fr="Nouveau sur KWATTA en ce moment">Fresh on KWATTA right now</h2>
+      <p data-en="Real items from students and residents in Bambili and Bamenda." data-fr="De vrais articles d'étudiants et d'habitants de Bambili et Bamenda.">Real items from students and residents in Bambili and Bamenda.</p>
+    </div>
+
+    <div id="results-count" class="text-center mb-6" style="font-size:0.9rem; color:var(--muted); margin-bottom:24px;">Chargement...</div>
+
+    <div id="products-grid" class="products-grid" style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;"></div>
+
+    <div id="empty-state" class="hidden" style="text-align:center; padding:48px 20px;">
+      <div style="font-size:3rem; margin-bottom:12px; opacity:0.4;">🔍</div>
+      <p data-en="No items found" data-fr="Aucun article trouvé" style="color:var(--muted);">No items found</p>
+    </div>
+
+    <div style="text-align:center; margin-top:36px;">
+      <a href="search.html" class="btn btn-ghost btn-lg">
+        <span data-en="See all listings" data-fr="Voir toutes les annonces">See all listings</span>
+        <svg><use href="#i-arrow-right"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Stats ============ -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat reveal"><b>12,400+</b><span data-en="Students &amp; residents onboard" data-fr="Étudiants &amp; habitants inscrits">Students &amp; residents onboard</span></div>
+      <div class="stat reveal d1"><b>8,900+</b><span data-en="Active listings nearby" data-fr="Annonces actives à proximité">Active listings nearby</span></div>
+      <div class="stat reveal d2"><b>4.8/5</b><span data-en="Average seller rating" data-fr="Note moyenne des vendeurs">Average seller rating</span></div>
+      <div class="stat reveal d3"><b>&lt; 24h</b><span data-en="Average time to first offer" data-fr="Délai moyen avant la 1re offre">Average time to first offer</span></div>
+    </div>
+    <p class="stats-note" data-en="We've have more than 15K people involve in our community, it's all sort of amazing !!" data-fr="Chiffres illustratifs pour cet aperçu — à remplacer par vos statistiques réelles avant le lancement.">Illustrative figures for this preview — replace with your live metrics before launch.</p>
+  </div>
+</section>
+
+<!-- ============ What KWATTA is ============ -->
+<section class="section scroll-margin marketing-only" id="what">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-en="What KWATTA is" data-fr="C'est quoi KWATTA">What KWATTA is</span></span>
+      <h2 data-en="One account. You are both buyer and seller." data-fr="Un seul compte. Vous êtes à la fois acheteur et vendeur.">One account. You are both buyer and seller.</h2>
+      <p data-en="KWATTA is not a shop — it is a community marketplace. The same profile lets you post what you want to sell and buy what you need, with the tools to do it safely." data-fr="KWATTA n'est pas une boutique — c'est une place de marché communautaire. Le même profil vous permet de publier ce que vous vendez et d'acheter ce dont vous avez besoin, avec les outils pour le faire en sécurité.">KWATTA is not a shop — it is a community marketplace. The same profile lets you post what you want to sell and buy what you need, with the tools to do it safely.</p>
+    </div>
+
+    <div class="grid g-3">
+      <article class="feature reveal">
+        <span class="f-ico"><svg><use href="#i-camera"/></svg></span>
+        <h3 data-en="Publish a listing in minutes" data-fr="Publiez une annonce en quelques minutes">Publish a listing in minutes</h3>
+        <p data-en="Add photos, a clear description, your price and a precise neighborhood location — Bambili campus, Mile 4, Mile 6, Nkwen, Mankon and more. Buyers know exactly where the item is." data-fr="Ajoutez des photos, une description claire, votre prix et un quartier précis — campus de Bambili, Mile 4, Mile 6, Nkwen, Mankon et plus. L'acheteur sait exactement où se trouve l'article.">Add photos, a clear description, your price and a precise neighborhood location — Bambili campus, Mile 4, Mile 6, Nkwen, Mankon and more. Buyers know exactly where the item is.</p>
+      </article>
+      <article class="feature reveal d1">
+        <span class="f-ico"><svg><use href="#i-filter"/></svg></span>
+        <h3 data-en="Browse and search with real filters" data-fr="Parcourez et cherchez avec de vrais filtres">Browse and search with real filters</h3>
+        <p data-en="Filter by category, price range, condition, neighborhood and distance. Sort by newest, cheapest or closest — so you find the right item without scrolling for hours." data-fr="Filtrez par catégorie, prix, état, quartier et distance. Triez par plus récent, moins cher ou plus proche — pour trouver le bon article sans faire défiler pendant des heures.">Filter by category, price range, condition, neighborhood and distance. Sort by newest, cheapest or closest — so you find the right item without scrolling for hours.</p>
+      </article>
+      <article class="feature amber reveal d2">
+        <span class="f-ico"><svg><use href="#i-tag"/></svg></span>
+        <h3 data-en="Negotiate with a built-in offer system" data-fr="Négociez avec un système d'offres intégré">Negotiate with a built-in offer system</h3>
+        <p data-en="Haggling is part of the culture — so KWATTA makes it official. Send an offer, the seller accepts, counters or declines, and the agreed price is locked into the order." data-fr="La négociation fait partie de la culture — KWATTA la rend officielle. Envoyez une offre, le vendeur accepte, fait une contre-offre ou refuse, et le prix convenu est verrouillé dans la commande.">Haggling is part of the culture — so KWATTA makes it official. Send an offer, the seller accepts, counters or declines, and the agreed price is locked into the order.</p>
+      </article>
+      <article class="feature reveal">
+        <span class="f-ico"><svg><use href="#i-chat"/></svg></span>
+        <h3 data-en="Private chat, no phone numbers" data-fr="Chat privé, sans numéro de téléphone">Private chat, no phone numbers</h3>
+        <p data-en="Ask questions, share extra photos and agree on a handover point inside KWATTA. Your number stays private until you decide to share it." data-fr="Posez vos questions, partagez des photos supplémentaires et convenez d'un point de remise dans KWATTA. Votre numéro reste privé jusqu'à ce que vous décidiez de le partager.">Ask questions, share extra photos and agree on a handover point inside KWATTA. Your number stays private until you decide to share it.</p>
+      </article>
+      <article class="feature reveal d1">
+        <span class="f-ico"><svg><use href="#i-users"/></svg></span>
+        <h3 data-en="Follow sellers you trust" data-fr="Suivez les vendeurs de confiance">Follow sellers you trust</h3>
+        <p data-en="Follow the classmates and vendors who always deliver. Their new listings appear in your feed first, so you get the good deals before anyone else." data-fr="Suivez les camarades et vendeurs fiables. Leurs nouvelles annonces apparaissent d'abord dans votre fil, pour profiter des bonnes affaires avant tout le monde.">Follow the classmates and vendors who always deliver. Their new listings appear in your feed first, so you get the good deals before anyone else.</p>
+      </article>
+      <article class="feature amber reveal d2">
+        <span class="f-ico"><svg><use href="#i-wallet"/></svg></span>
+        <h3 data-en="A wallet that holds your money" data-fr="Un portefeuille qui garde votre argent">A wallet that holds your money</h3>
+        <p data-en="Top up your KWATTA wallet, pay for orders instantly and withdraw your earnings to MTN Mobile Money or Orange Money whenever you want." data-fr="Rechargez votre portefeuille KWATTA, payez vos commandes instantanément et retirez vos gains vers MTN Mobile Money ou Orange Money quand vous voulez.">Top up your KWATTA wallet, pay for orders instantly and withdraw your earnings to MTN Mobile Money or Orange Money whenever you want.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ How it works ============ -->
+<section class="section section--cream scroll-margin marketing-only" id="how">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-en="How it works" data-fr="Comment ça marche">How it works</span></span>
+      <h2 data-en="From listing to payout in five clear steps" data-fr="De l'annonce au paiement en cinq étapes claires">From listing to payout in five clear steps</h2>
+      <p data-en="Every order follows the same protected path. Money is held safely until the buyer confirms the item arrived as described." data-fr="Chaque commande suit le même parcours protégé. L'argent est conservé en sécurité jusqu'à ce que l'acheteur confirme la réception conforme de l'article.">Every order follows the same protected path. Money is held safely until the buyer confirms the item arrived as described.</p>
+    </div>
+
+    <div class="steps">
+      <article class="step reveal">
+        <span class="step-num">1</span>
+        <h3 data-en="Seller lists the item" data-fr="Le vendeur publie l'article">Seller lists the item</h3>
+        <p data-en="Photos, description, price and neighborhood. The listing goes live immediately and reaches buyers nearby." data-fr="Photos, description, prix et quartier. L'annonce est publiée immédiatement et atteint les acheteurs proches.">Photos, description, price and neighborhood. The listing goes live immediately and reaches buyers nearby.</p>
+        <svg class="step-arrow"><use href="#i-arrow-right"/></svg>
+      </article>
+      <article class="step reveal d1">
+        <span class="step-num">2</span>
+        <h3 data-en="Buyer pays into KWATTA" data-fr="L'acheteur paie dans KWATTA">Buyer pays into KWATTA</h3>
+        <p data-en="The buyer accepts the offer and pays with the KWATTA wallet, MTN Mobile Money, Orange Money or cash. KWATTA holds the funds." data-fr="L'acheteur accepte l'offre et paie avec le portefeuille KWATTA, MTN Mobile Money, Orange Money ou en espèces. KWATTA conserve les fonds.">The buyer accepts the offer and pays with the KWATTA wallet, MTN Mobile Money, Orange Money or cash. KWATTA holds the funds.</p>
+        <svg class="step-arrow"><use href="#i-arrow-right"/></svg>
+      </article>
+      <article class="step reveal d2">
+        <span class="step-num">3</span>
+        <h3 data-en="Seller ships or hands over" data-fr="Le vendeur expédie ou remet">Seller ships or hands over</h3>
+        <p data-en="The seller is notified and sends the item — by campus handover, moto delivery or a meeting point you both agree on." data-fr="Le vendeur est notifié et envoie l'article — remise sur le campus, livraison par moto ou point de rencontre convenu.">The seller is notified and sends the item — by campus handover, moto delivery or a meeting point you both agree on.</p>
+        <svg class="step-arrow"><use href="#i-arrow-right"/></svg>
+      </article>
+      <article class="step reveal d3">
+        <span class="step-num">4</span>
+        <h3 data-en="Buyer confirms receipt" data-fr="L'acheteur confirme la réception">Buyer confirms receipt</h3>
+        <p data-en="The buyer inspects the item and confirms it matches the listing. If something is wrong, they can open a report before confirming." data-fr="L'acheteur inspecte l'article et confirme qu'il correspond à l'annonce. En cas de problème, il peut ouvrir un signalement avant de confirmer.">The buyer inspects the item and confirms it matches the listing. If something is wrong, they can open a report before confirming.</p>
+        <svg class="step-arrow"><use href="#i-arrow-right"/></svg>
+      </article>
+      <article class="step reveal d4">
+        <span class="step-num">5</span>
+        <h3 data-en="Funds released to the seller" data-fr="Les fonds sont versés au vendeur">Funds released to the seller</h3>
+        <p data-en="The money lands in the seller's KWATTA wallet, ready to withdraw. Both sides can then rate each other." data-fr="L'argent arrive dans le portefeuille KWATTA du vendeur, prêt à être retiré. Les deux parties peuvent ensuite s'évaluer.">The money lands in the seller's KWATTA wallet, ready to withdraw. Both sides can then rate each other.</p>
+      </article>
+    </div>
+
+    <div class="commission-note reveal">
+      <svg><use href="#i-receipt"/></svg>
+      <p data-en="<strong>Transparent commission.</strong> KWATTA takes a small commission on both sides of a completed order — a modest buyer service fee and a modest seller fee, shown before you confirm. No subscription, no listing fee, and nothing is charged if the order never completes." data-fr="<strong>Commission transparente.</strong> KWATTA prélève une petite commission des deux côtés d'une commande finalisée — des frais de service modestes pour l'acheteur et pour le vendeur, affichés avant confirmation. Aucun abonnement, aucun frais d'annonce, et rien n'est prélevé si la commande n'aboutit pas."><strong>Transparent commission.</strong> KWATTA takes a small commission on both sides of a completed order — a modest buyer service fee and a modest seller fee, shown before you confirm. No subscription, no listing fee, and nothing is charged if the order never completes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Payments ============ -->
+<section class="section scroll-margin marketing-only" id="payments">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-en="Payment methods" data-fr="Moyens de paiement">Payment methods</span></span>
+      <h2 data-en="Pay the way Cameroon already pays" data-fr="Payez comme le Cameroun paie déjà">Pay the way Cameroon already pays</h2>
+      <p data-en="No bank account needed. Top up your KWATTA wallet once and pay in one tap, or use the mobile money account already on your phone." data-fr="Aucun compte bancaire requis. Rechargez une fois votre portefeuille KWATTA et payez en un clic, ou utilisez le compte mobile money déjà sur votre téléphone.">No bank account needed. Top up your KWATTA wallet once and pay in one tap, or use the mobile money account already on your phone.</p>
+    </div>
+
+    <div class="grid g-4">
+      <article class="pay-card reveal">
+        <span class="pay-logo pay-wallet"><svg><use href="#i-wallet"/></svg></span>
+        <h3 data-en="KWATTA Wallet" data-fr="Portefeuille KWATTA">KWATTA Wallet</h3>
+        <p data-en="Top up once, then pay for any order in a single tap. Your balance also holds money you earn from selling, ready to withdraw." data-fr="Rechargez une fois, puis payez toute commande en un clic. Votre solde conserve aussi l'argent gagné en vendant, prêt à être retiré.">Top up once, then pay for any order in a single tap. Your balance also holds money you earn from selling, ready to withdraw.</p>
+        <span class="pay-tag" data-en="Fastest checkout" data-fr="Paiement le plus rapide">Fastest checkout</span>
+      </article>
+      <article class="pay-card reveal d1">
+        <span class="pay-logo pay-mtn">MTN<br>MoMo</span>
+        <h3 data-en="MTN Mobile Money" data-fr="MTN Mobile Money">MTN Mobile Money</h3>
+        <p data-en="Pay or top up straight from your MTN MoMo account. Confirm the prompt on your phone and the order is paid — no cash to carry around." data-fr="Payez ou rechargez directement depuis votre compte MTN MoMo. Confirmez la demande sur votre téléphone et la commande est payée — sans transporter d'espèces.">Pay or top up straight from your MTN MoMo account. Confirm the prompt on your phone and the order is paid — no cash to carry around.</p>
+        <span class="pay-tag" data-en="Most used in Cameroon" data-fr="Le plus utilisé au Cameroun">Most used in Cameroon</span>
+      </article>
+      <article class="pay-card reveal d2">
+        <span class="pay-logo pay-om">Orange<br>Money</span>
+        <h3 data-en="Orange Money" data-fr="Orange Money">Orange Money</h3>
+        <p data-en="Same one-tap flow for Orange Money users. Top up your wallet or pay an order directly, and withdraw your earnings back to your account." data-fr="Le même parcours en un clic pour les utilisateurs d'Orange Money. Rechargez votre portefeuille ou payez une commande directement, et retirez vos gains vers votre compte.">Same one-tap flow for Orange Money users. Top up your wallet or pay an order directly, and withdraw your earnings back to your account.</p>
+        <span class="pay-tag" data-en="Withdraw anytime" data-fr="Retrait à tout moment">Withdraw anytime</span>
+      </article>
+      <article class="pay-card reveal d3">
+        <span class="pay-logo pay-cash"><svg><use href="#i-receipt"/></svg></span>
+        <h3 data-en="Cash on handover" data-fr="Espèces à la remise">Cash on handover</h3>
+        <p data-en="Meeting on campus anyway? Pay cash at the handover and the seller marks the order complete in the app, so both of you keep a record." data-fr="Vous vous rencontrez sur le campus ? Payez en espèces à la remise et le vendeur marque la commande comme terminée dans l'application, pour garder une trace.">Meeting on campus anyway? Pay cash at the handover and the seller marks the order complete in the app, so both of you keep a record.</p>
+        <span class="pay-tag" data-en="For campus meetups" data-fr="Pour les rencontres sur le campus">For campus meetups</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Trust & safety ============ -->
+<section class="section section--ink scroll-margin marketing-only" id="trust">
+  <div class="container">
+    <div class="trust-grid">
+      <div>
+        <div class="section-head reveal" style="margin-bottom:34px">
+          <span class="eyebrow"><span class="dot"></span><span data-en="Trust &amp; safety" data-fr="Confiance &amp; sécurité">Trust &amp; safety</span></span>
+          <h2 data-en="Built so a stranger on campus feels safe" data-fr="Conçu pour qu'un inconnu sur le campus se sente en sécurité">Built so a stranger on campus feels safe</h2>
+          <p data-en="Buying second-hand only works when both sides trust the deal. KWATTA verifies people, holds the money and keeps a record of everything." data-fr="Acheter d'occasion ne fonctionne que si les deux parties font confiance. KWATTA vérifie les personnes, conserve l'argent et garde une trace de tout.">Buying second-hand only works when both sides trust the deal. KWATTA verifies people, holds the money and keeps a record of everything.</p>
+        </div>
+        <div class="trust-list">
+          <div class="trust-item reveal">
+            <span class="t-ico"><svg><use href="#i-shield"/></svg></span>
+            <div>
+              <h3 data-en="Two-step verification" data-fr="Vérification en deux étapes">Two-step verification</h3>
+              <p data-en="Confirm your email, then upload your national ID. Our admins validate it by hand — and only then does the verified badge appear on your profile." data-fr="Confirmez votre e-mail, puis téléchargez votre carte nationale d'identité. Nos administrateurs la valident manuellement — et c'est seulement alors que le badge vérifié apparaît sur votre profil.">Confirm your email, then upload your national ID. Our admins validate it by hand — and only then does the verified badge appear on your profile.</p>
+            </div>
+          </div>
+          <div class="trust-item reveal d1">
+            <span class="t-ico"><svg><use href="#i-lock"/></svg></span>
+            <div>
+              <h3 data-en="Money held until you confirm" data-fr="Argent conservé jusqu'à votre confirmation">Money held until you confirm</h3>
+              <p data-en="The buyer's payment sits with KWATTA, not with the seller, until the item is received as described. That is what makes paying a stranger reasonable." data-fr="Le paiement de l'acheteur reste chez KWATTA, pas chez le vendeur, jusqu'à la réception conforme de l'article. C'est ce qui rend le paiement à un inconnu raisonnable.">The buyer's payment sits with KWATTA, not with the seller, until the item is received as described. That is what makes paying a stranger reasonable.</p>
+            </div>
+          </div>
+          <div class="trust-item reveal d2">
+            <span class="t-ico"><svg><use href="#i-star"/></svg></span>
+            <div>
+              <h3 data-en="Reviews with star ratings" data-fr="Avis avec notes par étoiles">Reviews with star ratings</h3>
+              <p data-en="After every completed order both sides rate each other. A seller's score is public, so good behaviour is rewarded and bad behaviour is visible." data-fr="Après chaque commande finalisée, les deux parties s'évaluent. La note d'un vendeur est publique : le bon comportement est récompensé et le mauvais est visible.">After every completed order both sides rate each other. A seller's score is public, so good behaviour is rewarded and bad behaviour is visible.</p>
+            </div>
+          </div>
+          <div class="trust-item reveal d3">
+            <span class="t-ico"><svg><use href="#i-bell"/></svg></span>
+            <div>
+              <h3 data-en="Real-time notifications" data-fr="Notifications en temps réel">Real-time notifications</h3>
+              <p data-en="New offer, accepted counter-offer, payment received, item shipped, message waiting — you are told the moment it happens, not hours later." data-fr="Nouvelle offre, contre-offre acceptée, paiement reçu, article expédié, message en attente — vous êtes informé au moment même, pas des heures plus tard.">New offer, accepted counter-offer, payment received, item shipped, message waiting — you are told the moment it happens, not hours later.</p>
+            </div>
+          </div>
+          <div class="trust-item reveal d4">
+            <span class="t-ico"><svg><use href="#i-rocket"/></svg></span>
+            <div>
+              <h3 data-en="Boost requests to get seen" data-fr="Demandes de boost pour être vu">Boost requests to get seen</h3>
+              <p data-en="Need to sell fast before you travel home? Request a boost and admins push your listing to the top of the feed and the homepage for a set period." data-fr="Besoin de vendre vite avant de rentrer au village ? Demandez un boost et les administrateurs placent votre annonce en tête du fil et de la page d'accueil pendant une période définie.">Need to sell fast before you travel home? Request a boost and admins push your listing to the top of the feed and the homepage for a set period.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="verify-card reveal d1">
+        <h3 data-en="Get your verified badge" data-fr="Obtenez votre badge vérifié">Get your verified badge</h3>
+        <p data-en="Two steps, done once, and your profile carries the badge everywhere you trade." data-fr="Deux étapes, une seule fois, et votre profil porte le badge partout où vous échangez.">Two steps, done once, and your profile carries the badge everywhere you trade.</p>
+        <div class="verify-step">
+          <span class="vs-num">1</span>
+          <div>
+            <h4 data-en="Confirm your email address" data-fr="Confirmez votre adresse e-mail">Confirm your email address</h4>
+            <p data-en="We send a confirmation link. Clicking it proves the account is really yours and unlocks messaging." data-fr="Nous envoyons un lien de confirmation. Le clic prouve que le compte est bien le vôtre et débloque la messagerie.">We send a confirmation link. Clicking it proves the account is really yours and unlocks messaging.</p>
+          </div>
+        </div>
+        <div class="verify-step">
+          <span class="vs-num">2</span>
+          <div>
+            <h4 data-en="Upload your national ID" data-fr="Téléchargez votre carte nationale d'identité">Upload your national ID</h4>
+            <p data-en="A photo of your CNI, stored securely and seen only by the admin team for validation — never shown to other users." data-fr="Une photo de votre CNI, stockée en sécurité et visible uniquement par l'équipe d'administration pour validation — jamais montrée aux autres utilisateurs.">A photo of your CNI, stored securely and seen only by the admin team for validation — never shown to other users.</p>
+          </div>
+        </div>
+        <div class="verify-step">
+          <span class="vs-num">3</span>
+          <div>
+            <h4 data-en="Admin validates and you are badged" data-fr="L'admin valide et vous êtes badgé">Admin validates and you are badged</h4>
+            <p data-en="Once approved, the verified badge appears on your profile, your listings and your chat — buyers know you are real." data-fr="Une fois approuvé, le badge vérifié apparaît sur votre profil, vos annonces et votre chat — les acheteurs savent que vous êtes réel.">Once approved, the verified badge appears on your profile, your listings and your chat — buyers know you are real.</p>
+          </div>
+        </div>
+        <div class="badge-demo">
+          <span class="bd-ico"><svg><use href="#i-check-circle"/></svg></span>
+          <span>
+            <b data-en="Verified seller" data-fr="Vendeur vérifié">Verified seller</b>
+            <small data-en="Email confirmed · ID validated by KWATTA admins" data-fr="E-mail confirmé · Identité validée par les admins KWATTA">Email confirmed · ID validated by KWATTA admins</small>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ For students ============ -->
+<section class="section scroll-margin marketing-only" id="students">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-en="For students at Bambili" data-fr="Pour les étudiants de Bambili">For students at Bambili</span></span>
+      <h2 data-en="Your campus is a marketplace already" data-fr="Votre campus est déjà un marché">Your campus is a marketplace already</h2>
+      <p data-en="Every semester, students arrive needing things and leave needing to sell things. KWATTA puts both sides in the same place — starting with the University of Bamenda's Bambili campus." data-fr="Chaque semestre, des étudiants arrivent avec des besoins et repartent avec des choses à vendre. KWATTA réunit les deux côtés au même endroit — en commençant par le campus de Bambili de l'Université de Bamenda.">Every semester, students arrive needing things and leave needing to sell things. KWATTA puts both sides in the same place — starting with the University of Bamenda's Bambili campus.</p>
+    </div>
+
+    <div class="cat-grid">
+      <article class="cat reveal">
+        <span class="cat-ico"><svg style="width:22px;height:22px;color:#0E5C43"><use href="#i-book"/></svg></span>
+        <h3 data-en="Books &amp; course material" data-fr="Livres &amp; supports de cours">Books &amp; course material</h3>
+        <p data-en="Past papers, recommended textbooks, lab manuals and lecture notes from the semester above you." data-fr="Anciens sujets, manuels recommandés, manuels de TP et notes de cours du semestre supérieur.">Past papers, recommended textbooks, lab manuals and lecture notes from the semester above you.</p>
+      </article>
+      <article class="cat reveal d1">
+        <span class="cat-ico"><svg style="width:22px;height:22px;color:#0E5C43"><use href="#i-laptop"/></svg></span>
+        <h3 data-en="Laptops &amp; electronics" data-fr="Ordinateurs &amp; électronique">Laptops &amp; electronics</h3>
+        <p data-en="Used laptops for assignments and projects, chargers, power banks, USB drives, printers and calculators." data-fr="Ordinateurs d'occasion pour devoirs et projets, chargeurs, batteries externes, clés USB, imprimantes et calculatrices.">Used laptops for assignments and projects, chargers, power banks, USB drives, printers and calculators.</p>
+      </article>
+      <article class="cat reveal d2">
+        <span class="cat-ico"><svg style="width:22px;height:22px;color:#0E5C43"><use href="#i-phone-dev"/></svg></span>
+        <h3 data-en="Phones &amp; accessories" data-fr="Téléphones &amp; accessoires">Phones &amp; accessories</h3>
+        <p data-en="Smartphones, SIM cards, earphones, phone cases and screen protectors — the fastest-moving category on campus." data-fr="Smartphones, cartes SIM, écouteurs, coques et protections d'écran — la catégorie qui tourne le plus vite sur le campus.">Smartphones, SIM cards, earphones, phone cases and screen protectors — the fastest-moving category on campus.</p>
+      </article>
+      <article class="cat reveal d3">
+        <span class="cat-ico"><svg style="width:22px;height:22px;color:#0E5C43"><use href="#i-bed"/></svg></span>
+        <h3 data-en="Hostel &amp; room items" data-fr="Objets de chambre &amp; hôtel">Hostel &amp; room items</h3>
+        <p data-en="Mattresses, buckets, kettles, hot plates, fans, reading lamps, bedsheets and study tables." data-fr="Matelas, seaux, bouilloires, plaques chauffantes, ventilateurs, lampes de lecture, draps et tables d'étude.">Mattresses, buckets, kettles, hot plates, fans, reading lamps, bedsheets and study tables.</p>
+      </article>
+      <article class="cat reveal">
+        <span class="cat-ico"><svg style="width:22px;height:22px;color:#0E5C43"><use href="#i-shirt"/></svg></span>
+        <h3 data-en="Clothing &amp; shoes" data-fr="Vêtements &amp; chaussures">Clothing &amp; shoes</h3>
+        <p data-en="Thrift finds, departmental T-shirts, sneakers, jackets for the cold season and traditional wear for events." data-fr="Trouvailles friperie, T-shirts de département, baskets, vestes pour la saison froide et tenues traditionnelles.">Thrift finds, departmental T-shirts, sneakers, jackets for the cold season and traditional wear for events.</p>
+      </article>
+      <article class="cat reveal d1">
+        <span class="cat-ico"><svg style="width:22px;height:22px;color:#0E5C43"><use href="#i-bowl"/></svg></span>
+        <h3 data-en="Food &amp; provisions" data-fr="Nourriture &amp; provisions">Food &amp; provisions</h3>
+        <p data-en="Bulk rice, beans, groundnut, palm oil, spices and home-cooked trays from students who cook to earn." data-fr="Riz en gros, haricots, arachide, huile de palme, épices et plats cuisinés par des étudiants qui cuisinent pour gagner.">Bulk rice, beans, groundnut, palm oil, spices and home-cooked trays from students who cook to earn.</p>
+      </article>
+      <article class="cat reveal d2">
+        <span class="cat-ico"><svg style="width:22px;height:22px;color:#0E5C43"><use href="#i-tools"/></svg></span>
+        <h3 data-en="Services &amp; skills" data-fr="Services &amp; compétences">Services &amp; skills</h3>
+        <p data-en="Typing and printing, project writing, graphic design, phone repair, hair and barbing, laundry and tutoring." data-fr="Saisie et impression, rédaction de projets, design graphique, réparation de téléphones, coiffure et barbier, lessive et cours particuliers.">Typing and printing, project writing, graphic design, phone repair, hair and barbing, laundry and tutoring.</p>
+      </article>
+      <article class="cat reveal d3">
+        <span class="cat-ico"><svg style="width:22px;height:22px;color:#0E5C43"><use href="#i-grid"/></svg></span>
+        <h3 data-en="Everything else" data-fr="Tout le reste">Everything else</h3>
+        <p data-en="Bicycles, musical instruments, sports gear, generators, sewing machines — if it has value, it can be listed." data-fr="Vélos, instruments de musique, matériel de sport, groupes électrogènes, machines à coudre — si ça a de la valeur, ça peut être publié.">Bicycles, musical instruments, sports gear, generators, sewing machines — if it has value, it can be listed.</p>
+      </article>
+    </div>
+
+    <div class="campus-split">
+      <div class="campus-img reveal">
+        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=200&q=80" alt="Students at Bambili campus using KWATTA on a phone and laptop" loading="lazy">
+        <span class="img-tag"><svg><use href="#i-pin"/></svg><span data-en="Bambili campus, University of Bamenda" data-fr="Campus de Bambili, Université de Bamenda">Bambili campus, University of Bamenda</span></span>
+      </div>
+      <div class="reveal d1">
+        <h2 data-en="Made for the way Bambili actually trades" data-fr="Conçu pour la façon dont Bambili commerce réellement">Made for the way Bambili actually trades</h2>
+        <p class="lead" style="margin-top:14px" data-en="Between lectures, hostels and the road down to Bamenda city, deals happen fast and in person. KWATTA is designed around that reality." data-fr="Entre les cours, les chambres et la route vers la ville de Bamenda, les affaires se font vite et en personne. KWATTA est conçu autour de cette réalité.">Between lectures, hostels and the road down to Bamenda city, deals happen fast and in person. KWATTA is designed around that reality.</p>
+        <div class="campus-points">
+          <div class="campus-point">
+            <span class="cp-ico"><svg><use href="#i-pin"/></svg></span>
+            <div>
+              <h4 data-en="Neighborhood-level locations" data-fr="Localisation au niveau du quartier">Neighborhood-level locations</h4>
+              <p data-en="Listings are tagged to Bambili campus, Mile 4, Mile 6, Nkwen, Mankon, Up Station and more — so you know the walk before you commit." data-fr="Les annonces sont rattachées à Bambili, Mile 4, Mile 6, Nkwen, Mankon, Up Station et plus — vous savez la distance avant de vous engager.">Listings are tagged to Bambili campus, Mile 4, Mile 6, Nkwen, Mankon, Up Station and more — so you know the walk before you commit.</p>
+            </div>
+          </div>
+          <div class="campus-point">
+            <span class="cp-ico"><svg><use href="#i-clock"/></svg></span>
+            <div>
+              <h4 data-en="Built for a student budget" data-fr="Pensé pour un budget étudiant">Built for a student budget</h4>
+              <p data-en="Free to join, free to list, and prices in FCFA from a few hundred francs upward. Small items are as welcome as laptops." data-fr="Inscription gratuite, publication gratuite, et des prix en FCFA à partir de quelques centaines de francs. Les petits articles sont aussi bienvenus que les ordinateurs.">Free to join, free to list, and prices in FCFA from a few hundred francs upward. Small items are as welcome as laptops.</p>
+            </div>
+          </div>
+          <div class="campus-point">
+            <span class="cp-ico"><svg><use href="#i-users"/></svg></span>
+            <div>
+              <h4 data-en="Sell to people you can actually meet" data-fr="Vendez à des personnes que vous pouvez rencontrer">Sell to people you can actually meet</h4>
+              <p data-en="Most orders end in a handover on campus or a short moto ride across town — no long-distance shipping, no waiting weeks." data-fr="La plupart des commandes se terminent par une remise sur le campus ou un court trajet en moto en ville — pas d'expédition longue distance, pas d'attente de semaines.">Most orders end in a handover on campus or a short moto ride across town — no long-distance shipping, no waiting weeks.</p>
+            </div>
+          </div>
+          <div class="campus-point">
+            <span class="cp-ico"><svg><use href="#i-spark"/></svg></span>
+            <div>
+              <h4 data-en="Turn your skills into income" data-fr="Transformez vos compétences en revenus">Turn your skills into income</h4>
+              <p data-en="Typing, design, tutoring, repairs, cooking — list a service, not just an object, and get paid through the same protected flow." data-fr="Saisie, design, cours, réparations, cuisine — publiez un service, pas seulement un objet, et soyez payé via le même parcours protégé.">Typing, design, tutoring, repairs, cooking — list a service, not just an object, and get paid through the same protected flow.</p>
+            </div>
+          </div>
+        </div>
+        <a class="btn btn-green btn-lg" href="sell.html" style="margin-top:28px"><span data-en="Join KWATTA free" data-fr="Rejoindre KWATTA gratuitement">Join KWATTA free</span><svg><use href="#i-arrow-right"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Sellers & admins ============ -->
+<section class="section section--ink scroll-margin marketing-only" id="sellers">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-en="For sellers &amp; admins" data-fr="Vendeurs &amp; administrateurs">For sellers &amp; admins</span></span>
+      <h2 data-en="A serious back office behind a simple app" data-fr="Un vrai back-office derrière une application simple">A serious back office behind a simple app</h2>
+      <p data-en="Sellers get a dashboard for their listings, orders and earnings. Admins get full control of the marketplace — because a community platform lives or dies on moderation." data-fr="Les vendeurs disposent d'un tableau de bord pour leurs annonces, commandes et gains. Les administrateurs contrôlent entièrement la place de marché — car une plateforme communautaire vit ou meurt par sa modération.">Sellers get a dashboard for their listings, orders and earnings. Admins get full control of the marketplace — because a community platform lives or dies on moderation.</p>
+    </div>
+
+    <div class="admin-grid">
+      <article class="admin-card reveal">
+        <span class="a-ico"><svg><use href="#i-users"/></svg></span>
+        <h3 data-en="User management" data-fr="Gestion des utilisateurs">User management</h3>
+        <p data-en="Admins see every account, assign roles and act on abuse immediately." data-fr="Les admins voient chaque compte, attribuent les rôles et agissent immédiatement en cas d'abus.">Admins see every account, assign roles and act on abuse immediately.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg><span data-en="Assign roles: student, seller, moderator, admin" data-fr="Attribuer des rôles : étudiant, vendeur, modérateur, admin">Assign roles: student, seller, moderator, admin</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Ban or suspend accounts that break the rules" data-fr="Bannir ou suspendre les comptes qui enfreignent les règles">Ban or suspend accounts that break the rules</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Validate national IDs and grant verified badges" data-fr="Valider les CNI et accorder les badges vérifiés">Validate national IDs and grant verified badges</span></li>
+        </ul>
+      </article>
+      <article class="admin-card reveal d1">
+        <span class="a-ico"><svg><use href="#i-list"/></svg></span>
+        <h3 data-en="Listing moderation" data-fr="Modération des annonces">Listing moderation</h3>
+        <p data-en="Every listing can be reviewed before or after it goes live, with a full action set." data-fr="Chaque annonce peut être examinée avant ou après publication, avec un ensemble complet d'actions.">Every listing can be reviewed before or after it goes live, with a full action set.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg><span data-en="Approve, suspend or delete listings" data-fr="Approuver, suspendre ou supprimer des annonces">Approve, suspend or delete listings</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Verify listings so buyers see a trust mark" data-fr="Vérifier les annonces pour afficher une marque de confiance">Verify listings so buyers see a trust mark</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Handle boost requests and promote listings" data-fr="Traiter les demandes de boost et promouvoir les annonces">Handle boost requests and promote listings</span></li>
+        </ul>
+      </article>
+      <article class="admin-card reveal d2">
+        <span class="a-ico"><svg><use href="#i-wallet"/></svg></span>
+        <h3 data-en="Transactions &amp; withdrawals" data-fr="Transactions &amp; retraits">Transactions &amp; withdrawals</h3>
+        <p data-en="Full visibility of the money moving through the platform, and control over payouts." data-fr="Visibilité totale sur l'argent qui circule sur la plateforme, et contrôle des versements.">Full visibility of the money moving through the platform, and control over payouts.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg><span data-en="Monitor every order and its payment status" data-fr="Suivre chaque commande et son statut de paiement">Monitor every order and its payment status</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Approve or reject withdrawal requests" data-fr="Approuver ou rejeter les demandes de retrait">Approve or reject withdrawal requests</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Track commissions earned on both sides" data-fr="Suivre les commissions gagnées des deux côtés">Track commissions earned on both sides</span></li>
+        </ul>
+      </article>
+      <article class="admin-card reveal">
+        <span class="a-ico"><svg><use href="#i-flag"/></svg></span>
+        <h3 data-en="Reports &amp; disputes" data-fr="Signalements &amp; litiges">Reports &amp; disputes</h3>
+        <p data-en="When a deal goes wrong, there is a queue and a process — not a dead end." data-fr="Quand une affaire tourne mal, il y a une file d'attente et un processus — pas une impasse.">When a deal goes wrong, there is a queue and a process — not a dead end.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg><span data-en="Review reports filed by buyers and sellers" data-fr="Examiner les signalements des acheteurs et vendeurs">Review reports filed by buyers and sellers</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Freeze funds while a dispute is investigated" data-fr="Geler les fonds pendant l'enquête d'un litige">Freeze funds while a dispute is investigated</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Resolve, refund or release with a written reason" data-fr="Résoudre, rembourser ou libérer avec un motif écrit">Resolve, refund or release with a written reason</span></li>
+        </ul>
+      </article>
+      <article class="admin-card reveal d1">
+        <span class="a-ico"><svg><use href="#i-chart"/></svg></span>
+        <h3 data-en="Marketplace analytics" data-fr="Analytique de la place de marché">Marketplace analytics</h3>
+        <p data-en="Know what Bambili and Bamenda are actually buying and selling this month." data-fr="Sachez ce que Bambili et Bamenda achètent et vendent réellement ce mois-ci.">Know what Bambili and Bamenda are actually buying and selling this month.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg><span data-en="Listings, orders and revenue over time" data-fr="Annonces, commandes et revenus dans le temps">Listings, orders and revenue over time</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Top categories and busiest neighborhoods" data-fr="Catégories phares et quartiers les plus actifs">Top categories and busiest neighborhoods</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="New signups and verification completion rate" data-fr="Nouvelles inscriptions et taux de vérification">New signups and verification completion rate</span></li>
+        </ul>
+      </article>
+      <article class="admin-card reveal d2">
+        <span class="a-ico"><svg><use href="#i-lock"/></svg></span>
+        <h3 data-en="Audit logs" data-fr="Journaux d'audit">Audit logs</h3>
+        <p data-en="Every administrative action is recorded, so moderation stays accountable." data-fr="Chaque action administrative est enregistrée, pour que la modération reste responsable.">Every administrative action is recorded, so moderation stays accountable.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg><span data-en="Who changed what, and exactly when" data-fr="Qui a modifié quoi, et exactement quand">Who changed what, and exactly when</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Bans, deletions and refunds traced end to end" data-fr="Bannissements, suppressions et remboursements tracés de bout en bout">Bans, deletions and refunds traced end to end</span></li>
+          <li><svg><use href="#i-check"/></svg><span data-en="Exportable history for accountability" data-fr="Historique exportable pour la responsabilité">Exportable history for accountability</span></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Bilingual note ============ -->
+<section class="section section--tight marketing-only">
+  <div class="container">
+    <div class="bilingual reveal">
+      <span class="bi-ico"><svg><use href="#i-globe"/></svg></span>
+      <div class="bi-body">
+        <h3 data-en="Bilingual by design — English and French" data-fr="Bilingue par conception — anglais et français">Bilingual by design — English and French</h3>
+        <p data-en="Cameroon is bilingual, and so is KWATTA. The whole interface switches between English and French with one tap, and defaults to English for the anglophone North West Region — so a student in Bambili and a trader in Bamenda read the same app in the language they think in." data-fr="Le Cameroun est bilingue, et KWATTA aussi. Toute l'interface bascule entre l'anglais et le français en un clic, et s'ouvre en anglais pour la région anglophone du Nord-Ouest — un étudiant à Bambili et un commerçant à Bamenda lisent la même application dans la langue dans laquelle ils pensent.">Cameroon is bilingual, and so is KWATTA. The whole interface switches between English and French with one tap, and defaults to English for the anglophone North West Region — so a student in Bambili and a trader in Bamenda read the same app in the language they think in.</p>
+      </div>
+      <div class="bi-flags">
+        <div class="bi-flag">EN<small data-en="Default" data-fr="Par défaut">Default</small></div>
+        <div class="bi-flag">FR<small data-en="One tap" data-fr="Un clic">One tap</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Testimonials ============ -->
+<section class="section section--cream marketing-only">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-en="Social proof" data-fr="Preuve sociale">Social proof</span></span>
+      <h2 data-en="What the first KWATTA users say" data-fr="Ce que disent les premiers utilisateurs de KWATTA">What the first KWATTA users say</h2>
+      <p data-en="Students and traders from Bambili and Bamenda on what changed once they started trading on KWATTA." data-fr="Étudiants et commerçants de Bambili et Bamenda racontent ce qui a changé depuis qu'ils échangent sur KWATTA.">Students and traders from Bambili and Bamenda on what changed once they started trading on KWATTA.</p>
+    </div>
+
+    <div class="grid g-3">
+      <article class="testi reveal">
+        <div class="stars" aria-label="5 out of 5">
+          <svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg>
+        </div>
+        <blockquote data-en="&ldquo;I sold my old laptop in two days and used the money for my project. The offer system meant I didn't have to argue in the comments — we agreed a price and it was locked.&rdquo;" data-fr="&laquo; J'ai vendu mon vieux PC en deux jours et j'ai utilisé l'argent pour mon projet. Le système d'offres m'a évité de me disputer dans les commentaires — on a convenu d'un prix et il était verrouillé. &raquo;">&ldquo;I sold my old laptop in two days and used the money for my project. The offer system meant I didn't have to argue in the comments — we agreed a price and it was locked.&rdquo;</blockquote>
+        <div class="testi-who">
+          <span class="testi-av" style="background:#0E5C43">AN</span>
+          <span><b>Awah N.</b><small data-en="Computer Engineering student · Bambili campus" data-fr="Étudiant en génie informatique · Campus de Bambili">Computer Engineering student · Bambili campus</small></span>
+        </div>
+      </article>
+      <article class="testi reveal d1">
+        <div class="stars" aria-label="5 out of 5">
+          <svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg>
+        </div>
+        <blockquote data-en="&ldquo;What convinced me was the money being held until I confirm. I was scared to pay a stranger for a phone, but the funds only moved after I checked it.&rdquo;" data-fr="&laquo; Ce qui m'a convaincu, c'est que l'argent soit retenu jusqu'à ma confirmation. J'avais peur de payer un inconnu pour un téléphone, mais les fonds n'ont bougé qu'après vérification. &raquo;">&ldquo;What convinced me was the money being held until I confirm. I was scared to pay a stranger for a phone, but the funds only moved after I checked it.&rdquo;</blockquote>
+        <div class="testi-who">
+          <span class="testi-av" style="background:#D98E1F">TB</span>
+          <span><b>Tabi B.</b><small data-en="Economics student · Mile 4, Bamenda" data-fr="Étudiante en économie · Mile 4, Bamenda">Economics student · Mile 4, Bamenda</small></span>
+        </div>
+      </article>
+      <article class="testi reveal d2">
+        <div class="stars" aria-label="5 out of 5">
+          <svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg>
+        </div>
+        <blockquote data-en="&ldquo;I list hostel items every semester when students move out. The verified badge and my reviews do the selling for me now — buyers trust the profile before they even message.&rdquo;" data-fr="&laquo; Je publie des objets de chambre chaque semestre quand les étudiants déménagent. Le badge vérifié et mes avis vendent à ma place — les acheteurs font confiance au profil avant même d'écrire. &raquo;">&ldquo;I list hostel items every semester when students move out. The verified badge and my reviews do the selling for me now — buyers trust the profile before they even message.&rdquo;</blockquote>
+        <div class="testi-who">
+          <span class="testi-av" style="background:#12734F">MN</span>
+          <span><b>Mbah N.</b><small data-en="Hostel items seller · Nkwen, Bamenda" data-fr="Vendeur d'objets de chambre · Nkwen, Bamenda">Hostel items seller · Nkwen, Bamenda</small></span>
+        </div>
+      </article>
+      <article class="testi reveal">
+        <div class="stars" aria-label="5 out of 5">
+          <svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg>
+        </div>
+        <blockquote data-en="&ldquo;I sell typing and project formatting as a service. I never thought I could list a skill next to people selling phones — but it works, and I get paid into my wallet.&rdquo;" data-fr="&laquo; Je vends de la saisie et de la mise en forme de projets comme service. Je ne pensais pas pouvoir publier une compétence à côté de gens qui vendent des téléphones — mais ça marche, et je suis payé dans mon portefeuille. &raquo;">&ldquo;I sell typing and project formatting as a service. I never thought I could list a skill next to people selling phones — but it works, and I get paid into my wallet.&rdquo;</blockquote>
+        <div class="testi-who">
+          <span class="testi-av" style="background:#C8452F">EF</span>
+          <span><b>Enow F.</b><small data-en="Service provider · Bambili campus" data-fr="Prestataire de services · Campus de Bambili">Service provider · Bambili campus</small></span>
+        </div>
+      </article>
+      <article class="testi reveal d1">
+        <div class="stars" aria-label="5 out of 5">
+          <svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg>
+        </div>
+        <blockquote data-en="&ldquo;Withdrawing to MTN MoMo takes a minute. That matters when you sell something to pay for transport the same day.&rdquo;" data-fr="&laquo; Le retrait vers MTN MoMo prend une minute. C'est important quand on vend quelque chose pour payer le transport le jour même. &raquo;">&ldquo;Withdrawing to MTN MoMo takes a minute. That matters when you sell something to pay for transport the same day.&rdquo;</blockquote>
+        <div class="testi-who">
+          <span class="testi-av" style="background:#0A4433">NC</span>
+          <span><b>Ngu C.</b><small data-en="Student trader · Mankon, Bamenda" data-fr="Étudiant commerçant · Mankon, Bamenda">Student trader · Mankon, Bamenda</small></span>
+        </div>
+      </article>
+      <article class="testi reveal d2">
+        <div class="stars" aria-label="5 out of 5">
+          <svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg>
+        </div>
+        <blockquote data-en="&ldquo;The French switch is what made me sign up. My mother trades in Bamenda market and reads French — now she can use the same app I use.&rdquo;" data-fr="&laquo; Le passage au français m'a fait m'inscrire. Ma mère commerce au marché de Bamenda et lit le français — maintenant elle utilise la même application que moi. &raquo;">&ldquo;The French switch is what made me sign up. My mother trades in Bamenda market and reads French — now she can use the same app I use.&rdquo;</blockquote>
+        <div class="testi-who">
+          <span class="testi-av" style="background:#12734F">FK</span>
+          <span><b>Fon K.</b><small data-en="Law student · Up Station, Bamenda" data-fr="Étudiant en droit · Up Station, Bamenda">Law student · Up Station, Bamenda</small></span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section scroll-margin marketing-only" id="faq">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-en="FAQ" data-fr="FAQ">FAQ</span></span>
+      <h2 data-en="Questions students ask before signing up" data-fr="Les questions que les étudiants posent avant de s'inscrire">Questions students ask before signing up</h2>
+    </div>
+
+    <div class="faq-wrap">
+      <div class="faq-item reveal">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span data-en="Is KWATTA free to use?" data-fr="KWATTA est-il gratuit ?">Is KWATTA free to use?</span>
+          <span class="fq-ico"><svg><use href="#i-plus"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-en="Yes. Creating an account, browsing and publishing listings are all free — there is no subscription and no listing fee. KWATTA only earns a small commission when an order actually completes, taken from both sides and shown to you before you confirm." data-fr="Oui. Créer un compte, parcourir et publier des annonces sont gratuits — aucun abonnement, aucun frais d'annonce. KWATTA ne gagne une petite commission que lorsqu'une commande est réellement finalisée, prélevée des deux côtés et affichée avant confirmation.">Yes. Creating an account, browsing and publishing listings are all free — there is no subscription and no listing fee. KWATTA only earns a small commission when an order actually completes, taken from both sides and shown to you before you confirm.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span data-en="How do I get the verified badge?" data-fr="Comment obtenir le badge vérifié ?">How do I get the verified badge?</span>
+          <span class="fq-ico"><svg><use href="#i-plus"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-en="Two steps: confirm your email address, then upload a photo of your national ID. A KWATTA admin reviews the ID by hand and, once approved, the verified badge appears on your profile, your listings and your chats. Your ID is never shown to other users." data-fr="Deux étapes : confirmez votre adresse e-mail, puis téléchargez une photo de votre carte nationale d'identité. Un administrateur KWATTA examine la pièce manuellement et, une fois approuvée, le badge vérifié apparaît sur votre profil, vos annonces et vos chats. Votre pièce n'est jamais montrée aux autres utilisateurs.">Two steps: confirm your email address, then upload a photo of your national ID. A KWATTA admin reviews the ID by hand and, once approved, the verified badge appears on your profile, your listings and your chats. Your ID is never shown to other users.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span data-en="What happens to my money after I pay?" data-fr="Que devient mon argent après le paiement ?">What happens to my money after I pay?</span>
+          <span class="fq-ico"><svg><use href="#i-plus"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-en="Your payment is held by KWATTA, not released to the seller. The seller is told to ship or hand over the item. Only when you confirm you received it as described are the funds released to the seller's wallet. If something is wrong, you can open a report before confirming." data-fr="Votre paiement est conservé par KWATTA et non versé au vendeur. Le vendeur est invité à expédier ou remettre l'article. Ce n'est que lorsque vous confirmez l'avoir reçu conforme que les fonds sont libérés vers le portefeuille du vendeur. En cas de problème, vous pouvez ouvrir un signalement avant de confirmer.">Your payment is held by KWATTA, not released to the seller. The seller is told to ship or hand over the item. Only when you confirm you received it as described are the funds released to the seller's wallet. If something is wrong, you can open a report before confirming.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span data-en="Which payment methods can I use?" data-fr="Quels moyens de paiement puis-je utiliser ?">Which payment methods can I use?</span>
+          <span class="fq-ico"><svg><use href="#i-plus"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-en="Four options: your KWATTA wallet (top it up once and pay in one tap), MTN Mobile Money, Orange Money, or cash at a handover. You do not need a bank account, and you can withdraw your earnings to MTN MoMo or Orange Money." data-fr="Quatre options : votre portefeuille KWATTA (rechargez une fois et payez en un clic), MTN Mobile Money, Orange Money, ou en espèces lors d'une remise. Aucun compte bancaire n'est nécessaire, et vous pouvez retirer vos gains vers MTN MoMo ou Orange Money.">Four options: your KWATTA wallet (top it up once and pay in one tap), MTN Mobile Money, Orange Money, or cash at a handover. You do not need a bank account, and you can withdraw your earnings to MTN MoMo or Orange Money.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span data-en="Can I negotiate the price?" data-fr="Puis-je négocier le prix ?">Can I negotiate the price?</span>
+          <span class="fq-ico"><svg><use href="#i-plus"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-en="Absolutely — that is what the offer system is for. Send an offer, and the seller can accept it, send a counter-offer or decline. Once you both agree, that price is locked into the order so nobody can change it afterwards." data-fr="Bien sûr — c'est le rôle du système d'offres. Envoyez une offre, et le vendeur peut l'accepter, faire une contre-offre ou refuser. Une fois d'accord, ce prix est verrouillé dans la commande et personne ne peut le modifier ensuite.">Absolutely — that is what the offer system is for. Send an offer, and the seller can accept it, send a counter-offer or decline. Once you both agree, that price is locked into the order so nobody can change it afterwards.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span data-en="Do I have to give my phone number?" data-fr="Dois-je donner mon numéro de téléphone ?">Do I have to give my phone number?</span>
+          <span class="fq-ico"><svg><use href="#i-plus"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-en="No. All conversation happens in KWATTA's private chat, so you can ask questions, share extra photos and agree a meeting point without exposing your number. You only share it if you choose to." data-fr="Non. Toute la conversation se fait dans le chat privé de KWATTA : vous pouvez poser des questions, partager des photos et convenir d'un point de rencontre sans exposer votre numéro. Vous ne le partagez que si vous le décidez.">No. All conversation happens in KWATTA's private chat, so you can ask questions, share extra photos and agree a meeting point without exposing your number. You only share it if you choose to.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span data-en="Can I sell a service instead of an item?" data-fr="Puis-je vendre un service plutôt qu'un objet ?">Can I sell a service instead of an item?</span>
+          <span class="fq-ico"><svg><use href="#i-plus"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-en="Yes. Typing, printing, project formatting, graphic design, phone repair, hair and barbing, laundry, tutoring and cooking are all listed as services on KWATTA, and they go through the same protected payment flow as physical items." data-fr="Oui. Saisie, impression, mise en forme de projets, design graphique, réparation de téléphones, coiffure et barbier, lessive, cours particuliers et cuisine sont tous proposés comme services sur KWATTA, et passent par le même parcours de paiement protégé que les objets physiques.">Yes. Typing, printing, project formatting, graphic design, phone repair, hair and barbing, laundry, tutoring and cooking are all listed as services on KWATTA, and they go through the same protected payment flow as physical items.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span data-en="Is KWATTA available in French?" data-fr="KWATTA est-il disponible en français ?">Is KWATTA available in French?</span>
+          <span class="fq-ico"><svg><use href="#i-plus"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-en="Yes. The entire interface is bilingual. It opens in English by default for the anglophone North West Region, and you can switch to French at any time with the EN / FR toggle — your choice is remembered on your next visit." data-fr="Oui. Toute l'interface est bilingue. Elle s'ouvre en anglais par défaut pour la région anglophone du Nord-Ouest, et vous pouvez passer au français à tout moment avec le bouton EN / FR — votre choix est mémorisé à la prochaine visite.">Yes. The entire interface is bilingual. It opens in English by default for the anglophone North West Region, and you can switch to French at any time with the EN / FR toggle — your choice is remembered on your next visit.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" type="button" aria-expanded="false">
+          <span data-en="What if the item never arrives?" data-fr="Et si l'article n'arrive jamais ?">What if the item never arrives?</span>
+          <span class="fq-ico"><svg><use href="#i-plus"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-en="Do not confirm receipt. Open a report from the order page and the admin team investigates with the funds still frozen. Depending on the outcome they can release the payment to the seller or refund you, and the reason is recorded in the audit log." data-fr="Ne confirmez pas la réception. Ouvrez un signalement depuis la page de la commande et l'équipe d'administration enquête avec les fonds toujours gelés. Selon le résultat, elle peut libérer le paiement au vendeur ou vous rembourser, et le motif est enregistré dans le journal d'audit.">Do not confirm receipt. Open a report from the order page and the admin team investigates with the funds still frozen. Depending on the outcome they can release the payment to the seller or refund you, and the reason is recorded in the audit log.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Final CTA + signup ============ -->
+<section class="section cta-section scroll-margin" id="signup">
+  <div class="container cta-grid">
+    <div class="cta-copy reveal">
+      <span class="eyebrow"><span class="dot"></span><span data-en="Join KWATTA" data-fr="Rejoindre KWATTA">Join KWATTA</span></span>
+      <h2 data-en="Your first listing takes two minutes" data-fr="Votre première annonce prend deux minutes">Your first listing takes two minutes</h2>
+      <p data-en="Sign up free, verify your email, and start selling to students and residents across Bambili and Bamenda today. No listing fees, no subscription, no bank account required." data-fr="Inscrivez-vous gratuitement, confirmez votre e-mail et commencez à vendre aux étudiants et habitants de Bambili et Bamenda dès aujourd'hui. Aucun frais d'annonce, aucun abonnement, aucun compte bancaire requis.">Sign up free, verify your email, and start selling to students and residents across Bambili and Bamenda today. No listing fees, no subscription, no bank account required.</p>
+      <ul class="cta-points">
+        <li><svg><use href="#i-check-circle"/></svg><span data-en="Free account — list as many items as you want" data-fr="Compte gratuit — publiez autant d'articles que vous voulez">Free account — list as many items as you want</span></li>
+        <li><svg><use href="#i-check-circle"/></svg><span data-en="Pay and get paid with MTN MoMo, Orange Money or your wallet" data-fr="Payez et soyez payé avec MTN MoMo, Orange Money ou votre portefeuille">Pay and get paid with MTN MoMo, Orange Money or your wallet</span></li>
+        <li><svg><use href="#i-check-circle"/></svg><span data-en="Money protected until the buyer confirms receipt" data-fr="Argent protégé jusqu'à confirmation de réception par l'acheteur">Money protected until the buyer confirms receipt</span></li>
+        <li><svg><use href="#i-check-circle"/></svg><span data-en="English and French, switchable at any time" data-fr="Anglais et français, interchangeables à tout moment">English and French, switchable at any time</span></li>
+      </ul>
+    </div>
+
+    <div class="signup-card reveal d1">
+      <form id="signupForm" novalidate>
+        <h3 data-en="Create your free account" data-fr="Créez votre compte gratuit">Create your free account</h3>
+        <p data-en="Takes under a minute. We will email you a confirmation link." data-fr="Moins d'une minute. Nous vous enverrons un lien de confirmation par e-mail.">Takes under a minute. We will email you a confirmation link.</p>
+
+        <div class="field">
+          <label for="fullName" data-en="Full name" data-fr="Nom complet">Full name</label>
+          <input type="text" id="fullName" name="fullName" autocomplete="name" placeholder="e.g. Awah Ndifor" data-ph-en="e.g. Awah Ndifor" data-ph-fr="ex. Awah Ndifor">
+          <span class="err-msg" data-err="fullName" data-en="Please enter your full name." data-fr="Veuillez saisir votre nom complet.">Please enter your full name.</span>
+        </div>
+
+        <div class="field">
+          <label for="email" data-en="Email address" data-fr="Adresse e-mail">Email address</label>
+          <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" data-ph-en="you@example.com" data-ph-fr="vous@exemple.com">
+          <span class="err-msg" data-err="email" data-en="Please enter a valid email address." data-fr="Veuillez saisir une adresse e-mail valide.">Please enter a valid email address.</span>
+        </div>
+
+        <div class="field">
+          <label for="phone" data-en="Phone number (for mobile money)" data-fr="Numéro de téléphone (pour le mobile money)">Phone number (for mobile money)</label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="6XX XXX XXX" data-ph-en="6XX XXX XXX" data-ph-fr="6XX XXX XXX">
+          <span class="err-msg" data-err="phone" data-en="Please enter a valid Cameroonian number (9 digits)." data-fr="Veuillez saisir un numéro camerounais valide (9 chiffres).">Please enter a valid Cameroonian number (9 digits).</span>
+        </div>
+
+        <div class="field">
+          <label for="area" data-en="Your area" data-fr="Votre zone">Your area</label>
+          <select id="area" name="area">
+            <option value="bambili" data-en="Bambili campus" data-fr="Campus de Bambili">Bambili campus</option>
+            <option value="mile4" data-en="Mile 4, Bamenda" data-fr="Mile 4, Bamenda">Mile 4, Bamenda</option>
+            <option value="mile6" data-en="Mile 6, Bamenda" data-fr="Mile 6, Bamenda">Mile 6, Bamenda</option>
+            <option value="nkwen" data-en="Nkwen" data-fr="Nkwen">Nkwen</option>
+            <option value="mankon" data-en="Mankon" data-fr="Mankon">Mankon</option>
+            <option value="upstation" data-en="Up Station / Bamenda city" data-fr="Up Station / ville de Bamenda">Up Station / Bamenda city</option>
+            <option value="other" data-en="Other area" data-fr="Autre zone">Other area</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label data-en="I mainly want to" data-fr="Je souhaite principalement">I mainly want to</label>
+          <div class="radio-row">
+            <label><input type="radio" name="intent" value="sell" checked><span data-en="Sell" data-fr="Vendre">Sell</span></label>
+            <label><input type="radio" name="intent" value="buy"><span data-en="Buy" data-fr="Acheter">Buy</span></label>
+            <label><input type="radio" name="intent" value="both"><span data-en="Both" data-fr="Les deux">Both</span></label>
+          </div>
+        </div>
+
+        <label class="consent">
+          <input type="checkbox" id="consent" name="consent">
+          <span data-en="I agree to KWATTA's terms of use and privacy policy, and understand that a small commission applies to completed orders." data-fr="J'accepte les conditions d'utilisation et la politique de confidentialité de KWATTA, et je comprends qu'une petite commission s'applique aux commandes finalisées.">I agree to KWATTA's terms of use and privacy policy, and understand that a small commission applies to completed orders.</span>
+        </label>
+        <span class="err-msg" data-err="consent" data-en="Please accept the terms to continue." data-fr="Veuillez accepter les conditions pour continuer.">Please accept the terms to continue.</span>
+
+        <button class="btn btn-primary btn-lg btn-block" type="submit" style="margin-top:18px">
+          <span data-en="Create my free account" data-fr="Créer mon compte gratuit">Create my free account</span>
+          <svg><use href="#i-arrow-right"/></svg>
+        </button>
+        <p class="form-note" data-en="This is a demo form — no data leaves your browser." data-fr="Ceci est un formulaire de démonstration — aucune donnée ne quitte votre navigateur.">This is a demo form — no data leaves your browser.</p>
+      </form>
+
+      <div class="form-success" id="formSuccess" role="status" aria-live="polite">
+        <span class="fs-ico"><svg><use href="#i-check-circle"/></svg></span>
+        <h3 data-en="Welcome to KWATTA!" data-fr="Bienvenue sur KWATTA !">Welcome to KWATTA!</h3>
+        <p data-en="Your account request has been received. Check your inbox for the confirmation link, then upload your national ID to unlock the verified badge." data-fr="Votre demande de compte a été reçue. Consultez votre boîte de réception pour le lien de confirmation, puis téléchargez votre carte nationale d'identité pour débloquer le badge vérifié.">Your account request has been received. Check your inbox for the confirmation link, then upload your national ID to unlock the verified badge.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ Footer ============ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="brand">
+          <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#F2A93B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16"/><path d="M7 12l7-8"/><path d="M7 12l7 8"/></svg></span>
+          <span><span class="k" style="color:#F2A93B">K</span>WATTA</span>
+        </span>
+        <p data-en="The peer-to-peer marketplace for students at Bambili campus and the city of Bamenda. Every user is both buyer and seller." data-fr="La place de marché pair-à-pair pour les étudiants du campus de Bambili et la ville de Bamenda. Chaque utilisateur est à la fois acheteur et vendeur.">The peer-to-peer marketplace for students at Bambili campus and the city of Bamenda. Every user is both buyer and seller.</p>
+        <div class="footer-lang">
+          <span data-en="Language:" data-fr="Langue :">Language:</span>
+          <div class="lang-toggle" role="group" aria-label="Language">
+            <button type="button" data-lang-btn="en" class="active">EN</button>
+            <button type="button" data-lang-btn="fr">FR</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 data-en="Marketplace" data-fr="Place de marché">Marketplace</h4>
+        <ul>
+          <li><a href="#students" data-en="Browse items" data-fr="Parcourir les annonces">Browse items</a></li>
+          <li><a href="#signup" data-en="Start selling" data-fr="Commencer à vendre">Start selling</a></li>
+          <li><a href="#payments" data-en="Payment methods" data-fr="Moyens de paiement">Payment methods</a></li>
+          <li><a href="#trust" data-en="Trust &amp; safety" data-fr="Confiance &amp; sécurité">Trust &amp; safety</a></li>
+          <li><a href="#sellers" data-en="Seller dashboard" data-fr="Tableau de bord vendeur">Seller dashboard</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 data-en="Company" data-fr="Entreprise">Company</h4>
+        <ul>
+          <li><a href="#what" data-en="About KWATTA" data-fr="À propos de KWATTA">About KWATTA</a></li>
+          <li><a href="#how" data-en="How it works" data-fr="Comment ça marche">How it works</a></li>
+          <li><a href="#faq" data-en="Help &amp; FAQ" data-fr="Aide &amp; FAQ">Help &amp; FAQ</a></li>
+          <li><a href="#signup" data-en="Create an account" data-fr="Créer un compte">Create an account</a></li>
+          <li><a href="#sellers" data-en="Become a moderator" data-fr="Devenir modérateur">Become a moderator</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 data-en="Contact" data-fr="Contact">Contact</h4>
+        <ul class="footer-contact">
+          <li><svg><use href="#i-mail"/></svg><span>thebox472@gmail.com</span></li>
+          <li><svg><use href="#i-phone"/></svg><span>+237 6 57 69 81</span></li>
+          <li><svg><use href="#i-pin"/></svg><span data-en="Bambili campus, University of Bamenda, North West Region, Cameroon" data-fr="Campus de Bambili, Université de Bamenda, Région du Nord-Ouest, Cameroun">Bambili campus, University of Bamenda, North West Region, Cameroon</span></li>
+          <li><svg><use href="#i-clock"/></svg><span data-en="Support: Mon–Sat, 8:00–18:00 WAT" data-fr="Assistance : lun–sam, 8h00–18h00 WAT">Support: Mon–Sat, 8:00–18:00 WAT</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p data-en="© 2026 KWATTA. Built for Bambili and Bamenda. All rights reserved." data-fr="© 2026 KWATTA. Conçu pour Bambili et Bamenda. Tous droits réservés.">© 2026 KWATTA. Built for Bambili and Bamenda. All rights reserved.</p>
+      <div class="fb-links">
+        <a href="#faq" data-en="Terms of use" data-fr="Conditions d'utilisation">Terms of use</a>
+        <a href="#faq" data-en="Privacy policy" data-fr="Politique de confidentialité">Privacy policy</a>
+        <a href="#trust" data-en="Safety centre" data-fr="Centre de sécurité">Safety centre</a>
+        <a href="#signup" data-en="Sign up" data-fr="S'inscrire">Sign up</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- Language (EN / FR) ---------- */
+  var STORAGE_KEY = 'kwatta-lang';
+  var htmlEl = document.documentElement;
+
+  window.applyLang = function applyLang(lang){
+    if(lang !== 'fr'){ lang = 'en'; }
+    htmlEl.setAttribute('lang', lang);
+    var nodes = document.querySelectorAll('[data-en][data-fr]');
+    for(var i=0;i<nodes.length;i++){
+      var el = nodes[i];
+      var val = el.getAttribute('data-' + lang);
+      if(val !== null){ el.innerHTML = val; }
+    }
+    var phs = document.querySelectorAll('[data-ph-en][data-ph-fr]');
+    for(var j=0;j<phs.length;j++){
+      var p = phs[j];
+      var ph = p.getAttribute('data-ph-' + lang);
+      if(ph !== null){ p.setAttribute('placeholder', ph); }
+    }
+    var btns = document.querySelectorAll('[data-lang-btn]');
+    for(var k=0;k<btns.length;k++){
+      var b = btns[k];
+      if(b.getAttribute('data-lang-btn') === lang){ b.classList.add('active'); }
+      else { b.classList.remove('active'); }
+    }
+    try{ localStorage.setItem(STORAGE_KEY, lang); }catch(e){}
+  }
+
+  var stored = 'en';
+  try{ stored = localStorage.getItem(STORAGE_KEY) || 'en'; }catch(e){}
+  applyLang(stored);
+
+  document.addEventListener('click', function(ev){
+    var t = ev.target.closest ? ev.target.closest('[data-lang-btn]') : null;
+    if(!t){ return; }
+    ev.preventDefault();
+    applyLang(t.getAttribute('data-lang-btn'));
+  });
+
+  /* ---------- Sticky header shadow ---------- */
+  var header = document.getElementById('siteHeader');
+  function onScroll(){
+    if(!header){ return; }
+    if(window.scrollY > 12){ header.classList.add('scrolled'); }
+    else { header.classList.remove('scrolled'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  /* ---------- Mobile drawer ---------- */
+  var drawer = document.getElementById('mobileDrawer');
+  var menuBtn = document.getElementById('menuBtn');
+  var drawerClose = document.getElementById('drawerClose');
+
+  function openDrawer(){
+    if(!drawer){ return; }
+    drawer.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if(menuBtn){ menuBtn.setAttribute('aria-expanded','true'); }
+  }
+  function closeDrawer(){
+    if(!drawer){ return; }
+    drawer.classList.remove('open');
+    document.body.style.overflow = '';
+    if(menuBtn){ menuBtn.setAttribute('aria-expanded','false'); }
+  }
+  if(menuBtn){ menuBtn.addEventListener('click', openDrawer); }
+  if(drawerClose){ drawerClose.addEventListener('click', closeDrawer); }
+  if(drawer){
+    drawer.addEventListener('click', function(ev){
+      if(ev.target === drawer){ closeDrawer(); }
+    });
+    var links = drawer.querySelectorAll('a');
+    for(var i=0;i<links.length;i++){ links[i].addEventListener('click', closeDrawer); }
+  }
+  document.addEventListener('keydown', function(ev){
+    if(ev.key === 'Escape'){ closeDrawer(); }
+  });
+
+  /* ---------- Scroll reveal ---------- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:0.08});
+    for(var r=0;r<revealEls.length;r++){ io.observe(revealEls[r]); }
+  } else {
+    for(var s=0;s<revealEls.length;s++){ revealEls[s].classList.add('in'); }
+  }
+
+  /* ---------- FAQ accordion ---------- */
+  var faqItems = document.querySelectorAll('.faq-item');
+  for(var f=0;f<faqItems.length;f++){
+    (function(item){
+      var q = item.querySelector('.faq-q');
+      var a = item.querySelector('.faq-a');
+      if(!q || !a){ return; }
+      q.addEventListener('click', function(){
+        var isOpen = item.classList.contains('open');
+        for(var m=0;m<faqItems.length;m++){
+          var other = faqItems[m];
+          if(other !== item && other.classList.contains('open')){
+            other.classList.remove('open');
+            var oa = other.querySelector('.faq-a');
+            var oq = other.querySelector('.faq-q');
+            if(oa){ oa.style.maxHeight = '0px'; }
+            if(oq){ oq.setAttribute('aria-expanded','false'); }
+          }
+        }
+        if(isOpen){
+          item.classList.remove('open');
+          a.style.maxHeight = '0px';
+          q.setAttribute('aria-expanded','false');
+        } else {
+          item.classList.add('open');
+          a.style.maxHeight = a.scrollHeight + 'px';
+          q.setAttribute('aria-expanded','true');
+        }
+      });
+    })(faqItems[f]);
+  }
+  window.addEventListener('resize', function(){
+    for(var n=0;n<faqItems.length;n++){
+      if(faqItems[n].classList.contains('open')){
+        var oa2 = faqItems[n].querySelector('.faq-a');
+        if(oa2){ oa2.style.maxHeight = oa2.scrollHeight + 'px'; }
+      }
+    }
+  });
+
+  /* ---------- Signup form validation (client-side demo only) ---------- */
+  var form = document.getElementById('signupForm');
+  var success = document.getElementById('formSuccess');
+
+  function showErr(name, show){
+    var msg = document.querySelector('[data-err="' + name + '"]');
+    var input = document.getElementById(name);
+    if(msg){ if(show){ msg.classList.add('show'); } else { msg.classList.remove('show'); } }
+    if(input){ if(show){ input.classList.add('err'); } else { input.classList.remove('err'); } }
+  }
+
+  if(form){
+    form.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var ok = true;
+
+      var nameEl = document.getElementById('fullName');
+      var emailEl = document.getElementById('email');
+      var phoneEl = document.getElementById('phone');
+      var consentEl = document.getElementById('consent');
+
+      var nameVal = nameEl ? nameEl.value.trim() : '';
+      var emailVal = emailEl ? emailEl.value.trim() : '';
+      var phoneVal = phoneEl ? phoneEl.value.replace(/[^0-9]/g,'') : '';
+
+      var nameOk = nameVal.length >= 2;
+      var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailVal);
+      var phoneOk = phoneVal.length >= 9;
+      var consentOk = consentEl ? consentEl.checked : false;
+
+      showErr('fullName', !nameOk);
+      showErr('email', !emailOk);
+      showErr('phone', !phoneOk);
+      showErr('consent', !consentOk);
+
+      if(!nameOk || !emailOk || !phoneOk || !consentOk){ ok = false; }
+
+      if(!ok){
+        var firstBad = form.querySelector('.err');
+        if(firstBad){ firstBad.focus(); }
+        return;
+      }
+
+      form.style.display = 'none';
+      if(success){ success.classList.add('show'); }
+    });
+
+    ['fullName','email','phone'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el){
+        el.addEventListener('input', function(){ showErr(id, false); });
+      }
+    });
+    var cEl = document.getElementById('consent');
+    if(cEl){ cEl.addEventListener('change', function(){ showErr('consent', false); }); }
+  }
+
+  /* ---------- Smooth scroll for in-page anchors ---------- */
+  var anchors = document.querySelectorAll('a[href^="#"]');
+  for(var a2=0;a2<anchors.length;a2++){
+    anchors[a2].addEventListener('click', function(ev){
+      var href = this.getAttribute('href');
+      // Ignorer les liens vides ou juste "#"
+      if(!href || href === '#'){ return; }
+      // Ignorer les liens qui ne sont pas des ancres pures (#section)
+      if(href === '#' || href.startsWith('#') === false){ return; }
+      // Ignorer si le href contient .html (lien vers une page)
+      if(href.includes('.html')){ return; }
+      var target = document.querySelector(href);
+      if(!target){ return; }
+      ev.preventDefault();
+      var top = target.getBoundingClientRect().top + window.pageYOffset - 84;
+      window.scrollTo({top: top, behavior:'smooth'});
+      if(history.replaceState){ history.replaceState(null, '', href); }
+    });
+  }
+})();
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/bottom-nav.js" defer></script>
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Lancer le chargement des produits
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (window.kwattaLoadProducts) {
+        await window.kwattaLoadProducts();
+      }
+    });
+  </script>
+  <script>
+    (async function() {
+      // Attendre que Supabase soit prêt
+      const start = Date.now();
+      while (!window.kwatta_db && Date.now() - start < 5000) {
+        await new Promise(r => setTimeout(r, 100));
+      }
+      if (!window.kwatta_db) return;
+
+      const { data: { session } } = await window.kwatta_db.auth.getSession();
+      const container = document.getElementById('header-auth-container');
+      if (!container) return;
+
+      if (session) {
+        // Modifier le bouton hero "Start selling — it's free" pour aller vers sell.html
+        const heroCta = document.getElementById('hero-cta-sell');
+        if (heroCta) {
+          heroCta.href = 'sell.html';
+        }
+
+        // Connecté : afficher profil + admin si admin
+        const { data: profile } = await window.kwatta_db
+          .from('profiles')
+          .select('username, display_name, role, avatar_url')
+          .eq('id', session.user.id)
+          .single();
+
+        const name = profile?.display_name || profile?.username || 'Me';
+        const initial = name[0].toUpperCase();
+        const isAdmin = profile?.role === 'admin';
+        const avatarUrl = profile?.avatar_url;
+
+        // Avatar : photo si dispo, initiale sinon
+        let avatarHtml;
+        if (avatarUrl) {
+          avatarHtml = `<img src="${avatarUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" alt="${name}">`;
+        } else {
+          avatarHtml = `<span style="width:100%; height:100%; display:grid; place-items:center; font-weight:700; color:var(--green); font-size:0.8rem;">${initial}</span>`;
+        }
+
+        let adminBtn = '';
+        if (isAdmin) {
+          adminBtn = '<a class="btn btn-ghost" href="admin/index.html" style="color:var(--red); border-color:var(--red); font-size:0.82rem; padding:8px 14px;" data-en="Admin" data-fr="Admin">Admin</a>';
+        }
+
+        // Bouton profil : avatar + nom
+        container.innerHTML = `
+          ${adminBtn}
+          <a class="btn btn-ghost" href="profile.html" style="padding:5px 14px 5px 5px; display:flex; align-items:center; gap:8px; font-size:0.88rem;">
+            <span style="width:30px; height:30px; background:var(--green-soft); border-radius:50%; display:grid; place-items:center; overflow:hidden; flex-shrink:0;">
+              ${avatarHtml}
+            </span>
+            <span style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${name}</span>
+          </a>
+          <a class="btn btn-primary" href="sell.html" data-en="Sell" data-fr="Vendre">Sell</a>
+        `;
+      }
+
+      // Re-appliquer la langue
+      if (window.applyLang) {
+        const lang = localStorage.getItem('kwatta-lang') || 'en';
+        window.applyLang(lang);
+      }
+    })();
+  </script>
+</body>
+</html>

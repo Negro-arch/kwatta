@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laisser un avis — KWATTA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            terra: { 50:'#fdf5f2',100:'#fbe8e2',200:'#f5d0c5',300:'#ecad9b',400:'#d97a63',500:'#B8543D',600:'#a3442f',700:'#873727',800:'#6e2f23',900:'#5a2a20' },
+            cream: '#FAF6F0',
+            charcoal: '#2D2A26',
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme-green.css">
+  <script src="js/stars.js" defer></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body class="bg-cream text-charcoal font-body antialiased">
+
+  <header class="bg-white border-b border-charcoal/5">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+      <a href="javascript:history.back()" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <h1 class="font-display font-bold text-lg">Laisser un avis</h1>
+    <button id="lang-toggle" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center text-xs font-bold" title="FR / EN" onclick="if(window.kwattaToggleLang) window.kwattaToggleLang()">
+        <span id="current-lang">EN</span>
+      </button>
+      </div>
+    
+  </header>
+
+  <main class="max-w-2xl mx-auto px-4 py-8">
+    <div id="loading" class="text-center py-16">
+      <div class="inline-block w-8 h-8 border-4 border-terra-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <div id="content" class="hidden">
+      
+      <!-- Info vendeur -->
+      <div class="bg-white rounded-2xl p-6 border border-charcoal/5 mb-6">
+        <div class="flex items-center gap-4">
+          <div id="seller-avatar" class="w-16 h-16 rounded-full bg-terra-100 flex items-center justify-center font-display font-bold text-terra-600 text-2xl">?</div>
+          <div>
+            <div class="text-sm text-charcoal/50">Vous évaluez</div>
+            <div id="seller-name" class="font-display font-bold text-lg"></div>
+            <div id="seller-username" class="text-sm text-charcoal/60"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire -->
+      <form id="review-form" class="bg-white rounded-2xl p-6 border border-charcoal/5 space-y-6">
+        
+        <!-- Note -->
+        <div>
+          <label class="block font-semibold mb-3">Votre note</label>
+          <div id="star-input-container" class="flex justify-center py-4"></div>
+          <p id="note-label" class="text-center text-sm text-charcoal/60 mt-2">Cliquez pour noter</p>
+        </div>
+
+        <!-- Commentaire -->
+        <div>
+          <label class="block font-semibold mb-2">Votre commentaire</label>
+          <textarea id="commentaire" rows="5" maxlength="500"
+            class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none resize-none"
+            placeholder="Partagez votre expérience : qualité du produit, rapidité d'envoi, communication..."></textarea>
+          <p class="text-xs text-charcoal/50 mt-1"><span id="comment-count">0</span>/500</p>
+        </div>
+
+        <p id="error-msg" class="text-sm text-red-600 hidden"></p>
+
+        <button type="submit" id="submit-btn"
+          class="w-full py-4 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold transition">
+          Publier mon avis
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let currentUser = null;
+    let seller = null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sellerId = urlParams.get('vendeur');
+    const commandeId = urlParams.get('commande') || null;
+
+    if (!sellerId) {
+      alert('Vendeur introuvable');
+      window.location.href = 'index.html';
+    }
+
+    // Labels pour les notes
+    const NOTE_LABELS = {
+      1: '😞 Décevant',
+      2: '😐 Moyen',
+      3: '🙂 Bien',
+      4: '😊 Très bien',
+      5: '🤩 Parfait !'
+    };
+
+    (async () => {
+      const { data: { session } } = await window.kwatta_db.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+        return;
+      }
+      currentUser = session.user;
+
+      // Charge les infos du vendeur
+      const { data, error } = await window.kwatta_db
+        .from('profiles')
+        .select('id, username, display_name, avatar_url')
+        .eq('id', sellerId)
+        .single();
+
+      if (error || !data) {
+        alert('Vendeur introuvable');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      seller = data;
+      $('seller-name').textContent = seller.display_name || seller.username;
+      $('seller-username').textContent = '@' + seller.username;
+      $('seller-avatar').textContent = (seller.display_name || seller.username || '?')[0].toUpperCase();
+
+      // Vérifie si l'utilisateur a déjà laissé un avis (si commandeId fourni)
+      if (commandeId) {
+        const { data: existing } = await window.kwatta_db
+          .from('avis')
+          .select('id')
+          .eq('id_acheteur', currentUser.id)
+          .eq('id_commande', commandeId)
+          .single();
+
+        if (existing) {
+          alert('Vous avez déjà laissé un avis pour cette commande');
+          window.location.href = 'index.html';
+          return;
+        }
+      }
+
+      // Affiche le formulaire avec les étoiles
+      $('star-input-container').innerHTML = renderStarInput(0, 'note-value');
+      
+      // Setup après injection
+      setTimeout(() => {
+        setupStarInput();
+        
+        // Écoute les changements de note
+        const noteInput = document.getElementById('note-value');
+        const observer = new MutationObserver(() => {
+          const val = parseInt(noteInput.value) || 0;
+          if (val > 0) {
+            $('note-label').textContent = NOTE_LABELS[val];
+            $('note-label').className = 'text-center text-base font-semibold text-terra-600 mt-2';
+          }
+        });
+        
+        // Observe les clics sur les étoiles
+        document.querySelectorAll('.star-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const val = parseInt(noteInput.value) || 0;
+            if (val > 0) {
+              $('note-label').textContent = NOTE_LABELS[val];
+              $('note-label').className = 'text-center text-base font-semibold text-terra-600 mt-2';
+            }
+          });
+        });
+      }, 100);
+
+      $('commentaire').addEventListener('input', (e) => {
+        $('comment-count').textContent = e.target.value.length;
+      });
+
+      $('loading').classList.add('hidden');
+      $('content').classList.remove('hidden');
+    })();
+
+    // Submit
+    $('review-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = $('error-msg');
+      errEl.classList.add('hidden');
+
+      const note = parseInt($('note-value').value) || 0;
+      const commentaire = $('commentaire').value.trim();
+
+      if (note === 0) {
+        errEl.textContent = 'Veuillez sélectionner une note.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (commentaire.length < 10) {
+        errEl.textContent = 'Votre commentaire doit faire au moins 10 caractères.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const btn = $('submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Publication...';
+
+      const { error } = await window.kwatta_db
+        .from('avis')
+        .insert({
+          id_vendeur: sellerId,
+          id_acheteur: currentUser.id,
+          id_commande: commandeId,
+          note: note,
+          commentaire: commentaire
+        });
+
+      if (error) {
+        console.error(error);
+        errEl.textContent = 'Erreur : ' + error.message;
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Publier mon avis';
+        return;
+      }
+
+      // Succès
+      alert('✅ Merci pour votre avis !');
+      window.location.href = 'index.html';
+    });
+  </script>
+  <script src="js/bottom-nav.js" defer></script>
+</body>
+</html>

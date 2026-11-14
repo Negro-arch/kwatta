@@ -1,4 +1,4 @@
-# Backups KWATTA
+# Backups
 _backups_archive/
 *.backup
 *.backup2
@@ -10,7 +10,6 @@ _backups_archive/
 # Node
 node_modules/
 package-lock.json
-package.json
 
 # OS
 .DS_Store
@@ -23,8 +22,3 @@ Thumbs.db
 # Env
 .env
 .env.local
-.env.*.local
-
-# Logs
-*.log
-npm-debug.log*

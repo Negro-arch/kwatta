@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B8543D">
+  <title>Vérifications — Admin KWATTA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+
+  <div class="admin-shell">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-content">
+
+      <div class="admin-header">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <h1 class="admin-title">🪪 Vérifications d'identité</h1>
+            <p class="admin-subtitle" id="cni-count">Chargement...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card terra">
+          <div class="kpi-label">À traiter</div>
+          <div class="kpi-value" id="kpi-pending">—</div>
+          <div class="kpi-sub">CNI en attente</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Approuvées</div>
+          <div class="kpi-value" id="kpi-approved">—</div>
+          <div class="kpi-sub">Total</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Refusées</div>
+          <div class="kpi-value" id="kpi-rejected">—</div>
+          <div class="kpi-sub">Total</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Users vérifiés</div>
+          <div class="kpi-value" id="kpi-verified-users">—</div>
+          <div class="kpi-sub">Avec badge ✓</div>
+        </div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="admin-section" style="padding:16px;">
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <select id="filter-statut" class="admin-input" style="width:auto;">
+            <option value="en_attente" selected>⏳ En attente</option>
+            <option value="approuve">✅ Approuvées</option>
+            <option value="refuse">❌ Refusées</option>
+            <option value="">Toutes</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="loading" style="text-align:center; padding:60px 0;">
+        <div class="admin-loading"></div>
+      </div>
+
+      <div id="cni-list" class="hidden"></div>
+
+      <div id="empty" class="hidden admin-empty">
+        <div class="admin-empty-icon">🪪</div>
+        <div class="admin-empty-text">Aucune CNI à afficher</div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL : voir CNI -->
+  <div id="cni-view-modal" class="hidden admin-modal-backdrop">
+    <div class="admin-modal" style="max-width:720px;">
+      <div class="admin-modal-header">
+        <h2 class="font-display" style="font-size:18px; font-weight:700;" id="modal-title">CNI</h2>
+        <button class="admin-modal-close" id="cni-view-close">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="admin-modal-body">
+        <div id="cni-view-loading" style="text-align:center; padding:40px;">
+          <div class="admin-loading"></div>
+          <p style="font-size:12px; color:#7A7A7A; margin-top:12px;">Génération de l'URL sécurisée...</p>
+        </div>
+        <div id="cni-view-content" class="hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-init.js"></script>
+  <script src="/admin/js/admin.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const U = () => window.AdminUtils;
+    let allCNI = [];
+
+    (async () => {
+      const auth = await U().requireAdmin();
+      if (!auth) return;
+      U().renderSidebar('verifications', auth.profile);
+      U().loadSidebarBadges();
+      await loadKPIs();
+      await loadCNI();
+      $('loading').classList.add('hidden');
+      $('cni-list').classList.remove('hidden');
+    })();
+
+    // ============================================
+    // KPIs
+    // ============================================
+    async function loadKPIs() {
+      const { data: all } = await window.kwatta_db
+        .from('cni_uploads')
+        .select('statut');
+
+      const pending = (all || []).filter(c => c.statut === 'en_attente').length;
+      const approved = (all || []).filter(c => c.statut === 'approuve').length;
+      const rejected = (all || []).filter(c => c.statut === 'refuse').length;
+
+      $('kpi-pending').textContent = pending;
+      $('kpi-approved').textContent = approved;
+      $('kpi-rejected').textContent = rejected;
+
+      // Users vérifiés
+      const { count: verifiedUsers } = await window.kwatta_db
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_verified', true);
+      $('kpi-verified-users').textContent = verifiedUsers || 0;
+    }
+
+    // ============================================
+    // LISTE
+    // ============================================
+    async function loadCNI() {
+      const statut = $('filter-statut').value;
+      let q = window.kwatta_db
+        .from('cni_uploads')
+        .select('*, user:profiles!cni_uploads_user_id_fkey(username, display_name, avatar_url, city, created_at)')
+        .order('created_at', { ascending: false });
+
+      if (statut) q = q.eq('statut', statut);
+
+      const { data, error } = await q;
+      if (error) { console.error('[CNI]', error); return; }
+      allCNI = data || [];
+      renderCNI();
+    }
+
+    function renderCNI() {
+      $('cni-count').textContent = allCNI.length + ' CNI' + (allCNI.length > 1 ? 's' : '');
+
+      if (allCNI.length === 0) {
+        $('cni-list').innerHTML = '';
+        $('empty').classList.remove('hidden');
+        return;
+      }
+      $('empty').classList.add('hidden');
+
+      const statusMap = {
+        'en_attente': { cls: 'badge-yellow', txt: '⏳ En attente' },
+        'approuve':   { cls: 'badge-green',  txt: '✅ Approuvée' },
+        'refuse':     { cls: 'badge-red',    txt: '❌ Refusée' },
+        'annule':     { cls: 'badge-gray',   txt: 'Annulée' },
+      };
+
+      $('cni-list').innerHTML = allCNI.map(c => {
+        const s = statusMap[c.statut] || { cls: 'badge-gray', txt: c.statut };
+        const userName = c.user?.display_name || c.user?.username || '?';
+        const userInitial = userName[0].toUpperCase();
+        const avatarHtml = c.user?.avatar_url
+          ? '<img src="' + c.user.avatar_url + '" style="width:100%;height:100%;object-fit:cover;">'
+          : userInitial;
+
+        // Icône type de fichier
+        let fileIcon = '📄';
+        if (c.file_type?.startsWith('image/')) fileIcon = '🖼️';
+        else if (c.file_type === 'application/pdf') fileIcon = '📕';
+        else if (c.file_type?.includes('word')) fileIcon = '📘';
+
+        // Taille lisible
+        const size = c.file_size < 1024 * 1024
+          ? (c.file_size / 1024).toFixed(1) + ' KB'
+          : (c.file_size / (1024 * 1024)).toFixed(2) + ' MB';
+
+        let actions = '';
+        if (c.statut === 'en_attente') {
+          actions = `
+            <div style="display:flex; gap:6px; flex-shrink:0;">
+              <button class="btn btn-ghost btn-sm" onclick="voirCNI('${c.id}')">👁️ Voir</button>
+              <button class="btn btn-danger btn-sm" onclick="refuserCNI('${c.id}')">❌ Refuser</button>
+              <button class="btn btn-success btn-sm" onclick="approuverCNI('${c.id}')">✅ Approuver</button>
+            </div>
+          `;
+        } else {
+          actions = `<button class="btn btn-ghost btn-sm" onclick="voirCNI('${c.id}')">👁️ Voir</button>`;
+        }
+
+        return `
+          <div class="admin-section" style="padding:14px 18px; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <div style="width:50px; height:50px; border-radius:50%; background:#fbe8e2; display:flex; align-items:center; justify-content:center; font-weight:700; color:#B8543D; overflow:hidden; flex-shrink:0;">
+                ${avatarHtml}
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                  <div class="admin-row-title" style="font-size:14px;">${U().escapeHtml(userName)}</div>
+                  <span class="badge ${s.cls}">${s.txt}</span>
+                </div>
+                <div class="admin-row-sub">
+                  @${U().escapeHtml(c.user?.username || '?')} · ${U().escapeHtml(c.user?.city || '—')}<br>
+                  ${fileIcon} ${U().escapeHtml(c.file_name || 'fichier')} · ${size} · 
+                  📅 ${U().formatDate(c.created_at)}
+                </div>
+                ${c.note_admin ? '<div style="margin-top:6px; padding:6px 10px; background:#FAF6F0; border-radius:8px; font-size:12px;">💬 ' + U().escapeHtml(c.note_admin) + '</div>' : ''}
+              </div>
+              ${actions}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    $('filter-statut').addEventListener('change', async () => {
+      $('loading').classList.remove('hidden');
+      $('cni-list').classList.add('hidden');
+      await loadCNI();
+      $('loading').classList.add('hidden');
+      $('cni-list').classList.remove('hidden');
+    });
+
+    // ============================================
+    // VOIR LA CNI (URL signée)
+    // ============================================
+    async function voirCNI(cniId) {
+      const c = allCNI.find(x => x.id === cniId);
+      if (!c) return;
+
+      $('modal-title').textContent = 'CNI de @' + (c.user?.username || '?');
+      $('cni-view-modal').classList.remove('hidden');
+      $('cni-view-loading').classList.remove('hidden');
+      $('cni-view-content').classList.add('hidden');
+
+      // Crée une URL signée (valide 1h)
+      const { data: signed, error: signErr } = await window.kwatta_db.storage
+        .from('cni')
+        .createSignedUrl(c.file_path, 3600);
+
+      $('cni-view-loading').classList.add('hidden');
+      $('cni-view-content').classList.remove('hidden');
+
+      if (signErr || !signed) {
+        console.error('[CNI] Signed URL error:', signErr);
+        $('cni-view-content').innerHTML = `
+          <div style="padding:20px; background:#fee2e2; color:#991b1b; border-radius:12px; font-size:13px;">
+            ❌ Erreur : impossible de générer l'URL (${signErr?.message || 'inconnu'})
+          </div>
+        `;
+        return;
+      }
+
+      const url = signed.signedUrl;
+      const isImage = c.file_type?.startsWith('image/');
+      const isPDF = c.file_type === 'application/pdf';
+
+      let viewer = '';
+      if (isImage) {
+        viewer = `<img src="${url}" style="width:100%; max-height:500px; object-fit:contain; background:#f5f3ee; border-radius:12px;" alt="CNI">`;
+      } else if (isPDF) {
+        viewer = `<iframe src="${url}" style="width:100%; height:500px; border-radius:12px; border:1px solid #ddd;" title="CNI PDF"></iframe>`;
+      } else {
+        viewer = `
+          <div style="padding:40px; text-align:center; background:#FAF6F0; border-radius:12px;">
+            <div style="font-size:48px; margin-bottom:12px;">📄</div>
+            <p style="font-size:14px; color:#7A7A7A;">Ce fichier ne peut pas être prévisualisé (Word ou autre).</p>
+          </div>
+        `;
+      }
+
+      $('cni-view-content').innerHTML = `
+        ${viewer}
+        <div style="display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;">
+          <a href="${url}" target="_blank" class="btn btn-ghost btn-sm" style="flex:1;">🔗 Ouvrir</a>
+          <a href="${url}" download="${c.file_name || 'cni'}" class="btn btn-ghost btn-sm" style="flex:1;">⬇️ Télécharger</a>
+        </div>
+        ${c.statut === 'en_attente' ? `
+          <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="btn btn-danger" style="flex:1;" onclick="refuserCNI('${c.id}'); closeCNIView();">❌ Refuser</button>
+            <button class="btn btn-success" style="flex:1;" onclick="approuverCNI('${c.id}'); closeCNIView();">✅ Approuver</button>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function closeCNIView() {
+      $('cni-view-modal').classList.add('hidden');
+    }
+
+    $('cni-view-close').addEventListener('click', closeCNIView);
+    $('cni-view-modal').addEventListener('click', (e) => {
+      if (e.target === $('cni-view-modal')) closeCNIView();
+    });
+
+    // ============================================
+    // APProuver
+    // ============================================
+    async function approuverCNI(cniId) {
+      const c = allCNI.find(x => x.id === cniId);
+      if (!c) return;
+
+      if (!confirm('✅ Approuver la CNI de @' + (c.user?.username || '?') + ' ?\n\nL\'utilisateur recevra le badge ✓ Vérifié.')) return;
+
+      const note = prompt('Note (optionnel) :', '');
+      if (note === null) return;
+
+      const { data, error } = await window.kwatta_db.rpc('approuver_cni', {
+        p_cni_id: cniId,
+        p_note: note || null
+      });
+
+      if (error || (data && !data.success)) {
+        alert('Erreur : ' + (error?.message || data?.error));
+        return;
+      }
+
+      alert('✅ CNI approuvée — l\'utilisateur est maintenant vérifié.');
+      await loadKPIs();
+      await loadCNI();
+    }
+
+    // ============================================
+    // REFUSER
+    // ============================================
+    async function refuserCNI(cniId) {
+      const c = allCNI.find(x => x.id === cniId);
+      if (!c) return;
+
+      if (!confirm('❌ Refuser la CNI de @' + (c.user?.username || '?') + ' ?\n\nL\'utilisateur pourra en soumettre une nouvelle.')) return;
+
+      const reason = prompt('Raison du refus (obligatoire) :', '');
+      if (reason === null) return;
+      if (!reason.trim()) {
+        alert('La raison est obligatoire.');
+        return;
+      }
+
+      const { data, error } = await window.kwatta_db.rpc('refuser_cni', {
+        p_cni_id: cniId,
+        p_note: reason.trim()
+      });
+
+      if (error || (data && !data.success)) {
+        alert('Erreur : ' + (error?.message || data?.error));
+        return;
+      }
+
+      alert('✅ CNI refusée — l\'utilisateur a été notifié.');
+      await loadKPIs();
+      await loadCNI();
+    }
+
+    window.voirCNI = voirCNI;
+    window.approuverCNI = approuverCNI;
+    window.refuserCNI = refuserCNI;
+    window.closeCNIView = closeCNIView;
+  </script>
+
+</body>
+</html>

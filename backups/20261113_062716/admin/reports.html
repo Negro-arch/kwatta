@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B8543D">
+  <title>Signalements — Admin KWATTA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+
+  <div class="admin-shell">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-content">
+
+      <div class="admin-header">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <h1 class="admin-title">🚨 Signalements</h1>
+            <p class="admin-subtitle" id="reports-count">Chargement...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card terra">
+          <div class="kpi-label">À traiter</div>
+          <div class="kpi-value" id="kpi-pending">—</div>
+          <div class="kpi-sub">Signalements en attente</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">En cours</div>
+          <div class="kpi-value" id="kpi-progress">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Résolus</div>
+          <div class="kpi-value" id="kpi-resolved">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Rejetés</div>
+          <div class="kpi-value" id="kpi-rejected">—</div>
+        </div>
+      </div>
+
+      <div class="admin-section" style="padding:16px;">
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <select id="filter-statut" class="admin-input" style="width:auto;">
+            <option value="en_attente" selected>⏳ En attente</option>
+            <option value="en_cours">🔍 En cours</option>
+            <option value="resolu">✅ Résolus</option>
+            <option value="rejete">❌ Rejetés</option>
+            <option value="">Tous</option>
+          </select>
+          <select id="filter-type" class="admin-input" style="width:auto;">
+            <option value="">Tous types</option>
+            <option value="listing">📦 Annonce</option>
+            <option value="user">👤 Utilisateur</option>
+            <option value="message">💬 Message</option>
+            <option value="transaction">💳 Transaction</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="loading" style="text-align:center; padding:60px 0;">
+        <div class="admin-loading"></div>
+      </div>
+
+      <div id="reports-list" class="hidden"></div>
+
+      <div id="empty" class="hidden admin-empty">
+        <div class="admin-empty-icon">🚨</div>
+        <div class="admin-empty-text">Aucun signalement</div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-init.js"></script>
+  <script src="/admin/js/admin.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const U = () => window.AdminUtils;
+    let allReports = [];
+    let targetCache = {}; // Cache des targets (listing title, username, etc.)
+
+    (async () => {
+      const auth = await U().requireAdmin();
+      if (!auth) return;
+      U().renderSidebar('reports', auth.profile);
+      U().loadSidebarBadges();
+      await loadKPIs();
+      await loadReports();
+      $('loading').classList.add('hidden');
+      $('reports-list').classList.remove('hidden');
+    })();
+
+    async function loadKPIs() {
+      const { data } = await window.kwatta_db.from('reports').select('statut');
+      const pending = (data || []).filter(r => r.statut === 'en_attente').length;
+      const progress = (data || []).filter(r => r.statut === 'en_cours').length;
+      const resolved = (data || []).filter(r => r.statut === 'resolu').length;
+      const rejected = (data || []).filter(r => r.statut === 'rejete').length;
+
+      $('kpi-pending').textContent = pending;
+      $('kpi-progress').textContent = progress;
+      $('kpi-resolved').textContent = resolved;
+      $('kpi-rejected').textContent = rejected;
+    }
+
+    async function loadReports() {
+      const statut = $('filter-statut').value;
+      const type = $('filter-type').value;
+
+      let q = window.kwatta_db
+        .from('reports')
+        .select('*, reporter:profiles!reports_reporter_id_fkey(username, display_name, avatar_url)')
+        .order('created_at', { ascending: false });
+
+      if (statut) q = q.eq('statut', statut);
+      if (type) q = q.eq('type', type);
+
+      const { data, error } = await q;
+      if (error) { console.error(error); return; }
+      allReports = data || [];
+
+      // Charge les infos des targets (listing titles, usernames, etc.)
+      await loadTargetsInfo();
+      renderReports();
+    }
+
+    async function loadTargetsInfo() {
+      // Récupère les IDs uniques par type
+      const listingIds = allReports.filter(r => r.type === 'listing').map(r => r.target_id);
+      const userIds = allReports.filter(r => r.type === 'user').map(r => r.target_id);
+      const txIds = allReports.filter(r => r.type === 'transaction').map(r => r.target_id);
+
+      // Fetch listings
+      if (listingIds.length > 0) {
+        const { data } = await window.kwatta_db
+          .from('listings')
+          .select('id, title, images, status')
+          .in('id', [...new Set(listingIds)]);
+        (data || []).forEach(l => { targetCache['listing_' + l.id] = l; });
+      }
+
+      // Fetch users
+      if (userIds.length > 0) {
+        const { data } = await window.kwatta_db
+          .from('profiles')
+          .select('id, username, display_name, avatar_url, banned')
+          .in('id', [...new Set(userIds)]);
+        (data || []).forEach(u => { targetCache['user_' + u.id] = u; });
+      }
+
+      // Fetch transactions
+      if (txIds.length > 0) {
+        const { data } = await window.kwatta_db
+          .from('transactions')
+          .select('id, amount_xaf, status, listing_id')
+          .in('id', [...new Set(txIds)]);
+        (data || []).forEach(t => { targetCache['transaction_' + t.id] = t; });
+      }
+    }
+
+    function getTargetInfo(r) {
+      const cache = targetCache[r.type + '_' + r.target_id];
+      if (!cache) return { label: 'Cible introuvable', sub: r.target_id.substring(0, 8) + '...' };
+
+      if (r.type === 'listing') {
+        return { label: cache.title, sub: cache.status, img: (cache.images && cache.images[0]) };
+      }
+      if (r.type === 'user') {
+        return { label: cache.display_name || cache.username, sub: '@' + cache.username, img: cache.avatar_url };
+      }
+      if (r.type === 'transaction') {
+        return { label: U().formatPrice(cache.amount_xaf), sub: cache.status };
+      }
+      if (r.type === 'message') {
+        return { label: 'Message', sub: r.target_id.substring(0, 8) };
+      }
+      return { label: 'Cible', sub: '' };
+    }
+
+    function renderReports() {
+      $('reports-count').textContent = allReports.length + ' signalement' + (allReports.length > 1 ? 's' : '');
+
+      if (allReports.length === 0) {
+        $('reports-list').innerHTML = '';
+        $('empty').classList.remove('hidden');
+        return;
+      }
+      $('empty').classList.add('hidden');
+
+      const raisonMap = {
+        'contrefacon': '🎭 Contrefaçon',
+        'arnaque': '💸 Arnaque',
+        'contenu_inapproprie': '🔞 Contenu inapproprié',
+        'spam': '📢 Spam',
+        'harcelement': '😡 Harcèlement',
+        'fausse_description': '📝 Fausse description',
+        'autre': '❓ Autre',
+      };
+
+      const statutMap = {
+        'en_attente': { cls: 'badge-yellow', txt: '⏳ En attente' },
+        'en_cours':   { cls: 'badge-blue',   txt: '🔍 En cours' },
+        'resolu':     { cls: 'badge-green',  txt: '✅ Résolu' },
+        'rejete':     { cls: 'badge-gray',   txt: '❌ Rejeté' },
+      };
+
+      const typeIcon = {
+        'listing': '📦', 'user': '👤', 'message': '💬', 'transaction': '💳',
+      };
+
+      $('reports-list').innerHTML = allReports.map(r => {
+        const s = statutMap[r.statut] || { cls: 'badge-gray', txt: r.statut };
+        const target = getTargetInfo(r);
+        const img = target.img || 'https://placehold.co/100x100/f5f3ee/2D2A26?text=K';
+        const reporterName = r.reporter?.display_name || r.reporter?.username || '?';
+
+        let actions = '';
+        if (r.statut === 'en_attente') {
+          actions = `
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm" onclick="traiter('${r.id}', 'en_cours')">🔍 En cours</button>
+              <button class="btn btn-success btn-sm" onclick="traiter('${r.id}', 'resolu')">✅ Résoudre</button>
+              <button class="btn btn-danger btn-sm" onclick="traiter('${r.id}', 'rejete')">❌ Rejeter</button>
+            </div>
+          `;
+        } else if (r.statut === 'en_cours') {
+          actions = `
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="btn btn-success btn-sm" onclick="traiter('${r.id}', 'resolu')">✅ Résoudre</button>
+              <button class="btn btn-danger btn-sm" onclick="traiter('${r.id}', 'rejete')">❌ Rejeter</button>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="admin-section" style="padding:16px; margin-bottom:12px;">
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <img src="${img}" style="width:60px; height:60px; border-radius:10px; object-fit:cover; flex-shrink:0;" onerror="this.src='https://placehold.co/100x100/f5f3ee/2D2A26?text=K'">
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+                  <span style="font-size:16px;">${typeIcon[r.type] || '•'}</span>
+                  <div class="admin-row-title" style="font-size:14px;">${U().escapeHtml(target.label)}</div>
+                  <span class="badge ${s.cls}">${s.txt}</span>
+                </div>
+
+                <div style="font-size:12px; color:#7A7A7A; margin-bottom:6px;">
+                  Signalé par @${U().escapeHtml(r.reporter?.username || '?')} (${U().escapeHtml(reporterName)}) · ${U().formatDate(r.created_at)}
+                </div>
+
+                <div style="font-size:13px; font-weight:600; color:#B8543D; margin-bottom:4px;">
+                  ${raisonMap[r.raison] || r.raison}
+                </div>
+
+                ${r.details ? '<div style="font-size:12px; color:#7A7A7A; font-style:italic; padding:8px; background:#FAF6F0; border-radius:8px; margin-top:6px;">💬 ' + U().escapeHtml(r.details) + '</div>' : ''}
+                ${r.note_admin ? '<div style="font-size:12px; color:#7A7A7A; margin-top:6px;">⚙️ Admin : ' + U().escapeHtml(r.note_admin) + '</div>' : ''}
+
+                <div style="margin-top:10px;">${actions}</div>
+              </div>
+
+              <!-- Voir la cible -->
+              <div style="flex-shrink:0;">
+                ${r.type === 'listing' ? '<a href="/product.html?id=' + r.target_id + '" target="_blank" class="btn btn-ghost btn-sm">🔗 Voir</a>' : ''}
+                ${r.type === 'user' ? '<a href="users.html" class="btn btn-ghost btn-sm">👤 User</a>' : ''}
+                ${r.type === 'transaction' ? '<a href="transactions.html" class="btn btn-ghost btn-sm">💳 Voir</a>' : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    $('filter-statut').addEventListener('change', () => { loadReports(); });
+    $('filter-type').addEventListener('change', () => { loadReports(); });
+
+    async function traiter(reportId, newStatut) {
+      const labels = { en_cours: 'mettre en cours', resolu: 'résoudre', rejete: 'rejeter' };
+      if (!confirm('Confirmer : ' + labels[newStatut] + ' ce signalement ?')) return;
+
+      const note = prompt('Note admin (optionnel) :', '');
+      if (note === null) return;
+
+      const { data, error } = await window.kwatta_db.rpc('traiter_signalement', {
+        p_report_id: reportId,
+        p_new_statut: newStatut,
+        p_note: note || null
+      });
+
+      if (error || (data && !data.success)) {
+        alert('Erreur : ' + (error?.message || data?.error));
+        return;
+      }
+
+      alert('✅ Signalement traité');
+      await loadKPIs();
+      await loadReports();
+    }
+
+    window.traiter = traiter;
+  </script>
+
+</body>
+</html>

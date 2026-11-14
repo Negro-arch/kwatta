@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#B8543D">
+  <title>Annonces — Admin KWATTA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+
+  <div class="admin-shell">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main class="admin-content">
+
+      <div class="admin-header">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <h1 class="admin-title">📦 Annonces</h1>
+            <p class="admin-subtitle" id="listings-count">Chargement...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="admin-section" style="padding:16px;">
+        <div style="display:grid; grid-template-columns: 1fr auto auto; gap:12px; align-items:center;">
+          <div class="admin-search" style="max-width:none;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" id="search" class="admin-input" placeholder="Rechercher par titre ou vendeur...">
+          </div>
+
+          <select id="filter-status" class="admin-input" style="width:auto;">
+            <option value="">Tous statuts</option>
+            <option value="pending_review">⏳ En attente</option>
+            <option value="published">✅ Publiées</option>
+            <option value="suspended">🚫 Suspendues</option>
+            <option value="sold">💰 Vendues</option>
+            <option value="draft">📝 Brouillons</option>
+          </select>
+
+          <select id="filter-verified" class="admin-input" style="width:auto;">
+            <option value="">Toutes</option>
+            <option value="yes">✓ Vérifiées</option>
+            <option value="no">Non vérifiées</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="loading" style="text-align:center; padding:60px 0;">
+        <div class="admin-loading"></div>
+      </div>
+
+      <div id="listings-list" class="hidden"></div>
+
+      <div id="empty" class="hidden admin-empty">
+        <div class="admin-empty-icon">📦</div>
+        <div class="admin-empty-text">Aucune annonce trouvée</div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL détail -->
+  <div id="listing-modal" class="hidden admin-modal-backdrop">
+    <div class="admin-modal" style="max-width:640px;">
+      <div class="admin-modal-header">
+        <h2 class="font-display" style="font-size:18px; font-weight:700;" id="modal-title">Annonce</h2>
+        <button class="admin-modal-close" id="modal-close">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="admin-modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-init.js"></script>
+  <script src="/admin/js/admin.js"></script>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let allListings = [];
+    const U = () => window.AdminUtils;
+
+    (async () => {
+      const auth = await U().requireAdmin();
+      if (!auth) return;
+      U().renderSidebar('listings', auth.profile);
+      U().loadSidebarBadges();
+      await loadListings();
+      $('loading').classList.add('hidden');
+      $('listings-list').classList.remove('hidden');
+    })();
+
+    async function loadListings() {
+      const { data, error } = await window.kwatta_db
+        .from('listings')
+        .select('id, title, price_xaf, images, status, is_authenticated, created_at, suspension_reason, seller_id, profiles!listings_seller_id_fkey(username, display_name, avatar_url, is_verified)')
+        .order('created_at', { ascending: false })
+        .limit(200);
+
+      if (error) {
+        console.error('[LISTINGS]', error);
+        $('listings-count').textContent = 'Erreur de chargement';
+        return;
+      }
+      allListings = data || [];
+      renderListings();
+    }
+
+    function renderListings() {
+      const search = ($('search').value || '').toLowerCase().trim();
+      const filterStatus = $('filter-status').value;
+      const filterVerified = $('filter-verified').value;
+
+      let filtered = allListings;
+
+      if (search) {
+        filtered = filtered.filter(l =>
+          (l.title || '').toLowerCase().includes(search) ||
+          (l.profiles?.username || '').toLowerCase().includes(search) ||
+          (l.profiles?.display_name || '').toLowerCase().includes(search)
+        );
+      }
+      if (filterStatus) filtered = filtered.filter(l => l.status === filterStatus);
+      if (filterVerified === 'yes') filtered = filtered.filter(l => l.is_authenticated);
+      if (filterVerified === 'no') filtered = filtered.filter(l => !l.is_authenticated);
+
+      $('listings-count').textContent = filtered.length + ' annonce' + (filtered.length > 1 ? 's' : '');
+
+      if (filtered.length === 0) {
+        $('listings-list').innerHTML = '';
+        $('empty').classList.remove('hidden');
+        return;
+      }
+      $('empty').classList.add('hidden');
+
+      const statusMap = {
+        'published':      { cls: 'badge-green',  txt: '✅ Publiée' },
+        'pending_review': { cls: 'badge-yellow', txt: '⏳ En attente' },
+        'draft':          { cls: 'badge-gray',   txt: '📝 Brouillon' },
+        'sold':           { cls: 'badge-blue',   txt: '💰 Vendue' },
+        'suspended':      { cls: 'badge-red',    txt: '🚫 Suspendue' },
+      };
+
+      $('listings-list').innerHTML = filtered.map(l => {
+        const img = (l.images && l.images[0]) || 'https://placehold.co/100x100/f5f3ee/2D2A26?text=K';
+        const s = statusMap[l.status] || { cls: 'badge-gray', txt: l.status };
+        const seller = l.profiles?.display_name || l.profiles?.username || 'Inconnu';
+        const verifiedBadge = l.is_authenticated ? '<span class="badge badge-blue">✓ Vérifiée</span>' : '';
+
+        return `
+          <div class="admin-section" style="padding:14px 18px; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <img src="${img}" style="width:60px; height:60px; border-radius:10px; object-fit:cover; flex-shrink:0;" onerror="this.src='https://placehold.co/100x100/f5f3ee/2D2A26?text=K'">
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                  <div class="admin-row-title" style="font-size:15px;">${U().escapeHtml(l.title)}</div>
+                  <span class="badge ${s.cls}">${s.txt}</span>
+                  ${verifiedBadge}
+                </div>
+                <div class="admin-row-sub">
+                  ${U().formatPrice(l.price_xaf)} · @${U().escapeHtml(l.profiles?.username || '?')} (${U().escapeHtml(seller)}) · ${U().formatDate(l.created_at)}
+                </div>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="openListingModal('${l.id}')">👁️ Gérer</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    $('search').addEventListener('input', renderListings);
+    $('filter-status').addEventListener('change', renderListings);
+    $('filter-verified').addEventListener('change', renderListings);
+
+    // ============================================
+    // MODAL DÉTAIL
+    // ============================================
+    function openListingModal(listingId) {
+      const l = allListings.find(x => x.id === listingId);
+      if (!l) return;
+
+      const img = (l.images && l.images[0]) || 'https://placehold.co/400x500/f5f3ee/2D2A26?text=K';
+      const seller = l.profiles?.display_name || l.profiles?.username || '?';
+      const sellerInitial = seller[0].toUpperCase();
+      const sellerAvatar = l.profiles?.avatar_url
+        ? '<img src="' + l.profiles.avatar_url + '" style="width:100%; height:100%; object-fit:cover;">'
+        : sellerInitial;
+
+      const statusMap = {
+        'published': 'Publiée', 'pending_review': 'En attente', 'draft': 'Brouillon',
+        'sold': 'Vendue', 'suspended': 'Suspendue',
+      };
+
+      $('modal-title').textContent = l.title;
+
+      $('modal-body').innerHTML = `
+        <img src="${img}" style="width:100%; max-height:280px; object-fit:contain; background:#f5f3ee; border-radius:12px; margin-bottom:16px;" onerror="this.src='https://placehold.co/400x500/f5f3ee/2D2A26?text=K'">
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+          <div style="padding:10px; background:#FAF6F0; border-radius:10px;">
+            <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Prix</div>
+            <div style="font-weight:700; font-family:'Space Grotesk'; font-size:18px;">${U().formatPrice(l.price_xaf)}</div>
+          </div>
+          <div style="padding:10px; background:#FAF6F0; border-radius:10px;">
+            <div style="font-size:10px; color:#7A7A7A; text-transform:uppercase;">Statut</div>
+            <div style="font-weight:600;">${statusMap[l.status] || l.status}</div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px; padding:12px; background:#FAF6F0; border-radius:10px; margin-bottom:16px;">
+          <div class="admin-row-img round" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#B8543D; background:#fbe8e2; overflow:hidden; flex-shrink:0;">
+            ${sellerAvatar}
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-weight:600; font-size:14px;">${U().escapeHtml(seller)}</div>
+            <div style="font-size:12px; color:#7A7A7A;">@${U().escapeHtml(l.profiles?.username || '?')}</div>
+          </div>
+          <a href="/product.html?id=${l.id}" target="_blank" class="btn btn-ghost btn-sm">🔗 Voir</a>
+        </div>
+
+        ${l.status === 'suspended' && l.suspension_reason ? `
+          <div style="padding:10px; background:#fee2e2; color:#991b1b; border-radius:10px; margin-bottom:16px; font-size:13px;">
+            <strong>Raison de suspension :</strong> ${U().escapeHtml(l.suspension_reason)}
+          </div>
+        ` : ''}
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${l.status === 'pending_review' ? `
+            <button class="btn btn-success" onclick="publishListing('${l.id}')">✅ Publier cette annonce</button>
+          ` : ''}
+
+          ${l.status === 'published' ? `
+            <button class="btn btn-danger" onclick="askSuspendReason('${l.id}')">🚫 Suspendre</button>
+          ` : ''}
+
+          ${l.status === 'suspended' ? `
+            <button class="btn btn-success" onclick="publishListing('${l.id}')">↻ Republier</button>
+          ` : ''}
+
+          ${l.is_authenticated
+            ? `<button class="btn btn-ghost" onclick="unverifyListing('${l.id}')">✗ Retirer la vérification</button>`
+            : `<button class="btn btn-secondary" onclick="verifyListing('${l.id}')">✓ Marquer comme vérifiée</button>`
+          }
+
+          <button class="btn btn-ghost" style="color:#DC2626; border-color:#FCA5A5;" onclick="deleteListing('${l.id}', '${U().escapeHtml(l.title).replace(/'/g, "\\'")}')">🗑️ Supprimer définitivement</button>
+        </div>
+      `;
+
+      $('listing-modal').classList.remove('hidden');
+    }
+
+    // ============================================
+    // ACTIONS
+    // ============================================
+    async function publishListing(id) {
+      if (!confirm('Publier cette annonce ? Elle sera visible publiquement.')) return;
+      const { data, error } = await window.kwatta_db.rpc('publish_listing', { p_listing_id: id });
+      if (error || (data && !data.success)) { alert('Erreur : ' + (error?.message || data?.error)); return; }
+      alert('✅ Annonce publiée');
+      closeModal();
+      await loadListings();
+    }
+
+    async function askSuspendReason(id) {
+      const reason = prompt('Raison de la suspension (optionnel) :', '');
+      if (reason === null) return;
+      const { data, error } = await window.kwatta_db.rpc('suspend_listing', { p_listing_id: id, p_reason: reason || null });
+      if (error || (data && !data.success)) { alert('Erreur : ' + (error?.message || data?.error)); return; }
+      alert('✅ Annonce suspendue');
+      closeModal();
+      await loadListings();
+    }
+
+    async function verifyListing(id) {
+      const { data, error } = await window.kwatta_db.rpc('verify_listing', { p_listing_id: id });
+      if (error || (data && !data.success)) { alert('Erreur : ' + (error?.message || data?.error)); return; }
+      alert('✅ Annonce marquée comme vérifiée');
+      closeModal();
+      await loadListings();
+    }
+
+    async function unverifyListing(id) {
+      if (!confirm('Retirer la vérification ?')) return;
+      const { data, error } = await window.kwatta_db.rpc('unverify_listing', { p_listing_id: id });
+      if (error || (data && !data.success)) { alert('Erreur : ' + (error?.message || data?.error)); return; }
+      alert('✅ Vérification retirée');
+      closeModal();
+      await loadListings();
+    }
+
+    async function deleteListing(id, title) {
+      if (!confirm('⚠️ SUPPRIMER DÉFINITIVEMENT "' + title + '" ?\n\nCette action est IRRÉVERSIBLE.')) return;
+      const { data, error } = await window.kwatta_db.rpc('delete_listing', { p_listing_id: id });
+      if (error || (data && !data.success)) { alert('Erreur : ' + (error?.message || data?.error)); return; }
+      alert('✅ Annonce supprimée');
+      closeModal();
+      await loadListings();
+    }
+
+    function closeModal() {
+      $('listing-modal').classList.add('hidden');
+    }
+
+    $('modal-close').addEventListener('click', closeModal);
+    $('listing-modal').addEventListener('click', (e) => {
+      if (e.target === $('listing-modal')) closeModal();
+    });
+
+    window.openListingModal = openListingModal;
+    window.publishListing = publishListing;
+    window.askSuspendReason = askSuspendReason;
+    window.verifyListing = verifyListing;
+    window.unverifyListing = unverifyListing;
+    window.deleteListing = deleteListing;
+    window.closeModal = closeModal;
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seller Dashboard — KWATTA</title>
+<meta name="theme-color" content="#0E5C43">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theme-green.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-init.js"></script>
+<style>
+:root{--green:#0E5C43;--green-dark:#0A4433;--green-mid:#12734F;--green-soft:#E7F1EC;--amber:#F2A93B;--amber-dark:#D98E1F;--amber-soft:#FDF3E2;--ink:#0C1A16;--muted:#5C6F69;--muted-2:#7C8C86;--line:#E2E7E2;--cream:#F7F5F0;--font-head:'Sora',system-ui,sans-serif;--font-body:'Inter',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--cream);color:var(--ink);line-height:1.6;font-size:15px}
+a{color:inherit;text-decoration:none}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.site-header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-wrap{display:flex;align-items:center;gap:16px;height:66px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-head);font-weight:800;font-size:1.15rem}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:var(--green);display:grid;place-items:center;color:var(--amber);font-weight:800;font-size:.9rem}
+.nav-links{margin-left:auto;display:flex;gap:4px}
+.nav-links a{padding:8px 14px;border-radius:100px;font-size:.88rem;font-weight:500;color:var(--ink);transition:.18s}
+.nav-links a:hover{background:var(--green-soft);color:var(--green)}
+.nav-links a.active{background:var(--green);color:#fff}
+.nav-actions{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:100px;font-family:var(--font-head);font-weight:600;font-size:.9rem;cursor:pointer;border:1.5px solid transparent;transition:.18s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff;box-shadow:0 6px 18px rgba(14,92,67,.25)}
+.btn-primary:hover{background:var(--green-dark);transform:translateY(-2px)}
+.btn-amber{background:var(--amber);color:#3A2606;box-shadow:0 6px 18px rgba(242,169,59,.3)}
+.btn-amber:hover{background:var(--amber-dark);transform:translateY(-2px)}
+.btn-ghost{border-color:var(--line);background:#fff;color:var(--ink)}
+.btn-ghost:hover{border-color:var(--green);color:var(--green)}
+.btn-sm{padding:8px 15px;font-size:.82rem}
+.hero{background:linear-gradient(180deg,#FBFCFA 0%,var(--cream) 100%);padding:50px 0 30px}
+.hero h1{font-family:var(--font-head);font-size:clamp(1.9rem,4vw,2.8rem);font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:10px}
+.hero h1 .hl{color:var(--green);position:relative;white-space:nowrap}
+.hero h1 .hl::after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:.28em;background:var(--amber);opacity:.35;border-radius:4px;z-index:-1}
+.hero p{font-size:1.02rem;color:var(--muted);max-width:680px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-head);font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--green-mid);background:var(--green-soft);border-radius:100px;padding:6px 14px;margin-bottom:16px}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+.dashboard{padding:10px 0 70px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;transition:.22s}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(12,26,22,.07);border-color:#CFE0D7}
+.kpi.terra{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border-color:transparent}
+.kpi.terra .kpi-label,.kpi.terra .kpi-sub{color:rgba(255,255,255,.78)}
+.kpi-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin-bottom:6px;font-family:var(--font-head)}
+.kpi-value{font-family:var(--font-head);font-size:clamp(1.4rem,2.4vw,1.9rem);font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.kpi-sub{font-size:.76rem;color:var(--muted-2);margin-top:4px}
+.kpi.terra .kpi-value{color:#fff}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title h2{font-family:var(--font-head);font-size:1.15rem;font-weight:600}
+.section-title a{font-size:.85rem;color:var(--green);font-weight:600}
+.section-title a:hover{text-decoration:underline}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:22px}
+.row-list{display:flex;flex-direction:column;gap:10px}
+.list-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(12,26,22,.05)}
+.list-item:last-child{border-bottom:none}
+.list-item img{width:52px;height:52px;border-radius:10px;object-fit:cover;background:var(--green-soft);flex-shrink:0}
+.list-item .content{flex:1;min-width:0}
+.list-item .title{font-size:.9rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item .sub{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700;white-space:nowrap}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-gray{background:#e2e8f0;color:#475569}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.badge-red{background:#fee2e2;color:#991b1b}
+.empty{text-align:center;padding:36px 16px;color:var(--muted)}
+.empty .icon{font-size:2.4rem;opacity:.4;margin-bottom:8px}
+.grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:22px}
+.quick-actions{display:flex;flex-direction:column;gap:10px}
+.action-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--cream);border:1px solid var(--line);transition:.18s;cursor:pointer;text-align:left}
+.action-btn:hover{background:var(--green-soft);border-color:#CFE0D7}
+.action-btn .a-ico{width:40px;height:40px;border-radius:10px;background:#fff;display:grid;place-items:center;font-size:1.15rem;flex-shrink:0}
+.action-btn .a-body{flex:1;min-width:0}
+.action-btn .a-title{font-family:var(--font-head);font-size:.88rem;font-weight:600;margin-bottom:2px}
+.action-btn .a-desc{font-size:.74rem;color:var(--muted)}
+.profile-card{display:flex;align-items:center;gap:14px;padding:16px;background:var(--green-soft);border-radius:14px;margin-bottom:16px}
+.profile-avatar{width:56px;height:56px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-family:var(--font-head);font-weight:700;font-size:1.4rem;flex-shrink:0;overflow:hidden}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-info{flex:1;min-width:0}
+.profile-name{font-family:var(--font-head);font-weight:600;font-size:.95rem;margin-bottom:2px}
+.profile-username{font-size:.78rem;color:var(--muted)}
+.profile-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:100px;background:var(--green);color:#fff;font-size:.65rem;font-weight:700;margin-left:6px}
+footer{background:var(--ink);color:#9FB8AE;padding:40px 0 0;margin-top:20px}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:20px 0;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:.8rem;color:#7C948C;max-width:1200px;margin:0 auto;padding-left:20px;padding-right:20px}
+.footer-bottom a{color:#9FB8AE}
+.footer-bottom a:hover{color:var(--amber)}
+@media(max-width:900px){.nav-links{display:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr 1fr;gap:10px}.kpi{padding:14px 16px}.kpi-value{font-size:1.2rem}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.html" class="brand"><span class="brand-mark">K</span><span><span style="color:var(--green)">K</span>WATTA</span></a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="search.html">Browse</a>
+      <a href="seller-dashboard.html" class="active">Dashboard</a>
+      <a href="profile.html">Profile</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="sell.html" class="btn btn-amber btn-sm">+ Sell</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow"><span class="dot"></span>Seller space</span>
+    <h1>Your <span class="hl">seller dashboard</span></h1>
+    <p>Everything you've published, sold and earned — in one place.</p>
+  </div>
+</section>
+
+<section class="dashboard">
+  <div class="container" id="dashboard-root">
+
+    <!-- Auth gate -->
+    <div id="auth-gate" class="panel" style="text-align:center;padding:40px 20px;display:none">
+      <div style="font-size:3rem;margin-bottom:12px;opacity:.4">🔒</div>
+      <h2 style="font-family:var(--font-head);font-size:1.2rem;margin-bottom:8px">Sign in to see your dashboard</h2>
+      <p style="color:var(--muted);font-size:.9rem;margin-bottom:20px">Your listings, sales and earnings are private.</p>
+      <a href="login.html?redirect=seller-dashboard.html" class="btn btn-primary">Sign in</a>
+    </div>
+
+    <!-- Dashboard content -->
+    <div id="dashboard-content" style="display:none">
+
+      <!-- Profile card -->
+      <div class="profile-card" id="profile-card">
+        <div class="profile-avatar" id="profile-avatar">?</div>
+        <div class="profile-info">
+          <div class="profile-name" id="profile-name">—</div>
+          <div class="profile-username" id="profile-username">—</div>
+        </div>
+        <a href="profile.html" class="btn btn-ghost btn-sm">Edit profile</a>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi terra">
+          <div class="kpi-label">Wallet balance</div>
+          <div class="kpi-value" id="kpi-balance">— FCFA</div>
+          <div class="kpi-sub">Available to withdraw</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Active listings</div>
+          <div class="kpi-value" id="kpi-listings">—</div>
+          <div class="kpi-sub">Published items</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Sales completed</div>
+          <div class="kpi-value" id="kpi-sales">—</div>
+          <div class="kpi-sub">All-time orders</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Total earned</div>
+          <div class="kpi-value" id="kpi-earned">— FCFA</div>
+          <div class="kpi-sub">After 5% commission</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Recent listings -->
+        <div class="panel">
+          <div class="section-title">
+            <h2>📦 My recent listings</h2>
+            <a href="search.html?seller=me">See all</a>
+          </div>
+          <div id="recent-listings" class="row-list">
+            <div class="empty"><div class="icon">📦</div><p style="font-size:.85rem">No listings yet — post your first item.</p></div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div>
+          <div class="panel">
+            <div class="section-title">
+              <h2>⚡ Quick actions</h2>
+            </div>
+            <div class="quick-actions">
+              <a href="sell.html" class="action-btn">
+                <div class="a-ico">📸</div>
+                <div class="a-body">
+                  <div class="a-title">Post a new listing</div>
+                  <div class="a-desc">Takes under 2 minutes</div>
+                </div>
+              </a>
+              <a href="commandes.html" class="action-btn">
+                <div class="a-ico">📋</div>
+                <div class="a-body">
+                  <div class="a-title">My orders</div>
+                  <div class="a-desc">Track purchases and sales</div>
+                </div>
+              </a>
+              <a href="wallet.html" class="action-btn">
+                <div class="a-ico">💰</div>
+                <div class="a-body">
+                  <div class="a-title">Withdraw earnings</div>
+                  <div class="a-desc">Move money to your account</div>
+                </div>
+              </a>
+              <a href="offres.html" class="action-btn">
+                <div class="a-ico">💬</div>
+                <div class="a-body">
+                  <div class="a-title">Offers received</div>
+                  <div class="a-desc">Respond to buyers</div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Recent sales -->
+          <div class="panel">
+            <div class="section-title">
+              <h2>💳 Recent sales</h2>
+              <a href="commandes.html">All orders</a>
+            </div>
+            <div id="recent-sales" class="row-list">
+              <div class="empty"><div class="icon">💳</div><p style="font-size:.85rem">No sales yet.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-bottom">
+    <p>© 2026 KWATTA · Built by The Box.</p>
+    <p><a href="index.html">Home</a> · <a href="thebox.html">The Box</a> · <a href="about.html">About</a></p>
+  </div>
+</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+function formatPrice(p){return new Intl.NumberFormat('fr-FR').format(Math.round(p||0))+' FCFA';}
+function formatDate(d){const date=new Date(d);const diff=Math.floor((Date.now()-date)/1000);if(diff<60)return'just now';if(diff<3600)return Math.floor(diff/60)+' min ago';if(diff<86400)return Math.floor(diff/3600)+'h ago';if(diff<604800)return Math.floor(diff/86400)+'d ago';return date.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});}
+
+const STATUS_MAP = {
+  published:      {cls:'badge-green', txt:'Published'},
+  pending_review: {cls:'badge-yellow', txt:'Pending'},
+  draft:          {cls:'badge-gray', txt:'Draft'},
+  sold:           {cls:'badge-blue', txt:'Sold'},
+  suspended:      {cls:'badge-red', txt:'Suspended'}
+};
+const TX_STATUS = {
+  pending_payment:{cls:'badge-yellow',txt:'Pending'},
+  payment_held:  {cls:'badge-blue',txt:'Paid'},
+  shipped:       {cls:'badge-blue',txt:'Shipped'},
+  delivered:     {cls:'badge-blue',txt:'Delivered'},
+  completed:     {cls:'badge-green',txt:'Completed'},
+  disputed:      {cls:'badge-red',txt:'Disputed'},
+  refunded:      {cls:'badge-gray',txt:'Refunded'},
+  cancelled:     {cls:'badge-gray',txt:'Cancelled'}
+};
+
+(async () => {
+  const { data: { session } } = await window.kwatta_db.auth.getSession();
+  if (!session) {
+    $('auth-gate').style.display = 'block';
+    return;
+  }
+  const userId = session.user.id;
+
+  // Profile
+  const { data: profile } = await window.kwatta_db
+    .from('profiles')
+    .select('username, display_name, avatar_url, is_verified')
+    .eq('id', userId)
+    .single();
+
+  const name = profile?.display_name || profile?.username || 'Seller';
+  $('profile-name').innerHTML = name + (profile?.is_verified ? '<span class="profile-badge">✓ Verified</span>' : '');
+  $('profile-username').textContent = '@' + (profile?.username || 'seller');
+  if (profile?.avatar_url) {
+    $('profile-avatar').innerHTML = '<img src="' + profile.avatar_url + '" alt="avatar">';
+  } else {
+    $('profile-avatar').textContent = name[0].toUpperCase();
+  }
+
+  // Wallet
+  const { data: wallet } = await window.kwatta_db
+    .from('wallets')
+    .select('solde_disponible, total_gagne')
+    .eq('user_id', userId)
+    .single();
+  $('kpi-balance').textContent = formatPrice(wallet?.solde_disponible || 0);
+  $('kpi-earned').textContent = formatPrice(wallet?.total_gagne || 0);
+
+  // Listings count
+  const { count: listingsCount } = await window.kwatta_db
+    .from('listings')
+    .select('*', { count: 'exact', head: true })
+    .eq('seller_id', userId)
+    .eq('status', 'published');
+  $('kpi-listings').textContent = listingsCount || 0;
+
+  // Sales count
+  const { count: salesCount } = await window.kwatta_db
+    .from('transactions')
+    .select('*', { count: 'exact', head: true })
+    .eq('seller_id', userId)
+    .eq('status', 'completed');
+  $('kpi-sales').textContent = salesCount || 0;
+
+  // Recent listings
+  const { data: recentListings } = await window.kwatta_db
+    .from('listings')
+    .select('id, title, price_xaf, images, status, created_at')
+    .eq('seller_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  if (recentListings && recentListings.length) {
+    $('recent-listings').innerHTML = recentListings.map(l => {
+      const img = (l.images && l.images[0]) || 'https://placehold.co/100x100/f5f3ee/2D2A26?text=K';
+      const s = STATUS_MAP[l.status] || {cls:'badge-gray',txt:l.status};
+      return `
+        <div class="list-item">
+          <img src="${img}" alt="" onerror="this.src='https://placehold.co/100x100/f5f3ee/2D2A26?text=K'">
+          <div class="content">
+            <div class="title">${escapeHtml(l.title)}</div>
+            <div class="sub">${formatPrice(l.price_xaf)} · ${formatDate(l.created_at)}</div>
+          </div>
+          <span class="badge ${s.cls}">${s.txt}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Recent sales
+  const { data: recentSales } = await window.kwatta_db
+    .from('transactions')
+    .select('id, amount_xaf, status, created_at, listing:listings(title, images)')
+    .eq('seller_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  if (recentSales && recentSales.length) {
+    $('recent-sales').innerHTML = recentSales.map(t => {
+      const img = (t.listing?.images && t.listing.images[0]) || 'https://placehold.co/100x100/f5f3ee/2D2A26?text=K';
+      const s = TX_STATUS[t.status] || {cls:'badge-gray',txt:t.status};
+      const sellerNet = Math.round(t.amount_xaf * 0.95);
+      return `
+        <div class="list-item">
+          <img src="${img}" alt="" onerror="this.src='https://placehold.co/100x100/f5f3ee/2D2A26?text=K'">
+          <div class="content">
+            <div class="title">${escapeHtml(t.listing?.title || 'Listing deleted')}</div>
+            <div class="sub">${formatPrice(sellerNet)} net · ${formatDate(t.created_at)}</div>
+          </div>
+          <span class="badge ${s.cls}">${s.txt}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  $('dashboard-content').style.display = 'block';
+})();
+
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+</script>
+
+  <script src="js/idle-logout.js" defer></script>
+
+</body>
+</html>

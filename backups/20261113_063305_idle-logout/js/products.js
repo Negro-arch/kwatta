@@ -1,0 +1,554 @@
+// ============================================
+// KWATTA — Produits (version propre)
+// ============================================
+
+let kwattaProducts = [];
+let kwattaCurrentCategory = 'all';
+let kwattaSearchQuery = '';
+let kwattaCurrentSort = 'recent';
+let kwattaFavorites = [];           // IDs des listings likés par l'utilisateur courant
+let kwattaFavsLoaded = false;        // évite de recharger plusieurs fois
+
+// Charge les favoris de l'utilisateur courant depuis Supabase
+async function kwattaLoadFavorites() {
+  if (kwattaFavsLoaded) return;
+  if (!window.kwatta_db) return;
+
+  const { data: { session } } = await window.kwatta_db.auth.getSession();
+  if (!session) {
+    kwattaFavsLoaded = true;
+    return;
+  }
+
+  const { data, error } = await window.kwatta_db
+    .from('favoris')
+    .select('listing_id')
+    .eq('user_id', session.user.id);
+
+  if (error) {
+    console.error('[FAV] Erreur chargement:', error);
+    kwattaFavsLoaded = true;
+    return;
+  }
+
+  kwattaFavorites = (data || []).map(f => f.listing_id);
+  kwattaFavsLoaded = true;
+  console.log('[FAV]', kwattaFavorites.length, 'favoris chargés');
+}
+
+const KWATTA_CATEGORY_ICONS = {
+  'femme': '👗', 'homme': '👔', 'createurs': '✨', 'enfants': '🧸',
+  'maison': '🏠', 'electronique': '📱', 'livres-medias': '📚',
+  'loisirs': '🎮', 'sport': '⚽', 'artisanat': '🎨', 'auto-moto': '🚗',
+  'sneakers': '👟', 'vetements': '👕', 'sacs-accessoires': '👜',
+  'montres-bijoux': '⌚', 'beaute-sante': '💄',
+};
+
+function kwattaFormatPrice(price) {
+  return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';
+}
+
+// ============================================
+// CHARGER LES CATÉGORIES DANS LA NAV
+// ============================================
+
+// ============================================
+// MEGA-MENU SIMPLE (clic pour ouvrir)
+// ============================================
+
+
+
+
+// ============================================
+// CHARGER LES PRODUITS
+// ============================================
+async function kwattaLoadProducts() {
+  // Charge les favoris de l'utilisateur AVANT de rendre
+  await kwattaLoadFavorites();
+
+  const grid = document.getElementById('products-grid');
+  const empty = document.getElementById('empty-state');
+  const count = document.getElementById('results-count');
+  
+  if (!grid) return;
+  
+  grid.innerHTML = Array(6).fill('<div class="skeleton-card"></div>').join('');
+  if (empty) empty.classList.add('hidden');
+  if (count) count.textContent = 'Chargement...';
+  
+  let query = window.kwatta_db
+    .from('listings')
+    .select('*, categories(name, slug), seller:profiles!listings_seller_id_fkey(username, display_name, is_verified)')
+    .eq('status', 'published');
+  
+  if (kwattaCurrentCategory !== 'all') {
+    const { data: cat } = await window.kwatta_db
+      .from('categories').select('id').eq('slug', kwattaCurrentCategory).single();
+    if (cat) query = query.eq('category_id', cat.id);
+  }
+  
+  if (kwattaSearchQuery) {
+    query = query.or(`title.ilike.%${kwattaSearchQuery}%,description.ilike.%${kwattaSearchQuery}%,brand.ilike.%${kwattaSearchQuery}%`);
+  }
+  
+  if (kwattaCurrentSort === 'price_asc') {
+    query = query.order('price_xaf', { ascending: true });
+  } else if (kwattaCurrentSort === 'price_desc') {
+    query = query.order('price_xaf', { ascending: false });
+  } else {
+    // LIFO avec boost en priorité :
+    // 1) Annonces boostées (boosted_until non null) d'abord
+    // 2) Tri par created_at DESC
+    query = query.order('boosted_until', { ascending: false, nullsFirst: false })
+                 .order('created_at', { ascending: false });
+  }
+  
+  const { data, error } = await query.limit(8);
+  
+  if (error) {
+    console.error('Produits:', error);
+    grid.innerHTML = '<div class="col-span-full text-center text-charcoal/60 py-12">Erreur de chargement</div>';
+    return;
+  }
+  
+  kwattaProducts = data || [];
+  kwattaRenderProducts();
+}
+
+// ============================================
+// AFFICHER LES PRODUITS
+// ============================================
+function kwattaRenderProducts() {
+  const grid = document.getElementById('products-grid');
+  const empty = document.getElementById('empty-state');
+  const count = document.getElementById('results-count');
+  
+  if (!grid) return;
+  
+  if (kwattaProducts.length === 0) {
+    grid.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    if (count) count.textContent = '0 article';
+    return;
+  }
+  
+  if (empty) empty.classList.add('hidden');
+  if (count) count.textContent = kwattaProducts.length + ' article' + (kwattaProducts.length > 1 ? 's' : '');
+  
+  grid.innerHTML = kwattaProducts.map(p => {
+    const img = (p.images && p.images[0]) || 'https://placehold.co/400x500/f5f3ee/2D2A26?text=KWATTA';
+    const isFav = kwattaFavorites.includes(p.id);
+    const favCount = p.favoris_count || 0;
+
+    // Marque (optionnel)
+    const brandHtml = p.brand
+      ? '<div class="product-brand">' + p.brand + '</div>'
+      : '';
+
+    // État (traduit)
+    const conditionLabels = {
+      'neuf_avec_etiquette': window.kwattaT ? window.kwattaT('condition.new') : 'Neuf avec étiquette',
+      'tres_bon_etat': window.kwattaT ? window.kwattaT('condition.very_good') : 'Très bon état',
+      'bon_etat': window.kwattaT ? window.kwattaT('condition.good') : 'Bon état',
+      'satisfaisant': window.kwattaT ? window.kwattaT('condition.fair') : 'Satisfaisant',
+    };
+    const conditionHtml = p.condition
+      ? '<div class="product-condition">' + (conditionLabels[p.condition] || p.condition) + '</div>'
+      : '';
+
+    // Ville
+    const cityHtml = p.location_city
+      ? '<div class="product-city">📍 ' + p.location_city + '</div>'
+      : '';
+
+    // Badge protection (visuel pour l'instant)
+    const protectionHtml = '<div class="product-protection" title="' + (window.kwattaT ? window.kwattaT('product.protected_tooltip') : 'Achat protégé') + '">🛡️ ' + (window.kwattaT ? window.kwattaT('product.protected') : 'Protégé') + '</div>';
+
+    // Compteur de favoris (visible seulement si > 0)
+    const favCountHtml = favCount > 0
+      ? '<span class="product-fav-count">' + favCount + '</span>'
+      : '';
+
+    return `
+      <div class="product-card" data-id="${p.id}" onclick="window.location.href='product.html?id=${p.id}'">
+        <div class="product-image-wrap">
+          <img src="${img}" alt="${p.title}" class="product-image" loading="lazy" onerror="this.src='https://placehold.co/400x500/f5f3ee/2D2A26?text=KWATTA'">
+          <button class="product-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); kwattaToggleFav('${p.id}')" title="Ajouter aux favoris">
+            <svg width="14" height="14" fill="${isFav ? '#B8543D' : 'none'}" stroke="${isFav ? '#B8543D' : '#2D2A26'}" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            ${favCountHtml}
+          </button>
+        </div>
+        <div class="product-info">
+          ${brandHtml}
+          <div class="product-title">${p.title}${window.renderVerifiedBadge ? window.renderVerifiedBadge(p.seller?.is_verified, 'sm') : ''}</div>
+          ${conditionHtml}
+          <div class="product-price-row">
+            <span class="product-price">${kwattaFormatPrice(p.price_xaf)}</span>
+          </div>
+          <div class="product-bottom-row">
+            ${cityHtml}
+            ${protectionHtml}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================
+// FAVORIS
+// ============================================
+async function kwattaToggleFav(id) {
+  if (!window.kwatta_db) return;
+
+  const { data: { session } } = await window.kwatta_db.auth.getSession();
+  if (!session) {
+    // Pas connecté → ouvre la modale de connexion si dispo
+    if (window.kwattaOpenAuth) {
+      window.kwattaOpenAuth('login');
+    } else {
+      window.location.href = 'login.html';
+    }
+    return;
+  }
+
+  const userId = session.user.id;
+  const isFav = kwattaFavorites.includes(id);
+
+  // Optimistic UI : on met à jour tout de suite
+  const card = document.querySelector('.product-card[data-id="' + id + '"]');
+  const btn = card ? card.querySelector('.product-fav') : null;
+  const countEl = btn ? btn.querySelector('.product-fav-count') : null;
+
+  if (isFav) {
+    // Retirer
+    kwattaFavorites = kwattaFavorites.filter(x => x !== id);
+    if (btn) btn.classList.remove('active');
+    if (btn) btn.querySelector('svg').setAttribute('fill', 'none');
+    if (btn) btn.querySelector('svg').setAttribute('stroke', '#2D2A26');
+    if (countEl) {
+      const n = Math.max(0, parseInt(countEl.textContent || '0') - 1);
+      if (n === 0) countEl.remove();
+      else countEl.textContent = n;
+    }
+  } else {
+    // Ajouter
+    kwattaFavorites.push(id);
+    if (btn) btn.classList.add('active');
+    if (btn) btn.querySelector('svg').setAttribute('fill', '#B8543D');
+    if (btn) btn.querySelector('svg').setAttribute('stroke', '#B8543D');
+    if (btn) {
+      if (countEl) {
+        countEl.textContent = parseInt(countEl.textContent || '0') + 1;
+      } else {
+        // Crée le span
+        const span = document.createElement('span');
+        span.className = 'product-fav-count';
+        span.textContent = '1';
+        btn.appendChild(span);
+      }
+    }
+  }
+
+  // Sync Supabase
+  let error;
+  if (isFav) {
+    ({ error } = await window.kwatta_db
+      .from('favoris')
+      .delete()
+      .eq('user_id', userId)
+      .eq('listing_id', id));
+  } else {
+    ({ error } = await window.kwatta_db
+      .from('favoris')
+      .insert({ user_id: userId, listing_id: id }));
+  }
+
+  if (error) {
+    console.error('[FAV] Erreur sync:', error);
+    // Rollback : on remet l'état précédent
+    kwattaFavorites = isFav
+      ? [...kwattaFavorites, id]
+      : kwattaFavorites.filter(x => x !== id);
+    alert('Erreur : ' + error.message);
+    return;
+  }
+
+  console.log('[FAV]', isFav ? 'Retiré' : 'Ajouté', id);
+}
+
+// ============================================
+// RECHERCHE
+// ============================================
+function kwattaSetupSearch() {
+  const input = document.getElementById('search-input');
+  if (!input) return;
+  let timeout;
+  input.addEventListener('input', (e) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      kwattaSearchQuery = e.target.value.trim();
+      kwattaLoadProducts();
+    }, 300);
+  });
+}
+
+window.kwattaLoadProducts = kwattaLoadProducts;
+window.kwattaRenderProducts = kwattaRenderProducts;
+window.kwattaToggleFav = kwattaToggleFav;
+window.kwattaSetupSearch = kwattaSetupSearch;
+
+
+// ============================================
+// CATÉGORIES + MEGA-MENU
+// ============================================
+async function kwattaLoadCategories() {
+  const nav = document.getElementById('categories-nav');
+  if (!nav) {
+    console.warn('[KWATTA] #categories-nav introuvable');
+    return;
+  }
+
+  const { data, error } = await window.kwatta_db
+    .from('categories')
+    .select('*')
+    .order('display_order');
+
+  if (error) {
+    console.error('[KWATTA] Erreur catégories:', error);
+    return;
+  }
+
+  const all = data || [];
+  const parents = all.filter(c => !c.parent_id);
+  const level2 = all.filter(c => c.parent_id && parents.find(p => p.id === c.parent_id));
+  const level3 = all.filter(c => c.parent_id && !parents.find(p => p.id === c.parent_id));
+
+  console.log('[KWATTA] Categories:', parents.length, 'parents,', level2.length, 'niveau2,', level3.length, 'niveau3');
+
+  // ============================================
+  // 1) Construit la NAV (dans le header)
+  // ============================================
+  let navHtml = '<a href="index.html" class="cat-nav-link" data-cat="all">Tout</a>';
+
+  parents.forEach(parent => {
+    const children = level2.filter(c => c.parent_id === parent.id);
+    const hasChildren = children.length > 0;
+
+    navHtml += '<div class="cat-nav-item' + (hasChildren ? ' has-kids' : '') + '" data-parent="' + parent.slug + '">';
+    navHtml += '<a href="search.html?cat=' + parent.slug + '" class="cat-nav-link">';
+    navHtml += parent.name;
+    if (hasChildren) {
+      navHtml += ' <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
+    }
+    navHtml += '</a>';
+    navHtml += '</div>';
+  });
+
+  nav.innerHTML = navHtml;
+
+  // ============================================
+  // 2) Construit les MEGA-MENUS (dans le container)
+  // ============================================
+  const container = document.getElementById('cat-mega-container');
+  if (!container) {
+    console.error('[KWATTA] #cat-mega-container introuvable');
+    return;
+  }
+
+  let menusHtml = '';
+
+  parents.forEach(parent => {
+    const children = level2.filter(c => c.parent_id === parent.id);
+    if (children.length === 0) return;
+
+    menusHtml += '<div class="cat-mega-menu" data-parent-slug="' + parent.slug + '">';
+    menusHtml += '<div class="cat-mega-menu-inner">';
+
+    // Colonne gauche
+    menusHtml += '<div class="cat-mega-col-left">';
+    menusHtml += '<a href="search.html?cat=' + parent.slug + '" class="cat-mega-item-all">Tout voir</a>';
+
+    children.forEach((child, idx) => {
+      const subchildren = level3.filter(sc => sc.parent_id === child.id);
+      const isFirst = idx === 0;
+
+      menusHtml += '<a href="search.html?cat=' + child.slug + '" ' +
+                   'class="cat-mega-parent' + (isFirst ? ' active' : '') + '" ' +
+                   'data-level2-id="' + child.id + '">' +
+                   child.name +
+                   (subchildren.length > 0 ? ' <span class="cat-arrow">›</span>' : '') +
+                   '</a>';
+    });
+
+    menusHtml += '</div>';
+
+    // Colonne droite
+    menusHtml += '<div class="cat-mega-col-right">';
+
+    children.forEach((child, idx) => {
+      const subchildren = level3.filter(sc => sc.parent_id === child.id);
+      const isFirst = idx === 0;
+
+      menusHtml += '<div class="cat-mega-subpanel' + (isFirst ? ' active' : '') + '" ' +
+                   'data-parent-level2="' + child.id + '">';
+
+      if (subchildren.length > 0) {
+        menusHtml += '<div class="cat-mega-subtitle">' + child.name + '</div>';
+        subchildren.forEach(sub => {
+          menusHtml += '<a href="search.html?cat=' + sub.slug + '" class="cat-mega-subitem">' + sub.name + '</a>';
+        });
+      } else {
+        menusHtml += '<a href="search.html?cat=' + child.slug + '" class="cat-mega-subitem">Voir les articles de ' + child.name + '</a>';
+      }
+
+      menusHtml += '</div>';
+    });
+
+    menusHtml += '</div>';
+    menusHtml += '</div>';
+    menusHtml += '</div>';
+  });
+
+  container.innerHTML = menusHtml;
+
+  console.log('[KWATTA] Nav + Menus générés');
+
+  // ============================================
+  // 3) Attache les événements
+  // ============================================
+  setupCategoryMenu();
+}
+
+// ============================================
+// INTERACTIONS MEGA-MENU (clic)
+// ============================================
+function setupCategoryMenu() {
+  const container = document.getElementById('cat-mega-container');
+  if (!container) {
+    console.error('[KWATTA] Container introuvable');
+    return;
+  }
+
+  const items = document.querySelectorAll('.cat-nav-item.has-kids');
+
+  // --- SURVOL (mouseenter) : ouvre le menu ---
+  items.forEach(item => {
+    const slug = item.dataset.parent;
+    const menu = container.querySelector('.cat-mega-menu[data-parent-slug="' + slug + '"]');
+    if (!menu) return;
+
+    let closeTimer = null;
+
+    // Fonction d'ouverture
+    function openMenu() {
+      clearTimeout(closeTimer);
+
+      // Ferme les autres menus
+      document.querySelectorAll('.cat-nav-item.open').forEach(el => {
+        el.classList.remove('open');
+      });
+      container.querySelectorAll('.cat-mega-menu.open').forEach(m => {
+        m.classList.remove('open');
+      });
+
+      // Ouvre celui-ci
+      item.classList.add('open');
+      menu.classList.add('open');
+
+      // Position
+      const header = document.querySelector('header');
+      const headerBottom = header ? header.getBoundingClientRect().bottom : 120;
+      const rect = item.getBoundingClientRect();
+      const menuWidth = Math.min(620, window.innerWidth - 32);
+      const margin = 16;
+
+      let left = rect.left;
+      if (left + menuWidth > window.innerWidth - margin) {
+        left = window.innerWidth - menuWidth - margin;
+      }
+      if (left < margin) left = margin;
+
+      menu.style.top = headerBottom + 'px';
+      menu.style.left = left + 'px';
+      menu.style.width = menuWidth + 'px';
+
+      console.log('[MEGA-MENU] Ouvert:', slug, '| top:', headerBottom, '| left:', left);
+    }
+
+    // Fonction de fermeture avec délai (pour permettre d'aller dans le menu)
+    function scheduleClose() {
+      clearTimeout(closeTimer);
+      closeTimer = setTimeout(() => {
+        item.classList.remove('open');
+        menu.classList.remove('open');
+      }, 300);
+    }
+
+    function cancelClose() {
+      clearTimeout(closeTimer);
+    }
+
+    // --- SURVOL sur l'item de nav ---
+    item.addEventListener('mouseenter', openMenu);
+    item.addEventListener('mouseleave', scheduleClose);
+
+    // --- SURVOL sur le menu lui-même (empêche la fermeture) ---
+    menu.addEventListener('mouseenter', cancelClose);
+    menu.addEventListener('mouseleave', scheduleClose);
+
+    // --- CLIC sur le lien (pour mobile) ---
+    const link = item.querySelector('.cat-nav-link');
+    if (link) {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (item.classList.contains('open')) {
+          item.classList.remove('open');
+          menu.classList.remove('open');
+        } else {
+          openMenu();
+        }
+      });
+    }
+
+    // --- SURVOL niveau 2 → change le panneau de droite ---
+    menu.querySelectorAll('.cat-mega-parent').forEach(parentLink => {
+      parentLink.addEventListener('mouseenter', () => {
+        cancelClose();  // annule la fermeture
+
+        const level2Id = parentLink.dataset.level2Id;
+
+        menu.querySelectorAll('.cat-mega-parent').forEach(p => p.classList.remove('active'));
+        parentLink.classList.add('active');
+
+        menu.querySelectorAll('.cat-mega-subpanel').forEach(sp => sp.classList.remove('active'));
+        const subpanel = menu.querySelector('.cat-mega-subpanel[data-parent-level2="' + level2Id + '"]');
+        if (subpanel) subpanel.classList.add('active');
+      });
+    });
+
+    // --- SURVOL niveau 3 → annule aussi la fermeture ---
+    menu.querySelectorAll('.cat-mega-subitem').forEach(subItem => {
+      subItem.addEventListener('mouseenter', cancelClose);
+    });
+  });
+
+  // --- CLIC EXTÉRIEUR → ferme tout ---
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.cat-nav-item') && !e.target.closest('#cat-mega-container')) {
+      document.querySelectorAll('.cat-nav-item.open').forEach(el => el.classList.remove('open'));
+      container.querySelectorAll('.cat-mega-menu.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+
+  console.log('[KWATTA] ✅ Mega-menu prêt (survol)');
+}
+
+window.setupCategoryMenu = setupCategoryMenu;
+
+window.kwattaLoadCategories = kwattaLoadCategories;
+window.setupCategoryMenu = setupCategoryMenu;
