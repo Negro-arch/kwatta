@@ -1,24 +1,18 @@
-# Backups
-_backups_archive/
-*.backup
-*.backup2
-*.backup3
-*.backup-*
-*.bak-*
-*.broken
-
-# Node
+# Dépendances
 node_modules/
-package-lock.json
+vendor/
 
-# OS
+# Configuration locale (Supabase et .env)
+supabase/.temp/
+supabase/.branches/
+supabase/functions/.env
+.env
+.env.local
+
+# Fichiers système
 .DS_Store
 Thumbs.db
 
-# IDE
-.vscode/
-.idea/
-
-# Env
-.env
-.env.local
+# Logs
+*.log
+npm-debug.log*

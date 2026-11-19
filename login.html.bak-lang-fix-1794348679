@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#B8543D">
+  <title>Connexion — KWATTA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            terra: { 50:'#fdf5f2',100:'#fbe8e2',200:'#f5d0c5',300:'#ecad9b',400:'#d97a63',500:'#B8543D',600:'#a3442f',700:'#873727',800:'#6e2f23',900:'#5a2a20' },
+            cream: '#FAF6F0',
+            charcoal: '#2D2A26',
+            honey: '#E8A96A',
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme-green.css">
+  <script src="js/locations.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body class="bg-cream text-charcoal font-body antialiased min-h-screen">
+
+  <!-- Header simple -->
+  <header class="p-4">
+    <a href="index.html" class="inline-flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-terra-500 flex items-center justify-center shadow-sm">
+        <span class="text-cream font-display font-bold text-lg">K</span>
+      <button id="lang-toggle" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center text-xs font-bold" title="FR / EN" onclick="if(window.kwattaToggleLang) window.kwattaToggleLang()">
+        <span id="current-lang">EN</span>
+      </button>
+      </div>
+      <span class="font-display font-bold text-xl">KWATTA</span>
+    </a>
+    
+  </header>
+
+  <!-- Contenu centré -->
+  <main class="flex items-center justify-center px-4 pb-8" style="min-height: calc(100vh - 100px);">
+    <div class="w-full max-w-md">
+
+      <!-- Formulaire LOGIN -->
+      <div id="form-login" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-charcoal/5">
+        
+        <h1 class="font-display text-2xl font-bold text-center mb-2" data-i18n="login.title">
+          Rejoignez KWATTA et vendez vos articles sans frais
+        </h1>
+        <p class="text-sm text-charcoal/60 text-center mb-6" data-i18n="login.subtitle">
+          Connectez-vous pour continuer
+        </p>
+
+        <!-- Boutons sociaux -->
+        <div class="space-y-2 mb-5">
+          
+          <!-- Google -->
+          <button type="button" id="google-login-btn"
+            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-charcoal/15 bg-white hover:bg-charcoal/5 transition font-medium text-sm">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            <span data-i18n="login.google">Continuer avec Google</span>
+          </button>
+
+          <!-- Apple -->
+          <button type="button" id="apple-login-btn"
+            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-charcoal/15 bg-white hover:bg-charcoal/5 transition font-medium text-sm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+            </svg>
+            <span data-i18n="login.apple">Continuer avec Apple</span>
+          </button>
+
+          <!-- Facebook -->
+          <button type="button" id="facebook-login-btn"
+            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-charcoal/15 bg-white hover:bg-charcoal/5 transition font-medium text-sm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <span data-i18n="login.facebook">Continuer avec Facebook</span>
+          </button>
+
+        </div>
+
+        <!-- Séparateur -->
+        <div class="relative mb-5">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-charcoal/10"></div>
+          </div>
+          <div class="relative flex justify-center text-xs">
+            <span class="px-3 bg-white text-charcoal/50"><span data-i18n="login.or_email">ou avec un email</span></span>
+          </div>
+        </div>
+
+        <!-- Formulaire -->
+        <form id="login-form" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-charcoal/70 mb-1" data-i18n="login.email_label">Adresse email</label>
+            <input type="email" id="login-email" required autocomplete="email"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition"
+              placeholder="votre.email@exemple.com">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-charcoal/70 mb-1" data-i18n="login.password_label">Mot de passe</label>
+            <input type="password" id="login-password" required autocomplete="current-password"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition"
+              placeholder="Votre mot de passe">
+          </div>
+          <p id="login-error" class="text-sm text-red-600 hidden"></p>
+          <button type="submit"
+            class="w-full py-3 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold transition shadow-lg shadow-terra-500/30">
+            <span data-i18n="login.submit">Se connecter</span>
+          </button>
+        </form>
+
+        <div class="mt-5 text-center space-y-2">
+          <p class="text-sm text-charcoal/60">
+            <span data-i18n="login.no_account">Pas de compte ?</span> 
+            <button id="show-signup-btn" class="text-terra-600 hover:underline font-semibold">
+              <span data-i18n="login.switch_signup">Inscrivez-vous</span>
+            </button>
+          </p>
+          <a href="#" class="text-xs text-charcoal/50 hover:text-terra-600 block">
+            <span data-i18n="login.forgot_password">Mot de passe oublié ?</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Formulaire SIGNUP (caché) -->
+      <div id="form-signup" class="hidden bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-charcoal/5">
+        
+        <h1 class="font-display text-2xl font-bold text-center mb-2" data-i18n="login.signup_title">
+          Créez votre compte KWATTA
+        </h1>
+        <p class="text-sm text-charcoal/60 text-center mb-6" data-i18n="login.signup_subtitle">
+          Rejoignez la communauté
+        </p>
+
+        <!-- Bandeau Mode téléphone (caché) -->
+        <div id="phone-banner" class="hidden mb-5 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">📱</span>
+              <div>
+                <div class="text-xs font-bold text-blue-900"><span data-i18n="login.phone_mode">Inscription par téléphone</span></div>
+                <div class="text-[10px] text-blue-700"><span data-i18n="login.phone_mode_sub">Aucun email requis maintenant</span></div>
+              </div>
+            </div>
+            <button type="button" id="cancel-phone-mode" class="text-xs text-blue-700 hover:underline font-semibold">
+              ↩️ Retour
+            </button>
+          </div>
+        </div>
+
+        <!-- Boutons sociaux + bouton téléphone -->
+        <div id="social-buttons" class="space-y-2 mb-5">
+          <button type="button" id="google-signup-btn"
+            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-charcoal/15 bg-white hover:bg-charcoal/5 transition font-medium text-sm">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            <span data-i18n="login.google">Continuer avec Google</span>
+          </button>
+
+          <button type="button" id="phone-signup-btn"
+            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-charcoal/15 bg-white hover:bg-charcoal/5 transition font-medium text-sm">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="5" y="2" width="14" height="20" rx="2"/>
+              <path d="M12 18h.01"/>
+            </svg>
+            Continuer avec mon numéro
+          </button>
+        </div>
+
+        <div id="signup-separator" class="relative mb-5">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-charcoal/10"></div>
+          </div>
+          <div class="relative flex justify-center text-xs">
+            <span class="px-3 bg-white text-charcoal/50">ou avec un email</span>
+          </div>
+        </div>
+
+        <form id="signup-form" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-charcoal/70 mb-1" data-i18n="login.name_label">Nom complet</label>
+            <input type="text" id="signup-name" required
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition"
+              placeholder="Votre nom complet">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-charcoal/70 mb-1" data-i18n="login.username_label">Nom d'utilisateur</label>
+            <input type="text" id="signup-username" required minlength="3"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition"
+              placeholder="votre_nom_utilisateur">
+          </div>
+
+          <!-- Champ téléphone (caché par défaut) -->
+          <div id="signup-phone-field" class="hidden">
+            <label class="block text-xs font-medium text-charcoal/70 mb-1" data-i18n="login.phone_label">Numéro de téléphone</label>
+            <input type="tel" id="signup-phone"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition"
+              placeholder="6XX XXX XXX">
+            <p class="text-xs text-charcoal/50 mt-1" data-i18n="login.phone_hint">Format : 6XX XXX XXX ou +237 6XX XXX XXX</p>
+          </div>
+
+          <div id="signup-email-field">
+            <label class="block text-xs font-medium text-charcoal/70 mb-1" data-i18n="form.email">Email</label>
+            <input type="email" id="signup-email" required
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition"
+              placeholder="votre.email@exemple.com">
+          </div>
+
+          <div id="signup-whatsapp-field">
+            <label class="block text-xs font-medium text-charcoal/70 mb-1" data-i18n="login.whatsapp_label">WhatsApp</label>
+            <input type="tel" id="signup-whatsapp" required
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition"
+              placeholder="+237 6XX XXX XXX">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-charcoal/70 mb-1" data-i18n="login.password_label">Mot de passe</label>
+            <input type="password" id="signup-password" required minlength="6"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition"
+              placeholder="6 caractères minimum">
+          </div>
+          <div class="flex items-start gap-2 py-2">
+            <input type="checkbox" id="signup-terms" required
+              class="mt-1 w-4 h-4 text-terra-500 rounded focus:ring-terra-500">
+            <label for="signup-terms" class="text-xs text-charcoal/60">
+              J'accepte les <a href="conditions.html" target="_blank" class="text-terra-600 underline">Conditions</a>
+              et la <a href="confidentialite.html" target="_blank" class="text-terra-600 underline">Politique de confidentialité</a>
+            </label>
+          </div>
+          <p id="signup-error" class="text-sm text-red-600 hidden"></p>
+          <button type="submit"
+            class="w-full py-3 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold transition shadow-lg shadow-terra-500/30">
+            <span data-i18n="login.signup_submit">Créer mon compte</span>
+          </button>
+        </form>
+
+        <div class="mt-5 text-center">
+          <p class="text-sm text-charcoal/60">
+            <span data-i18n="login.already_account">Déjà un compte ?</span> 
+            <button id="show-login-btn" class="text-terra-600 hover:underline font-semibold">
+              <span data-i18n="login.switch_login">Connectez-vous</span>
+            </button>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    // ============================================
+    // HELPERS TÉLÉPHONE
+    // ============================================
+    function normalizePhone(raw) {
+      if (!raw) return '';
+      let cleaned = raw.replace(/[\s\-().]/g, '');
+      cleaned = cleaned.replace(/^\+/, '');
+      if (cleaned.startsWith('237')) return cleaned;
+      if (/^\d{9,10}$/.test(cleaned)) {
+        if (cleaned.length === 10 && cleaned.startsWith('0')) {
+          cleaned = cleaned.substring(1);
+        }
+        return '237' + cleaned;
+      }
+      return cleaned;
+    }
+
+    function phoneToFakeEmail(phone) {
+      return phone + '@kwatta-phone.cm';
+    }
+
+    function isValidPhone(normalized) {
+      return /^237\d{8,9}$/.test(normalized);
+    }
+
+    // ============================================
+    // MODE TÉLÉPHONE
+    // ============================================
+    let phoneMode = false;
+
+    function togglePhoneMode(enable) {
+      phoneMode = enable;
+
+      // Bandeau
+      const banner = $('phone-banner');
+      if (banner) banner.classList.toggle('hidden', !enable);
+
+      // Boutons sociaux : cachés en mode téléphone
+      const socials = $('social-buttons');
+      if (socials) socials.classList.toggle('hidden', enable);
+
+      // Bouton "Continuer avec mon numéro" : caché en mode téléphone
+      const phoneBtn = $('phone-signup-btn');
+      if (phoneBtn) phoneBtn.classList.toggle('hidden', enable);
+
+      // Champ téléphone : visible en mode téléphone
+      const phoneField = $('signup-phone-field');
+      if (phoneField) phoneField.classList.toggle('hidden', !enable);
+
+      // Champ email : caché en mode téléphone
+      const emailField = $('signup-email-field');
+      if (emailField) emailField.classList.toggle('hidden', enable);
+
+      // Champ whatsapp : caché en mode téléphone
+      const whatsappField = $('signup-whatsapp-field');
+      if (whatsappField) whatsappField.classList.toggle('hidden', enable);
+
+      // Séparateur : caché en mode téléphone
+      const separator = $('signup-separator');
+      if (separator) separator.classList.toggle('hidden', enable);
+
+      // ============================================
+      // FIX : gérer required + disabled sur les champs cachés
+      // (sinon le navigateur bloque la soumission)
+      // ============================================
+      const emailInput = $('signup-email');
+      const whatsappInput = $('signup-whatsapp');
+      const phoneInput = $('signup-phone');
+
+      if (enable) {
+        // Mode téléphone : email + whatsapp désactivés
+        if (emailInput) {
+          emailInput.required = false;
+          emailInput.disabled = true;
+          emailInput.value = '';
+        }
+        if (whatsappInput) {
+          whatsappInput.required = false;
+          whatsappInput.disabled = true;
+          whatsappInput.value = '';
+        }
+        if (phoneInput) {
+          phoneInput.required = true;
+          phoneInput.disabled = false;
+        }
+      } else {
+        // Mode email : email + whatsapp réactivés, téléphone désactivé
+        if (emailInput) {
+          emailInput.required = true;
+          emailInput.disabled = false;
+        }
+        if (whatsappInput) {
+          whatsappInput.required = true;
+          whatsappInput.disabled = false;
+        }
+        if (phoneInput) {
+          phoneInput.required = false;
+          phoneInput.disabled = true;
+          phoneInput.value = '';
+        }
+      }
+
+      // Reset erreur
+      const err = $('signup-error');
+      if (err) err.classList.add('hidden');
+    }
+
+    // ============================================
+    // OAUTH SOCIAL
+    // ============================================
+    const redirectTo = window.location.origin + '/index.html';
+
+    $('google-login-btn').addEventListener('click', () => signInWith('google'));
+    $('google-signup-btn').addEventListener('click', () => signInWith('google'));
+    $('apple-login-btn').addEventListener('click', () => signInWith('apple'));
+    $('facebook-login-btn').addEventListener('click', () => signInWith('facebook'));
+
+    // ============================================
+    // MODE TÉLÉPHONE
+    // ============================================
+    $('phone-signup-btn')?.addEventListener('click', () => {
+      togglePhoneMode(true);
+    });
+
+    $('cancel-phone-mode')?.addEventListener('click', () => {
+      const phoneInput = $('signup-phone');
+      if (phoneInput) phoneInput.value = '';
+      togglePhoneMode(false);
+    });
+
+    async function signInWith(provider) {
+      const { error } = await window.kwatta_db.auth.signInWithOAuth({
+        provider,
+        options: { 
+          redirectTo,
+          queryParams: {
+            prompt: 'select_account'
+          }
+        }
+      });
+      if (error) alert('Erreur: ' + error.message + '\n\nCe bouton peut ne pas être configuré.');
+    }
+
+    // ============================================
+    // BASCULE LOGIN/SIGNUP
+    // ============================================
+    $('show-signup-btn').addEventListener('click', () => {
+      $('form-login').classList.add('hidden');
+      $('form-signup').classList.remove('hidden');
+    });
+    $('show-login-btn').addEventListener('click', () => {
+      $('form-signup').classList.add('hidden');
+      $('form-login').classList.remove('hidden');
+    });
+
+    // ============================================
+    // LOGIN
+    // ============================================
+    $('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = $('login-email').value;
+      const password = $('login-password').value;
+      const errEl = $('login-error');
+      errEl.classList.add('hidden');
+
+      const { data, error } = await window.kwatta_db.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        errEl.textContent = error.message;
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      if (redirect) {
+        window.location.href = redirect;
+        return;
+      }
+
+      const { data: profile } = await window.kwatta_db
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      window.location.href = profile?.role === 'admin' ? 'admin/index.html' : 'index.html';
+    });
+
+    // ============================================
+    // SIGNUP
+    // ============================================
+    $('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = $('signup-name').value.trim();
+      const username = $('signup-username').value.trim().toLowerCase();
+      const password = $('signup-password').value;
+      const terms = $('signup-terms').checked;
+      const errEl = $('signup-error');
+      errEl.classList.add('hidden');
+
+      // Validations communes
+      if (!terms) {
+        errEl.textContent = 'Vous devez accepter les conditions.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+        errEl.textContent = 'Nom d\'utilisateur invalide (3-20 caractères)';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (!name || name.length < 2) {
+        errEl.textContent = 'Entre ton nom complet.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      let signupEmail, extraMeta;
+
+      // ============================================
+      // MODE TÉLÉPHONE
+      // ============================================
+      if (phoneMode) {
+        const phoneRaw = $('signup-phone').value.trim();
+        if (!phoneRaw) {
+          errEl.textContent = 'Entre ton numéro de téléphone.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        const phoneNorm = normalizePhone(phoneRaw);
+        if (!isValidPhone(phoneNorm)) {
+          errEl.textContent = 'Numéro invalide. Format : 6XX XXX XXX ou +237 6XX XXX XXX';
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        signupEmail = phoneToFakeEmail(phoneNorm);
+        extraMeta = {
+          username,
+          display_name: name,
+          phone_original: phoneNorm,
+          temp_email: true,
+        };
+        console.log('[SIGNUP-PHONE] Email fictif:', signupEmail);
+      }
+      // ============================================
+      // MODE EMAIL (classique)
+      // ============================================
+      else {
+        const email = $('signup-email').value.trim();
+        const whatsapp = $('signup-whatsapp').value.trim();
+
+        if (!email) {
+          errEl.textContent = 'Entre ton email.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        signupEmail = email;
+        extraMeta = {
+          username,
+          display_name: name,
+          whatsapp: whatsapp || null,
+          temp_email: false,
+        };
+      }
+
+      // ============================================
+      // CRÉATION DU COMPTE
+      // ============================================
+      const { data, error } = await window.kwatta_db.auth.signUp({
+        email: signupEmail,
+        password,
+        options: { data: extraMeta }
+      });
+
+      if (error) {
+        if (error.message.includes('already registered') || error.message.includes('already been registered')) {
+          errEl.textContent = phoneMode
+            ? 'Ce numéro est déjà utilisé. Connecte-toi avec ton mot de passe.'
+            : 'Ce compte existe déjà. Connecte-toi.';
+        } else {
+          errEl.textContent = error.message;
+        }
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      // Détection doublon (Supabase renvoie data.user sans session)
+      if (data.user && !data.session) {
+        if (phoneMode && data.user.identities && data.user.identities.length === 0) {
+          errEl.textContent = 'Ce numéro est déjà utilisé. Connecte-toi avec ton mot de passe.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        errEl.textContent = phoneMode
+          ? 'Compte créé ! Connecte-toi avec ton numéro.'
+          : 'Vérifiez votre email pour confirmer votre compte.';
+        errEl.className = 'text-sm text-green-600';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      window.location.href = 'index.html';
+    });
+
+    // ============================================
+    // SI DÉJÀ CONNECTÉ, REDIRIGE
+    // ============================================
+    (async () => {
+      const { data: { session } } = await window.kwatta_db.auth.getSession();
+      if (session) window.location.href = 'index.html';
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#B8543D">
+  <title>KWATTA — Le marché de tout le monde</title>
+  <meta name="description" content="KWATTA, la marketplace de tout le monde. Achetez et vendez près de chez vous.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            terra: { 50:'#fdf5f2',100:'#fbe8e2',200:'#f5d0c5',300:'#ecad9b',400:'#d97a63',500:'#B8543D',600:'#a3442f',700:'#873727',800:'#6e2f23',900:'#5a2a20' },
+            cream: '#FAF6F0',
+            charcoal: '#2D2A26',
+            honey: '#E8A96A',
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+
+  
+
+
+  
+
+
+  
+
+
+  
+
+  
+
+
+  
+
+  
+
+<style id="kwatta-nav-css">
+    /* ============================================
+       NAV CATÉGORIES (barre horizontale scrollable)
+       ============================================ */
+    #categories {
+      position: relative;
+      background: #FAF6F0;
+      border-bottom: 1px solid rgba(45, 42, 38, 0.08);
+      z-index: 30;
+    }
+
+    .cat-nav-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100vw;
+    }
+    .cat-nav-scroll::-webkit-scrollbar { display: none; }
+
+    #categories-nav {
+      display: flex;
+      min-height: 52px;
+      align-items: stretch;
+      width: max-content;
+    }
+    #categories-nav > * { flex-shrink: 0; }
+
+    /* ============================================
+       CONTAINER DU MENU (hors flux de scroll)
+       ============================================ */
+    #cat-mega-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 0;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ============================================
+       LIENS DE LA NAV
+       ============================================ */
+    .cat-nav-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 16px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #7A7A7A;
+      text-decoration: none;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      cursor: pointer;
+    }
+    .cat-nav-link:hover,
+    .cat-nav-item.open .cat-nav-link {
+      color: #B8543D;
+      border-bottom-color: #B8543D;
+    }
+    .cat-nav-link svg {
+      margin-left: 4px;
+      transition: transform 0.2s;
+    }
+    .cat-nav-item.open .cat-nav-link svg { transform: rotate(180deg); }
+
+    /* ============================================
+       MEGA-MENU
+       ============================================ */
+    .cat-mega-menu {
+      display: none;
+      position: fixed;
+      background: #fff;
+      border: 1px solid rgba(45, 42, 38, 0.08);
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(45, 42, 38, 0.15);
+      z-index: 99999;
+      pointer-events: auto;
+      max-width: calc(100vw - 32px);
+      overflow: hidden;
+    }
+    .cat-mega-menu.open {
+      display: block;
+    }
+
+    .cat-mega-menu-inner {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      min-height: 280px;
+      max-height: 480px;
+    }
+
+    /* Colonne gauche : niveau 2 */
+    .cat-mega-col-left {
+      background: #FAF6F0;
+      padding: 12px 8px;
+      border-right: 1px solid rgba(45, 42, 38, 0.05);
+      overflow-y: auto;
+      max-height: 480px;
+    }
+    .cat-mega-item-all {
+      display: block;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #B8543D;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid rgba(184, 84, 61, 0.1);
+      padding-bottom: 10px;
+    }
+    .cat-mega-parent {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #2D2A26;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.1s, color 0.1s;
+      cursor: pointer;
+    }
+    .cat-mega-parent:hover,
+    .cat-mega-parent.active {
+      background: #fff;
+      color: #B8543D;
+      box-shadow: 0 2px 6px rgba(45, 42, 38, 0.06);
+    }
+    .cat-arrow {
+      opacity: 0.4;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .cat-mega-parent.active .cat-arrow {
+      opacity: 1;
+      color: #B8543D;
+    }
+
+    /* Colonne droite : niveau 3 */
+    .cat-mega-col-right {
+      padding: 16px 20px;
+      overflow-y: auto;
+      max-height: 480px;
+      background: #fff;
+      min-width: 260px;
+    }
+    .cat-mega-subpanel { display: none; }
+    .cat-mega-subpanel.active { display: block; }
+
+    .cat-mega-subtitle {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #7A7A7A;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(45, 42, 38, 0.05);
+    }
+    .cat-mega-subitem {
+      display: block;
+      padding: 7px 8px;
+      font-size: 13px;
+      color: #2D2A26;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.1s, color 0.1s;
+    }
+    .cat-mega-subitem:hover {
+      background: #fdf5f2;
+      color: #B8543D;
+    }
+  </style>
+
+<style id="thebox-badge-css">
+  /* ============================================
+     BADGE THE BOX — High-tech style
+     ============================================ */
+  .thebox-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.08));
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    box-shadow: 
+      0 0 10px rgba(59, 130, 246, 0.25),
+      inset 0 0 10px rgba(59, 130, 246, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .thebox-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s;
+  }
+  .thebox-badge:hover::before {
+    left: 100%;
+  }
+  .thebox-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3B82F6;
+    box-shadow: 0 0 8px #3B82F6, 0 0 12px rgba(59, 130, 246, 0.6);
+    animation: thebox-pulse 2s ease-in-out infinite;
+  }
+  @keyframes thebox-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+  .thebox-text {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #60A5FA;
+    text-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+  }
+  .thebox-badge:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow: 
+      0 0 15px rgba(59, 130, 246, 0.4),
+      inset 0 0 15px rgba(59, 130, 246, 0.1);
+  }
+  .thebox-badge:hover .thebox-text {
+    color: #93C5FD;
+    text-shadow: 0 0 12px rgba(147, 197, 253, 0.8);
+  }
+
+  /* Version mobile : réduire */
+  @media (max-width: 640px) {
+    .thebox-badge {
+      padding: 3px 8px;
+    }
+    .thebox-text {
+      font-size: 10px;
+    }
+  }
+</style>
+<style id="how-icons-css">
+  /* ============================================
+     ICONES "COMMENT ÇA MARCHE" — Modern
+     ============================================ */
+  .how-icon-wrap {
+    width: 88px;
+    height: 88px;
+    margin: 0 auto 16px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #B8543D 0%, #873727 100%);
+    padding: 3px;
+    position: relative;
+    box-shadow: 
+      0 8px 20px rgba(184, 84, 61, 0.25),
+      0 4px 8px rgba(184, 84, 61, 0.1);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .how-icon-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 30px;
+    background: radial-gradient(circle, rgba(184, 84, 61, 0.15) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .how-icon-wrap:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 
+      0 12px 28px rgba(184, 84, 61, 0.35),
+      0 6px 12px rgba(184, 84, 61, 0.15);
+  }
+  .how-icon-wrap:hover::before {
+    opacity: 1;
+  }
+  .how-icon-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 21px;
+    background: linear-gradient(135deg, rgba(184, 84, 61, 0.95) 0%, rgba(135, 55, 39, 0.95) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .how-icon-inner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.6s;
+  }
+  .how-icon-wrap:hover .how-icon-inner::after {
+    left: 100%;
+  }
+
+  @media (max-width: 640px) {
+    .how-icon-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+    }
+    .how-icon-inner {
+      border-radius: 17px;
+    }
+    .how-icon-inner svg {
+      width: 26px;
+      height: 26px;
+    }
+  }
+</style>
+</head>
+
+
+
+<body class="bg-cream text-charcoal font-body antialiased">
+  <div id="cat-mega-container"></div>
+<!-- HEADER UNIFIÉ (recherche + nav) -->
+  <header class="sticky top-0 z-50 bg-cream border-b border-charcoal/5">
+    
+    <!-- Barre 1 : Logo + Recherche + Actions -->
+    <div class="max-w-7xl mx-auto px-4 py-3">
+      <div class="flex items-center gap-3">
+        
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-2 shrink-0">
+          <div class="w-9 h-9 rounded-xl bg-terra-500 flex items-center justify-center shadow-sm">
+            <span class="text-cream font-display font-bold text-lg">K</span>
+          </div>
+          <span class="font-display font-bold text-xl hidden sm:block">KWATTA</span>
+        </a>
+
+        <!-- Recherche -->
+        <div class="flex-1 relative max-w-2xl mx-auto">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/40 pointer-events-none" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="search-input" placeholder="Rechercher un article, une marque..." 
+            class="w-full pl-10 pr-4 py-2.5 bg-white border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none transition">
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Langue -->
+          <button id="lang-toggle" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center text-xs font-bold" title="FR / EN">
+            <span id="current-lang">FR</span>
+          </button>
+
+          <!-- Notifications -->
+          <div class="relative">
+            <button id="btn-notif" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center relative" title="Notifications">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+              </svg>
+              <span id="notif-badge" class="hidden absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-terra-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
+              <span id="verif-dot" class="hidden absolute -top-0.5 -left-0.5 w-3 h-3 rounded-full bg-red-500 border-2 border-white" title="Action requise"></span>
+            </button>
+
+            <!-- Dropdown notifications -->
+            <div id="dropdown-notif" class="hidden absolute top-full right-0 mt-2 w-80 sm:w-96 bg-white border border-charcoal/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+              <div class="px-4 py-3 border-b border-charcoal/5 flex items-center justify-between bg-cream">
+                <h3 class="font-display font-bold text-sm">Notifications</h3>
+                <button id="notif-mark-all" class="text-xs text-terra-600 hover:underline font-semibold">
+                  Tout marquer comme lu
+                </button>
+              </div>
+              <div id="verif-pinned-notif" class="hidden"></div>
+              <div id="notif-list" class="max-h-96 overflow-y-auto">
+                <div class="px-4 py-8 text-center">
+                  <div class="text-4xl mb-2 opacity-40">🔔</div>
+                  <p class="text-sm text-charcoal/50">Aucune notification</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Favoris -->
+          <a href="profile.html#favoris" class="hidden sm:flex w-9 h-9 rounded-lg hover:bg-charcoal/5 items-center justify-center relative" title="Favoris">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </a>
+
+          <!-- Commandes -->
+          <a href="commandes.html" class="hidden sm:flex w-9 h-9 rounded-lg hover:bg-charcoal/5 items-center justify-center relative" title="Mes commandes">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+          </a>
+
+          <!-- Offres -->
+          <a href="offres.html" class="hidden sm:flex w-9 h-9 rounded-lg hover:bg-charcoal/5 items-center justify-center relative" title="Mes offres">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </a>
+
+          <!-- Messages -->
+          <a href="messages.html" class="hidden sm:flex w-9 h-9 rounded-lg hover:bg-charcoal/5 items-center justify-center relative" title="Messages">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span id="unread-badge" class="hidden absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-terra-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
+          </a>
+
+          <!-- Auth : bouton login OU profil -->
+          <button id="header-auth-btn" 
+            class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-terra-500 hover:bg-terra-600 text-cream text-sm font-semibold transition shrink-0"
+            title="Connexion">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/>
+            </svg>
+            <span class="hidden lg:inline">Connexion</span>
+          </button>
+          
+          <!-- Bouton profil (caché par défaut) -->
+          <a href="profile.html" id="header-profile-btn" class="hidden items-center gap-2">
+            <div class="w-9 h-9 rounded-full bg-terra-100 border border-terra-200 flex items-center justify-center overflow-hidden">
+              <span id="header-avatar" class="font-display font-bold text-terra-600 text-sm">?</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barre 2 : Catégories -->
+    <div class="border-t border-charcoal/5">
+      <div class="max-w-7xl mx-auto">
+        <div style="overflow: visible !important;">
+          
+        </div>
+      </div>
+    </div>
+  
+    
+    <section id="categories">
+      <div class="cat-nav-scroll">
+        <div id="categories-nav">
+          <!-- Injecté par JS -->
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <!-- HERO AVEC IMAGE DE FOND -->
+  <section class="relative">
+    <!-- Image de fond -->
+    <div class="absolute inset-0">
+      <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1600&q=80" 
+           alt="Background" 
+           class="w-full h-full object-cover"
+           onerror="this.style.display='none'">
+      <div class="absolute inset-0 bg-gradient-to-r from-terra-900/80 via-terra-700/60 to-terra-500/40"></div>
+    </div>
+
+    <!-- Contenu -->
+    <div class="relative max-w-7xl mx-auto px-4 py-12 sm:py-20 md:py-28">
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        
+        <!-- Carte overlay -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 sm:p-8 shadow-2xl max-w-md">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-terra-500/10 text-terra-600 text-xs font-semibold mb-4">
+            <span class="w-2 h-2 bg-terra-500 rounded-full"></span>
+            Nouveau sur KWATTA ?
+          </div>
+          
+          <h1 class="font-display text-3xl sm:text-4xl font-bold leading-tight mb-3 text-charcoal">
+            Prêt à vider ton placard ?
+          </h1>
+          
+          <p class="text-charcoal/70 mb-6">
+            Vends ce que tu n'utilises plus et fais de la place pour du nouveau. Simple, rapide, gratuit.
+          </p>
+          
+          <div class="space-y-2 mb-6">
+            <div class="flex items-center gap-2 text-sm text-charcoal/70">
+              <svg width="16" height="16" fill="none" stroke="#B8543D" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Publie ton article en 2 minutes</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-charcoal/70">
+              <svg width="16" height="16" fill="none" stroke="#B8543D" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Discute avec les acheteurs</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-charcoal/70">
+              <svg width="16" height="16" fill="none" stroke="#B8543D" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Paiement Mobile Money</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <a href="sell.html" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold transition shadow-lg shadow-terra-500/30">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              Vendre maintenant
+            </a>
+            <a href="#categories" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-charcoal/10 text-charcoal font-semibold hover:bg-charcoal/5 transition">
+              Comment ça marche ?
+            </a>
+          </div>
+        </div>
+
+        <!-- Espace vide pour montrer l'image -->
+        <div class="hidden md:block"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAVIGATION CATÉGORIES AVEC MEGA-MENU -->
+  
+
+  <!-- PRODUITS -->
+  <main class="max-w-7xl mx-auto px-4 py-4 pb-24 sm:pb-8">
+    <div class="flex items-center justify-between mb-3">
+      <div id="results-count" class="text-sm text-charcoal/60">Chargement...</div>
+    </div>
+
+    <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </div>
+
+    <div id="empty-state" class="hidden text-center py-16">
+      <div class="text-6xl mb-3">🔍</div>
+      <p class="text-charcoal/60" data-i18n="empty.title">Aucun article trouvé</p>
+      <p class="text-sm text-charcoal/40 mt-1" data-i18n="empty.subtitle">Essayez une autre recherche</p>
+    </div>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bottom-nav-item active">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span data-i18n="nav.home">Accueil</span>
+    </a>
+    <a href="search.html" class="bottom-nav-item">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <span data-i18n="nav.search">Rechercher</span>
+    </a>
+    <a href="sell.html" class="bottom-nav-item bottom-nav-center">
+      <div class="w-12 h-12 rounded-full bg-terra-500 flex items-center justify-center -mt-6 shadow-lg shadow-terra-500/40">
+        <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+      </div>
+      <span data-i18n="nav.sell">Vendre</span>
+    </a>
+    <a href="messages.html" class="bottom-nav-item">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span data-i18n="nav.messages">Messages</span>
+    </a>
+    <a href="profile.html" class="bottom-nav-item">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/>
+      </svg>
+      <span data-i18n="nav.profile">Profil</span>
+    </a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script src="js/verified-badge.js"></script>
+  <script src="js/stats-counter.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/stars.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+
+  
+  <!-- ============================================
+       SECTION : COMMENT ÇA MARCHE
+       ============================================ -->
+  <section class="bg-white border-y border-charcoal/5">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+      <div class="text-center mb-12">
+        <div class="inline-block px-3 py-1 rounded-full bg-terra-500/10 text-terra-600 text-xs font-semibold mb-3">
+          Simple et rapide
+        </div>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold mb-3">Comment ça marche ?</h2>
+        <p class="text-charcoal/60 max-w-lg mx-auto">Acheter ou vendre sur KWATTA prend moins de 2 minutes.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="how-icon-wrap">
+            <div class="how-icon-inner">
+              <svg width="32" height="32" fill="none" stroke="#FAF6F0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                <circle cx="12" cy="13" r="3.5"/>
+              </svg>
+            </div>
+          </div>
+          <div class="text-xs font-mono text-terra-600 mb-2">ÉTAPE 1</div>
+          <h3 class="font-display text-xl font-bold mb-2">Publie ton article</h3>
+          <p class="text-sm text-charcoal/60">Prends une photo, décris ton produit, fixe ton prix. C'est gratuit.</p>
+        </div>
+
+        <div class="text-center">
+          <div class="how-icon-wrap">
+            <div class="how-icon-inner">
+              <svg width="32" height="32" fill="none" stroke="#FAF6F0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="text-xs font-mono text-terra-600 mb-2">ÉTAPE 2</div>
+          <h3 class="font-display text-xl font-bold mb-2">Discute avec l'acheteur</h3>
+          <p class="text-sm text-charcoal/60">Chat intégré ou WhatsApp. Négocie, réponds aux questions.</p>
+        </div>
+
+        <div class="text-center">
+          <div class="how-icon-wrap">
+            <div class="how-icon-inner">
+              <svg width="32" height="32" fill="none" stroke="#FAF6F0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <polyline points="9 11 12 14 16 10"/>
+              </svg>
+            </div>
+          </div>
+          <div class="text-xs font-mono text-terra-600 mb-2">ÉTAPE 3</div>
+          <h3 class="font-display text-xl font-bold mb-2">Finalise la vente</h3>
+          <p class="text-sm text-charcoal/60">Rencontrez-vous ou expédiez. Paiement Mobile Money ou espèces.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       BANNIÈRE : "Vide ton placard"
+       ============================================ -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0">
+      <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=1600&q=80&auto=format&fit=crop"
+           alt="Prendre en photo ses vêtements pour les vendre"
+           class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-r from-charcoal/80 via-charcoal/60 to-terra-700/50"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 py-16 sm:py-24">
+      <div class="max-w-lg">
+        <div class="inline-block px-3 py-1 rounded-full bg-honey/20 text-honey text-xs font-semibold mb-4 backdrop-blur-sm">
+          💸 100% gratuit · 0% commission
+        </div>
+        <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-cream leading-tight mb-4">
+          Vide ton placard,<br>
+          <span class="text-honey">remplis ton portefeuille.</span>
+        </h2>
+        <p class="text-cream/90 text-lg mb-8">
+          Chaque vêtement que tu ne portes plus peut devenir un peu d'argent. KWATTA, c'est le marché de tout le monde — au Cameroun comme ailleurs.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href="sell.html" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold transition shadow-lg shadow-terra-500/30">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            Commencer à vendre
+          </a>
+          <a href="search.html" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 border border-white/30 text-cream font-semibold hover:bg-white/20 transition backdrop-blur-sm">
+            Voir les articles
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION : CATÉGORIES POPULAIRES
+       ============================================ -->
+  <section class="py-16">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <div class="inline-block px-3 py-1 rounded-full bg-terra-500/10 text-terra-600 text-xs font-semibold mb-3">
+            Explorer
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold">Catégories populaires</h2>
+        </div>
+        <a href="search.html" class="hidden sm:inline-flex items-center gap-2 text-terra-600 font-semibold hover:underline">
+          Voir tout
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+
+      <div id="popular-categories" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3"></div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION : STATS KWATTA
+       ============================================ -->
+  <section id="stats-section" class="bg-gradient-to-br from-charcoal to-terra-900 text-cream py-16">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="font-display text-3xl sm:text-4xl font-bold mb-3">KWATTA en chiffres</h2>
+        <p class="text-cream/70 max-w-lg mx-auto">Une communauté grandissante de vendeurs et acheteurs au Cameroun.</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="text-center">
+          <div class="font-display text-4xl sm:text-5xl font-bold text-honey mb-2" id="stat-listings">—</div>
+          <div class="text-sm text-cream/70">Annonces publiées</div>
+        </div>
+        <div class="text-center">
+          <div class="font-display text-4xl sm:text-5xl font-bold text-honey mb-2" id="stat-sellers">—</div>
+          <div class="text-sm text-cream/70">Vendeurs actifs</div>
+        </div>
+        <div class="text-center">
+          <div class="font-display text-4xl sm:text-5xl font-bold text-honey mb-2" id="stat-categories">—</div>
+          <div class="text-sm text-cream/70">Catégories</div>
+        </div>
+        <div class="text-center">
+          <div class="font-display text-4xl sm:text-5xl font-bold text-honey mb-2">🇨🇲</div>
+          <div class="text-sm text-cream/70">Bamenda • Douala • Yaoundé</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION : VENDEURS À LA UNE
+       ============================================ -->
+  <section class="py-16 bg-white border-y border-charcoal/5">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <div class="inline-block px-3 py-1 rounded-full bg-terra-500/10 text-terra-600 text-xs font-semibold mb-3">
+          Communauté
+        </div>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold mb-3">Vendeurs à la une</h2>
+        <p class="text-charcoal/60 max-w-lg mx-auto">Découvrez les profils les plus actifs de KWATTA.</p>
+      </div>
+
+      <div id="featured-sellers" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION : CTA VENDEUR
+       ============================================ -->
+  <section class="py-16">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-terra-500 to-terra-700 p-8 sm:p-12">
+        <div class="absolute inset-0 grid-bg opacity-20"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-honey/20 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+        <div class="relative max-w-2xl">
+          <div class="inline-block px-3 py-1 rounded-full bg-white/20 text-cream text-xs font-semibold mb-4 backdrop-blur-sm">
+            🎁 100% gratuit
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-cream mb-4">
+            Tu as des articles à vendre ?
+          </h2>
+          <p class="text-cream/90 mb-6 text-lg">
+            Rejoins des centaines de vendeurs sur KWATTA. Publie ton premier article en moins de 2 minutes — sans frais, sans commission.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <a href="sell.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cream text-terra-600 font-semibold hover:bg-white transition shadow-lg">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              Vendre un article
+            </a>
+            <a href="login.html" class="guest-only inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/30 text-cream font-semibold hover:bg-white/20 transition backdrop-blur-sm">
+              Créer un compte
+            </a>
+            <a href="profile.html" class="user-only hidden inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/30 text-cream font-semibold hover:bg-white/20 transition backdrop-blur-sm">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Voir mes annonces
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================
+       CATÉGORIES + MARQUES POPULAIRES
+       ============================================ -->
+  <section class="py-12 bg-white border-y border-charcoal/5">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid md:grid-cols-2 gap-8">
+        
+        <!-- Catégories populaires -->
+        <div>
+          <h3 class="font-display text-xl font-bold mb-4">Catégories populaires</h3>
+          <div id="popular-cats-grid" class="grid grid-cols-2 gap-2"></div>
+        </div>
+
+        <!-- Marques populaires -->
+        <div>
+          <h3 class="font-display text-xl font-bold mb-4">Marques populaires</h3>
+          <div id="popular-brands-grid" class="flex flex-wrap gap-2"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+<!-- FOOTER -->
+  <footer class="bg-charcoal text-cream/80 mt-12 pb-24 sm:pb-8">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+        <div class="col-span-2 md:col-span-1">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-9 h-9 rounded-xl bg-terra-500 flex items-center justify-center">
+              <span class="text-cream font-display font-bold text-lg">K</span>
+            </div>
+            <span class="font-display font-bold text-xl text-cream">KWATTA</span>
+          </div>
+          <p class="text-sm">Le marché de tout le monde. Achetez et vendez près de chez vous.</p>
+        </div>
+        <div>
+          <h4 class="text-cream font-semibold mb-3 text-sm">Découvrir</h4>
+          <div class="flex flex-col gap-2 text-sm">
+            <a href="index.html" class="hover:text-honey transition">Accueil</a>
+            <a href="search.html" class="hover:text-honey transition">Rechercher</a>
+            <a href="sell.html" class="hover:text-honey transition">Vendre</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-cream font-semibold mb-3 text-sm">Aide</h4>
+          <div class="flex flex-col gap-2 text-sm">
+            <a href="conditions.html" class="hover:text-honey transition">Conditions</a>
+            <a href="confidentialite.html" class="hover:text-honey transition">Confidentialité</a>
+            <a href="mailto:contact@kwatta.cm" class="hover:text-honey transition">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-cream font-semibold mb-3 text-sm">Suivez-nous</h4>
+          <div class="flex flex-col gap-2 text-sm">
+            <a href="https://wa.me/237650612050" class="inline-flex items-center gap-2 hover:text-honey transition group">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="shrink-0 group-hover:scale-110 transition-transform">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              <span>WhatsApp</span>
+            </a>
+            <a href="https://github.com/Negro-arch" target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-honey transition group">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="shrink-0 group-hover:scale-110 transition-transform">
+                <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+              </svg>
+              <span>GitHub</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- Bannières App Store -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+        <a href="#" class="inline-block hover:opacity-90 transition">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
+               alt="Disponible sur Google Play" 
+               class="h-12 w-auto">
+        </a>
+        <a href="#" class="inline-block hover:opacity-90 transition">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" 
+               alt="Télécharger sur l'App Store" 
+               class="h-12 w-auto">
+        </a>
+      </div>
+
+      <div class="pt-6 border-t border-cream/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
+          <span>© 2026 KWATTA</span>
+          <span class="text-cream/30">·</span>
+          <a href="mailto:contact@thebox.cm" class="inline-flex items-center gap-1.5 group hover:text-honey transition">
+            <span>Powered by</span>
+            <span class="thebox-badge">
+              <span class="thebox-dot"></span>
+              <span class="thebox-text">THE BOX</span>
+            </span>
+          </a>
+        </div>
+        <div>v1.0.0</div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ============================================
+       MODALE D'AUTHENTIFICATION
+       ============================================ -->
+  <div id="auth-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      
+      <!-- Header modale -->
+      <div class="flex items-center justify-between p-5 border-b border-charcoal/5">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-terra-500 flex items-center justify-center">
+            <span class="text-cream font-display font-bold text-sm">K</span>
+          </div>
+          <span class="font-display font-bold">KWATTA</span>
+        </div>
+        <button id="auth-close" class="w-8 h-8 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Message -->
+      <div class="p-5 pb-0">
+        <h2 id="auth-title" class="font-display text-xl font-bold mb-1">Bienvenue sur KWATTA</h2>
+        <p id="auth-subtitle" class="text-sm text-charcoal/60">Connectez-vous pour continuer.</p>
+      </div>
+
+      <!-- Form -->
+      <div class="p-5">
+
+        <!-- Boutons sociaux -->
+        <div class="space-y-2 mb-4">
+          <button type="button" id="google-auth-btn"
+            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-charcoal/15 bg-white hover:bg-charcoal/5 transition font-semibold text-sm">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continuer avec Google
+          </button>
+
+          <button type="button" id="phone-signup-btn"
+            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-charcoal/15 bg-white hover:bg-charcoal/5 transition font-semibold text-sm">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="5" y="2" width="14" height="20" rx="2"/>
+              <path d="M12 18h.01"/>
+            </svg>
+            S'inscrire avec mon numéro
+          </button>
+        </div>
+
+        <!-- Séparateur -->
+        <div class="relative mb-4">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-charcoal/10"></div>
+          </div>
+          <div class="relative flex justify-center text-xs">
+            <span class="px-3 bg-white text-charcoal/50">ou</span>
+          </div>
+        </div>
+        <!-- Bandeau mode téléphone -->
+        <div id="auth-phone-banner" class="hidden mb-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">📱</span>
+              <div>
+                <div class="text-xs font-bold text-blue-900">Inscription par téléphone</div>
+                <div class="text-[10px] text-blue-700">Aucun email requis maintenant</div>
+              </div>
+            </div>
+            <button type="button" id="cancel-phone-signup" class="text-xs text-blue-700 hover:underline font-semibold">
+              Annuler
+            </button>
+          </div>
+        </div>
+
+        <form id="auth-form" class="space-y-3">
+          <!-- Champ téléphone (visible seulement en mode signup_phone) -->
+          <div id="auth-phone-field" class="hidden">
+            <label class="block text-xs font-mono uppercase text-charcoal/50 mb-1">Numéro de téléphone</label>
+            <input type="tel" id="auth-phone" autocomplete="tel"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
+              placeholder="+237 6XX XXX XXX">
+            <p class="text-xs text-charcoal/50 mt-1">Format : 6XX XXX XXX ou +237 6XX XXX XXX</p>
+          </div>
+
+          <div id="auth-name-field" class="hidden">
+            <label class="block text-xs font-mono uppercase text-charcoal/50 mb-1">Nom complet</label>
+            <input type="text" id="auth-name" 
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none">
+          </div>
+
+          <div id="auth-username-field" class="hidden">
+            <label class="block text-xs font-mono uppercase text-charcoal/50 mb-1">Nom d'utilisateur</label>
+            <input type="text" id="auth-username" minlength="3"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
+              placeholder="votre_nom_utilisateur">
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-charcoal/50 mb-1">Email</label>
+            <input type="email" id="auth-email" required autocomplete="email"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
+              placeholder="votre.email@exemple.com">
+          </div>
+
+          <div id="auth-whatsapp-field" class="hidden">
+            <label class="block text-xs font-mono uppercase text-charcoal/50 mb-1">WhatsApp</label>
+            <input type="tel" id="auth-whatsapp" 
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
+              placeholder="+237 6XX XXX XXX">
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono uppercase text-charcoal/50 mb-1">Mot de passe</label>
+            <input type="password" id="auth-password" required minlength="6" autocomplete="current-password"
+              class="w-full px-4 py-3 bg-cream border border-charcoal/10 rounded-xl text-sm focus:border-terra-500 outline-none"
+              placeholder="Votre mot de passe">
+          </div>
+
+          <div id="auth-terms-field" class="hidden flex items-start gap-2 pt-1">
+            <input type="checkbox" id="auth-terms" class="mt-1 w-4 h-4 text-terra-500 rounded focus:ring-terra-500">
+            <label for="auth-terms" class="text-xs text-charcoal/60">
+              J'accepte les <a href="conditions.html" target="_blank" class="text-terra-600 underline">Conditions</a>
+              et la <a href="confidentialite.html" target="_blank" class="text-terra-600 underline">Politique de confidentialité</a>
+            </label>
+          </div>
+
+          <p id="auth-error" class="text-sm text-red-600 hidden"></p>
+
+          <button type="submit" id="auth-submit"
+            class="w-full py-3 rounded-xl bg-terra-500 hover:bg-terra-600 text-cream font-semibold transition shadow-lg shadow-terra-500/30">
+            Se connecter
+          </button>
+        </form>
+
+        <div class="mt-4 text-center">
+          <button id="auth-switch" class="text-sm text-terra-600 hover:underline">
+            Pas de compte ? Créer un compte
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/notifications.js" defer></script>
+  <script src="js/verify-badge.js" defer></script>
+
+</body>
+</html>

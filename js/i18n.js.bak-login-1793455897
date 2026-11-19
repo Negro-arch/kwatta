@@ -1,0 +1,441 @@
+// ============================================
+// KWATTA — i18n (FR + EN)
+// ============================================
+const KWATTA_TRANSLATIONS = {
+  fr: {
+    'hero.badge': 'Nouveau sur KWATTA ?',
+    'hero.title': 'Le marché de <span class="text-honey">tout le monde</span>.',
+    'hero.subtitle': 'Achetez et vendez près de chez vous — mode, électronique, artisanat, et plus encore.',
+    'hero.cta_sell': 'Vendre un article',
+    'hero.cta_browse': 'Explorer',
+    'cat.all': 'Tout',
+    'sort.label': 'Trier',
+    'sort.recent': 'Plus récents',
+    'sort.price_asc': 'Prix croissant',
+    'sort.price_desc': 'Prix décroissant',
+    'empty.title': 'Aucun article trouvé',
+    'empty.subtitle': 'Essayez une autre recherche',
+    'nav.home': 'Accueil',
+    'nav.search': 'Rechercher',
+    'nav.sell': 'Vendre',
+    'nav.messages': 'Messages',
+    'nav.profile': 'Profil',
+    'results': 'articles',
+    'loading': 'Chargement...',
+
+    // === BOUTONS CRITIQUES ===
+    'btn.login': 'Connexion',
+    'btn.signup': 'Créer un compte',
+    'btn.logout': 'Déconnexion',
+    'btn.buy': 'Acheter maintenant',
+    'btn.offer': 'Faire une offre',
+    'btn.message': 'Envoyer un message',
+    'btn.follow': 'Suivre',
+    'btn.following': 'Suivi ✓',
+    'btn.edit': 'Modifier',
+    'btn.save': 'Enregistrer',
+    'btn.cancel': 'Annuler',
+    'btn.delete': 'Supprimer',
+    'btn.confirm': 'Confirmer',
+    'btn.back': 'Retour',
+    'btn.continue': 'Continuer',
+    'btn.retry': 'Réessayer',
+    'btn.publish': 'Publier',
+    'btn.charge': 'Recharger',
+    'btn.withdraw': 'Retirer',
+    'btn.pay': 'Payer',
+    'btn.post': 'Publier mon annonce',
+    
+    // === TITRES ===
+    'title.profile': 'Mon profil',
+    'title.wallet': 'Mon portefeuille',
+    'title.orders': 'Mes commandes',
+    'title.offers': 'Mes offres',
+    'title.messages': 'Messages',
+    'title.login': 'Connexion',
+    'title.signup': 'Créer un compte',
+    'title.checkout': 'Paiement',
+    'title.sell': 'Vendre un article',
+    'title.product': 'Article',
+    
+    // === CHAMPS FORMULAIRE ===
+    'form.email': 'Email',
+    'form.password': 'Mot de passe',
+    'form.name': 'Nom complet',
+    'form.username': 'Nom d\'utilisateur',
+    'form.phone': 'Téléphone',
+    'form.whatsapp': 'WhatsApp',
+    'form.city': 'Ville',
+    'form.quarter': 'Quartier',
+    'form.title': 'Titre',
+    'form.description': 'Description',
+    'form.price': 'Prix',
+    'form.condition': 'État',
+    'form.category': 'Catégorie',
+    'form.brand': 'Marque',
+    'form.size': 'Taille',
+    'form.photos': 'Photos',
+    
+    // === MESSAGES ===
+    'msg.loading': 'Chargement...',
+    'msg.error': 'Une erreur est survenue',
+    'msg.success': 'Succès',
+    'msg.confirm_delete': 'Êtes-vous sûr de vouloir supprimer ?',
+    'msg.required': 'Ce champ est requis',
+    'msg.invalid_email': 'Email invalide',
+    'msg.password_short': 'Mot de passe trop court',
+    'msg.no_results': 'Aucun résultat',
+    
+    // === WALLET ===
+    'wallet.balance': 'Solde disponible',
+    'wallet.pending': 'En attente',
+    'wallet.total': 'Total gagné',
+    'wallet.charge': 'Recharger',
+    'wallet.withdraw': 'Retirer',
+    'wallet.history': 'Historique',
+    'wallet.withdrawals': 'Mes retraits',
+    'wallet.minimum': 'Minimum',
+    'wallet.maximum': 'Maximum',
+    
+    // === COMMANDES ===
+    'orders.buy': 'Achats',
+    'orders.sell': 'Ventes',
+    'orders.pending': 'En attente',
+    'orders.shipped': 'Expédié',
+    'orders.completed': 'Terminé',
+    'orders.cancelled': 'Annulé',
+    
+    // === ÉTATS ===
+    'condition.new': 'Neuf avec étiquette',
+    'condition.very_good': 'Très bon état',
+    'condition.good': 'Bon état',
+    'condition.fair': 'Satisfaisant',
+
+    // === HERO ===
+    'hero.badge': 'Nouveau sur KWATTA ?',
+    'hero.title': 'Prêt à vider ton placard ?',
+    'hero.subtitle': 'Vends ce que tu n\'utilises plus et fais de la place pour du nouveau. Simple, rapide, gratuit.',
+    'hero.feature1': 'Publie ton article en 2 minutes',
+    'hero.feature2': 'Discute avec les acheteurs',
+    'hero.feature3': 'Paiement Mobile Money',
+    'hero.cta_sell': 'Vendre maintenant',
+    'hero.cta_how': 'Comment ça marche ?',
+    
+    // === COMMENT ÇA MARCHE ===
+    'how.title': 'Comment ça marche ?',
+    'how.subtitle': 'Acheter ou vendre sur KWATTA prend moins de 2 minutes.',
+    'how.step1_title': 'Publie ton article',
+    'how.step1_desc': 'Prends une photo, décris ton produit, fixe ton prix. C\'est gratuit.',
+    'how.step2_title': 'Discute avec l\'acheteur',
+    'how.step2_desc': 'Chat intégré ou WhatsApp. Négocie, réponds aux questions.',
+    'how.step3_title': 'Finalise la vente',
+    'how.step3_desc': 'Rencontrez-vous ou expédiez. Paiement Mobile Money ou espèces.',
+    
+    // === CTA ===
+    'cta.title': 'Tu as des articles à vendre ?',
+    'cta.subtitle': 'Rejoins des centaines de vendeurs sur KWATTA. Publie ton premier article en moins de 2 minutes — sans frais, sans commission.',
+    'cta.btn_sell': 'Vendre un article',
+    'cta.btn_signup': 'Créer un compte',
+    'cta.btn_my_listings': 'Voir mes annonces',
+
+    // === BANNIÈRE 2 ===
+    'banner.title1': 'Vide ton placard,',
+    'banner.title2': 'remplis ton portefeuille.',
+    'banner.subtitle': 'Chaque vêtement que tu ne portes plus peut devenir un peu d\'argent. KWATTA, c\'est le marché de tout le monde — au Cameroun comme ailleurs.',
+    'banner.cta_sell': 'Commencer à vendre',
+    'banner.cta_browse': 'Voir les articles',
+    
+    // === CATÉGORIES ===
+    'categories.title': 'Catégories populaires',
+    'categories.view_all': 'Voir tout',
+    'categories.brands': 'Marques populaires',
+    
+    // === STATS ===
+    'stats.title': 'KWATTA en chiffres',
+    'stats.subtitle': 'Une communauté grandissante de vendeurs et acheteurs au Cameroun.',
+    'stats.listings': 'Annonces publiées',
+    'stats.sellers': 'Vendeurs actifs',
+    'stats.categories': 'Catégories',
+    
+    // === FOOTER ===
+    'footer.discover': 'Découvrir',
+    'footer.help': 'Aide',
+    'footer.follow': 'Suivez-nous',
+    'footer.home': 'Accueil',
+    'footer.search': 'Rechercher',
+    'footer.sell': 'Vendre',
+    'footer.terms': 'Conditions',
+    'footer.privacy': 'Confidentialité',
+    'footer.contact': 'Contact',
+    'footer.tagline': 'Le marché de tout le monde. Achetez et vendez près de chez vous.',
+
+    // === SELL PAGE ===
+    'sell.title': 'Vendre un article',
+    'sell.photos': 'Photos',
+    'sell.photos_hint': '(1 minimum, 5 maximum)',
+    'sell.add_photos': 'Ajouter des photos',
+    'sell.add_photos_sub': 'Depuis votre appareil ou la caméra',
+    'sell.gallery': 'Galerie',
+    'sell.camera': 'Caméra',
+    'sell.photos_format': 'Format JPG, PNG, WEBP · Max 5MB',
+    'sell.title_label': 'Titre',
+    'sell.title_placeholder': 'Ex: Nike Air Max 90 taille 42 en très bon état',
+    'sell.category': 'Catégorie',
+    'sell.category_placeholder': 'Ex: Chaussures, Téléphones, Robes...',
+    'sell.category_hint': '💡 Si votre catégorie n\'existe pas, elle sera ajoutée automatiquement.',
+    'sell.description': 'Description',
+    'sell.description_placeholder': 'Décrivez votre article : état, dimensions, couleur, raison de la vente...',
+    'sell.price': 'Prix',
+    'sell.condition': 'État',
+    'sell.brand': 'Marque',
+    'sell.brand_placeholder': 'Nike, Adidas...',
+    'sell.size': 'Taille',
+    'sell.size_placeholder': 'M, 42, XL...',
+    'sell.location': '📍 Localisation',
+    'sell.city_placeholder': '— Ville —',
+    'sell.quarter_placeholder': 'Quartier (ex: Ntambije)',
+    'sell.location_hint': 'Choisis d\'abord la ville, puis le quartier',
+    'sell.publish_btn': 'Publier l\'article',
+    'sell.publishing': 'Publication en cours...',
+    'sell.error_title': 'Erreur',
+    'sell.login_required': 'Connectez-vous pour vendre',
+    'sell.login_required_sub': 'Vous devez avoir un compte KWATTA pour publier une annonce.',
+    'sell.login_btn': 'Créer un compte',
+    'sell.condition_new': '✨ Neuf avec étiquette',
+    'sell.condition_very_good': '⭐ Très bon état',
+    'sell.condition_good': '👍 Bon état',
+    'sell.condition_fair': '👌 Satisfaisant',
+  },
+  en: {
+    'hero.badge': 'New to KWATTA?',
+    'hero.title': 'Everyone\'s <span class="text-honey">marketplace</span>.',
+    'hero.subtitle': 'Buy and sell near you — fashion, electronics, crafts, and more.',
+    'hero.cta_sell': 'Sell an item',
+    'hero.cta_browse': 'Explore',
+    'cat.all': 'All',
+    'sort.label': 'Sort',
+    'sort.recent': 'Most recent',
+    'sort.price_asc': 'Price low to high',
+    'sort.price_desc': 'Price high to low',
+    'empty.title': 'No items found',
+    'empty.subtitle': 'Try a different search',
+    'nav.home': 'Home',
+    'nav.search': 'Search',
+    'nav.sell': 'Sell',
+    'nav.messages': 'Messages',
+    'nav.profile': 'Profile',
+    'results': 'items',
+    'loading': 'Loading...',
+
+    // === BOUTONS CRITIQUES ===
+    'btn.login': 'Login',
+    'btn.signup': 'Sign up',
+    'btn.logout': 'Logout',
+    'btn.buy': 'Buy now',
+    'btn.offer': 'Make an offer',
+    'btn.message': 'Send a message',
+    'btn.follow': 'Follow',
+    'btn.following': 'Following ✓',
+    'btn.edit': 'Edit',
+    'btn.save': 'Save',
+    'btn.cancel': 'Cancel',
+    'btn.delete': 'Delete',
+    'btn.confirm': 'Confirm',
+    'btn.back': 'Back',
+    'btn.continue': 'Continue',
+    'btn.retry': 'Retry',
+    'btn.publish': 'Publish',
+    'btn.charge': 'Top up',
+    'btn.withdraw': 'Withdraw',
+    'btn.pay': 'Pay',
+    'btn.post': 'Post my listing',
+    
+    // === TITRES ===
+    'title.profile': 'My profile',
+    'title.wallet': 'My wallet',
+    'title.orders': 'My orders',
+    'title.offers': 'My offers',
+    'title.messages': 'Messages',
+    'title.login': 'Login',
+    'title.signup': 'Sign up',
+    'title.checkout': 'Checkout',
+    'title.sell': 'Sell an item',
+    'title.product': 'Item',
+    
+    // === CHAMPS FORMULAIRE ===
+    'form.email': 'Email',
+    'form.password': 'Password',
+    'form.name': 'Full name',
+    'form.username': 'Username',
+    'form.phone': 'Phone',
+    'form.whatsapp': 'WhatsApp',
+    'form.city': 'City',
+    'form.quarter': 'Neighborhood',
+    'form.title': 'Title',
+    'form.description': 'Description',
+    'form.price': 'Price',
+    'form.condition': 'Condition',
+    'form.category': 'Category',
+    'form.brand': 'Brand',
+    'form.size': 'Size',
+    'form.photos': 'Photos',
+    
+    // === MESSAGES ===
+    'msg.loading': 'Loading...',
+    'msg.error': 'An error occurred',
+    'msg.success': 'Success',
+    'msg.confirm_delete': 'Are you sure you want to delete?',
+    'msg.required': 'This field is required',
+    'msg.invalid_email': 'Invalid email',
+    'msg.password_short': 'Password too short',
+    'msg.no_results': 'No results',
+    
+    // === WALLET ===
+    'wallet.balance': 'Available balance',
+    'wallet.pending': 'Pending',
+    'wallet.total': 'Total earned',
+    'wallet.charge': 'Top up',
+    'wallet.withdraw': 'Withdraw',
+    'wallet.history': 'History',
+    'wallet.withdrawals': 'My withdrawals',
+    'wallet.minimum': 'Minimum',
+    'wallet.maximum': 'Maximum',
+    
+    // === COMMANDES ===
+    'orders.buy': 'Purchases',
+    'orders.sell': 'Sales',
+    'orders.pending': 'Pending',
+    'orders.shipped': 'Shipped',
+    'orders.completed': 'Completed',
+    'orders.cancelled': 'Cancelled',
+    
+    // === ÉTATS ===
+    'condition.new': 'New with tags',
+    'condition.very_good': 'Very good',
+    'condition.good': 'Good',
+    'condition.fair': 'Fair',
+
+    // === HERO ===
+    'hero.badge': 'New to KWATTA?',
+    'hero.title': 'Ready to clear out your closet?',
+    'hero.subtitle': 'Sell what you no longer use and make room for something new. Simple, fast, free.',
+    'hero.feature1': 'Publish your item in 2 minutes',
+    'hero.feature2': 'Chat with buyers',
+    'hero.feature3': 'Mobile Money payment',
+    'hero.cta_sell': 'Sell now',
+    'hero.cta_how': 'How it works?',
+    
+    // === HOW IT WORKS ===
+    'how.title': 'How it works?',
+    'how.subtitle': 'Buying or selling on KWATTA takes less than 2 minutes.',
+    'how.step1_title': 'Publish your item',
+    'how.step1_desc': 'Take a photo, describe your product, set your price. It\'s free.',
+    'how.step2_title': 'Chat with the buyer',
+    'how.step2_desc': 'Built-in chat or WhatsApp. Negotiate, answer questions.',
+    'how.step3_title': 'Complete the sale',
+    'how.step3_desc': 'Meet up or ship. Mobile Money or cash payment.',
+    
+    // === CTA ===
+    'cta.title': 'Got items to sell?',
+    'cta.subtitle': 'Join hundreds of sellers on KWATTA. Publish your first item in under 2 minutes — no fees, no commission.',
+    'cta.btn_sell': 'Sell an item',
+    'cta.btn_signup': 'Create an account',
+    'cta.btn_my_listings': 'View my listings',
+
+    // === BANNIÈRE 2 ===
+    'banner.title1': 'Clear out your closet,',
+    'banner.title2': 'fill your wallet.',
+    'banner.subtitle': 'Every piece of clothing you no longer wear can become a little money. KWATTA is everyone\'s marketplace — in Cameroon and beyond.',
+    'banner.cta_sell': 'Start selling',
+    'banner.cta_browse': 'View items',
+    
+    // === CATÉGORIES ===
+    'categories.title': 'Popular categories',
+    'categories.view_all': 'See all',
+    'categories.brands': 'Popular brands',
+    
+    // === STATS ===
+    'stats.title': 'KWATTA in numbers',
+    'stats.subtitle': 'A growing community of sellers and buyers in Cameroon.',
+    'stats.listings': 'Published listings',
+    'stats.sellers': 'Active sellers',
+    'stats.categories': 'Categories',
+    
+    // === FOOTER ===
+    'footer.discover': 'Discover',
+    'footer.help': 'Help',
+    'footer.follow': 'Follow us',
+    'footer.home': 'Home',
+    'footer.search': 'Search',
+    'footer.sell': 'Sell',
+    'footer.terms': 'Terms',
+    'footer.privacy': 'Privacy',
+    'footer.contact': 'Contact',
+    'footer.tagline': 'Everyone\'s marketplace. Buy and sell near you.',
+
+    // === SELL PAGE ===
+    'sell.title': 'Sell an item',
+    'sell.photos': 'Photos',
+    'sell.photos_hint': '(1 minimum, 5 maximum)',
+    'sell.add_photos': 'Add photos',
+    'sell.add_photos_sub': 'From your device or camera',
+    'sell.gallery': 'Gallery',
+    'sell.camera': 'Camera',
+    'sell.photos_format': 'Format JPG, PNG, WEBP · Max 5MB',
+    'sell.title_label': 'Title',
+    'sell.title_placeholder': 'Ex: Nike Air Max 90 size 42 in very good condition',
+    'sell.category': 'Category',
+    'sell.category_placeholder': 'Ex: Shoes, Phones, Dresses...',
+    'sell.category_hint': '💡 If your category doesn\'t exist, it will be created automatically.',
+    'sell.description': 'Description',
+    'sell.description_placeholder': 'Describe your item: condition, dimensions, color, reason for selling...',
+    'sell.price': 'Price',
+    'sell.condition': 'Condition',
+    'sell.brand': 'Brand',
+    'sell.brand_placeholder': 'Nike, Adidas...',
+    'sell.size': 'Size',
+    'sell.size_placeholder': 'M, 42, XL...',
+    'sell.location': '📍 Location',
+    'sell.city_placeholder': '— City —',
+    'sell.quarter_placeholder': 'Neighborhood (ex: Ntambije)',
+    'sell.location_hint': 'Choose the city first, then the neighborhood',
+    'sell.publish_btn': 'Publish item',
+    'sell.publishing': 'Publishing...',
+    'sell.error_title': 'Error',
+    'sell.login_required': 'Log in to sell',
+    'sell.login_required_sub': 'You need a KWATTA account to publish a listing.',
+    'sell.login_btn': 'Create an account',
+    'sell.condition_new': '✨ New with tags',
+    'sell.condition_very_good': '⭐ Very good',
+    'sell.condition_good': '👍 Good',
+    'sell.condition_fair': '👌 Fair',
+  }
+};
+
+let KWATTA_LANG = localStorage.getItem('kwatta_lang') || 'en';
+
+function kwattaT(key) {
+  return KWATTA_TRANSLATIONS[KWATTA_LANG][key] || key;
+}
+
+function kwattaApplyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.innerHTML = kwattaT(key);
+  });
+  document.documentElement.lang = KWATTA_LANG;
+  const langLabel = document.getElementById('current-lang');
+  if (langLabel) langLabel.textContent = KWATTA_LANG.toUpperCase();
+}
+
+function kwattaToggleLang() {
+  KWATTA_LANG = KWATTA_LANG === 'fr' ? 'en' : 'fr';
+  localStorage.setItem('kwatta_lang', KWATTA_LANG);
+  kwattaApplyLang();
+  if (window.kwattaReRenderProducts) window.kwattaReRenderProducts();
+}
+
+window.kwattaT = kwattaT;
+window.kwattaApplyLang = kwattaApplyLang;
+window.kwattaToggleLang = kwattaToggleLang;
+window.kwattaGetLang = () => KWATTA_LANG;

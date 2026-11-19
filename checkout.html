@@ -356,80 +356,96 @@
         return;
       }
 
-      // Confirmation
-      if (!confirm('Confirmer cette commande ?\n\nArticle : ' + formatPrice(listing.price_xaf) + '\nFrais de service : ' + formatPrice(listing.buyer_fee) + '\n\nTOTAL À PAYER : ' + formatPrice(listing.total_to_pay) + '\n\nMoyen de paiement : ' + getMethodLabel(selectedMethod))) {
-        return;
-      }
-
-      const btn = $('confirm-btn');
-      btn.disabled = true;
-      btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Traitement...';
-
-      // ============================================
-      // CAS 1 : paiement par wallet
-      // ============================================
+      // Si c'est le wallet, on garde l'ancienne logique
       if (selectedMethod === 'wallet') {
-        // 1) Crée la transaction en attente de paiement
         const { data: createData, error: createErr } = await window.kwatta_db.rpc('creer_transaction', {
           p_listing_id: listingId,
-          p_payment_provider: 'cash',
+          p_payment_provider: 'wallet',
           p_initial_status: 'pending_payment'
         });
-
         if (createErr || (createData && !createData.success)) {
           errEl.textContent = 'Erreur : ' + (createErr?.message || createData?.error);
           errEl.classList.remove('hidden');
-          btn.disabled = false;
-          btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Confirmer';
           return;
         }
-
-        // 2) Paie avec le wallet
         const { data: payData, error: payErr } = await window.kwatta_db.rpc('payer_avec_wallet', {
           p_transaction_id: createData.transaction_id
         });
-
         if (payErr || (payData && !payData.success)) {
           errEl.textContent = 'Erreur paiement : ' + (payErr?.message || payData?.error);
           errEl.classList.remove('hidden');
-          btn.disabled = false;
-          btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Confirmer';
           return;
         }
-
-        alert('✅ Commande confirmée !\n\n' + formatPrice(payData.montant_debite) + ' débités de ton portefeuille.');
+        alert('✅ Commande confirmée avec ton portefeuille !');
         window.location.href = 'commandes.html';
         return;
       }
 
-      // ============================================
-      // CAS 2 : paiement externe (MTN, Orange, Espèces)
-      // ============================================
-      const { data, error } = await window.kwatta_db.rpc('creer_transaction', {
-        p_listing_id: listingId,
-        p_payment_provider: selectedMethod
-      });
+      // Si c'est MTN ou Orange → APPEL CAMERPAY
+      if (selectedMethod === 'mtn_momo' || selectedMethod === 'orange_money') {
+        if (!confirm('Confirmer cette commande ?
 
-      if (error) {
-        console.error('[CHECKOUT] Erreur:', error);
-        errEl.textContent = 'Erreur : ' + error.message;
-        errEl.classList.remove('hidden');
-        btn.disabled = false;
-        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Confirmer';
+Total : ' + formatPrice(listing.total_to_pay) + '
+
+Tu vas être redirigé vers la page de paiement sécurisée CamerPay.')) return;
+
+        const btn = $('confirm-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Traitement...';
+
+        try {
+          const { data: { session } } = await window.kwatta_db.auth.getSession();
+          const { data: profile } = await window.kwatta_db.from('profiles').select('whatsapp').eq('id', session.user.id).single();
+          const phone = profile?.whatsapp || '+237650612050'; // Fallback test
+
+          // 1. On crée la transaction dans Supabase d'abord
+          const { data: createData, error: createErr } = await window.kwatta_db.rpc('creer_transaction', {
+            p_listing_id: listingId,
+            p_payment_provider: selectedMethod,
+            p_initial_status: 'pending_payment'
+          });
+
+          if (createErr || (createData && !createData.success)) {
+             throw new Error(createErr?.message || createData?.error);
+          }
+
+          // 2. On demande l'URL de paiement à CamerPay via notre Edge Function
+          const { data, error } = await window.kwatta_db.functions.invoke('camerpay-proxy', {
+            body: {
+              amount: listing.total_to_pay,
+              phone: phone,
+              invoice_id: createData.transaction_id // On utilise l'ID de la transaction comme référence
+            }
+          });
+
+          if (error || !data.success) {
+            throw new Error(error?.message || data?.error || 'Erreur CamerPay');
+          }
+
+          // 3. Redirection vers CamerPay
+          window.location.href = data.pay_url;
+
+        } catch (err) {
+          console.error(err);
+          errEl.textContent = 'Erreur : ' + err.message;
+          errEl.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerHTML = 'Confirmer';
+        }
         return;
       }
 
-      if (data && !data.success) {
-        errEl.textContent = data.error;
-        errEl.classList.remove('hidden');
-        btn.disabled = false;
-        btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Confirmer';
-        return;
+      // Si c'est Espèces
+      if (selectedMethod === 'cash') {
+        if (!confirm('Confirmer cette commande en espèces ?')) return;
+        const { data, error } = await window.kwatta_db.rpc('creer_transaction', {
+          p_listing_id: listingId,
+          p_payment_provider: 'cash'
+        });
+        if (error || (data && !data.success)) { alert('Erreur : ' + (error?.message || data?.error)); return; }
+        alert('✅ Commande confirmée !');
+        window.location.href = 'commandes.html';
       }
-
-      // Succès
-      alert('✅ Commande confirmée !\n\nLe vendeur a été notifié. Tu recevras une notification dès qu\'il expédie l\'article.');
-      window.location.href = 'commandes.html';
     }
 
     function getMethodLabel(method) {

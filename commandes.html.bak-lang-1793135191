@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes commandes — KWATTA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            terra: { 50:'#fdf5f2',100:'#fbe8e2',200:'#f5d0c5',300:'#ecad9b',400:'#d97a63',500:'#B8543D',600:'#a3442f',700:'#873727',800:'#6e2f23',900:'#5a2a20' },
+            cream: '#FAF6F0',
+            charcoal: '#2D2A26',
+            honey: '#E8A96A',
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-cream text-charcoal font-body antialiased">
+
+  <header class="sticky top-0 z-40 bg-white border-b border-charcoal/5">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+      <a href="index.html" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <h1 class="font-display font-bold text-lg">Mes commandes</h1>
+    </div>
+
+    <!-- Onglets -->
+    <div class="max-w-3xl mx-auto px-4 flex gap-1 border-t border-charcoal/5">
+      <button class="order-tab active" data-tab="achats">🛍️ Achats</button>
+      <button class="order-tab" data-tab="ventes">💰 Ventes</button>
+    </div>
+    <button id="lang-toggle" class="w-9 h-9 rounded-lg hover:bg-charcoal/5 flex items-center justify-center text-xs font-bold" title="FR / EN" onclick="if(window.kwattaToggleLang) window.kwattaToggleLang()">
+      <span id="current-lang">EN</span>
+    </button>
+  </header>
+
+  <!-- Filtres statut -->
+  <div class="max-w-3xl mx-auto px-4 pt-4">
+    <div class="flex gap-2 overflow-x-auto pb-2">
+      <button class="status-filter active" data-status="all">Tout</button>
+      <button class="status-filter" data-status="pending_payment">⏳ En attente</button>
+      <button class="status-filter" data-status="shipped">🚚 Expédié</button>
+      <button class="status-filter" data-status="completed">✅ Terminé</button>
+      <button class="status-filter" data-status="cancelled">❌ Annulé</button>
+    </div>
+  </div>
+
+  <main class="max-w-3xl mx-auto px-4 py-4 pb-24">
+    <div id="loading" class="text-center py-16">
+      <div class="inline-block w-8 h-8 border-4 border-terra-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <div id="commandes-list" class="space-y-3"></div>
+
+    <div id="empty-state" class="hidden text-center py-16">
+      <div class="text-6xl mb-3">📦</div>
+      <p class="text-charcoal/60">Aucune commande pour le moment</p>
+      <a href="index.html" class="inline-block mt-4 px-5 py-3 bg-terra-500 text-cream rounded-xl font-semibold text-sm">
+        Parcourir les articles
+      </a>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-init.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    let currentUser = null;
+    let currentTab = 'achats';
+    let currentStatus = 'all';
+    let allTransactions = [];
+
+    function formatPrice(p) {
+      return new Intl.NumberFormat('fr-FR').format(p) + ' FCFA';
+    }
+
+    function formatDate(d) {
+      const date = new Date(d);
+      return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Statuts
+    const STATUTS = {
+      'pending_payment': { label: '⏳ En attente de paiement', cls: 'bg-yellow-100 text-yellow-700', next: 'Payer maintenant' },
+      'payment_held':    { label: '💰 Paiement sécurisé',      cls: 'bg-blue-100 text-blue-700',   next: 'En attente vendeur' },
+      'shipped':         { label: '🚚 Expédié',                cls: 'bg-indigo-100 text-indigo-700', next: 'Confirmer réception' },
+      'delivered':       { label: '📬 Livré',                  cls: 'bg-emerald-100 text-emerald-700', next: 'Confirmer' },
+      'completed':       { label: '✅ Terminé',                 cls: 'bg-green-100 text-green-700', next: null },
+      'disputed':        { label: '⚠️ Litige',                 cls: 'bg-red-100 text-red-700',     next: null },
+      'refunded':        { label: '💸 Remboursé',              cls: 'bg-gray-100 text-gray-700',   next: null },
+      'cancelled':       { label: '❌ Annulé',                 cls: 'bg-red-100 text-red-700',     next: null }
+    };
+
+    // Styles
+    const style = document.createElement('style');
+    style.textContent = `
+      .order-tab {
+        flex: 1;
+        padding: 14px 16px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-size: 14px;
+        font-weight: 500;
+        color: #7A7A7A;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .order-tab:hover { color: #2D2A26; }
+      .order-tab.active { color: #B8543D; border-bottom-color: #B8543D; font-weight: 600; }
+      
+      .status-filter {
+        padding: 6px 14px;
+        border-radius: 9999px;
+        border: 1px solid rgba(45, 42, 38, 0.1);
+        background: white;
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .status-filter:hover { border-color: rgba(184, 84, 61, 0.3); }
+      .status-filter.active { background: #B8543D; color: #FAF6F0; border-color: #B8543D; }
+    `;
+    document.head.appendChild(style);
+
+    // INIT
+    (async () => {
+      const { data: { session } } = await window.kwatta_db.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+        return;
+      }
+      currentUser = session.user;
+      await loadTransactions();
+    })();
+
+    // Charge les transactions
+    async function loadTransactions() {
+      $('loading').classList.remove('hidden');
+      $('commandes-list').innerHTML = '';
+      $('empty-state').classList.add('hidden');
+
+      const filter = currentTab === 'achats' ? 'buyer_id' : 'seller_id';
+
+      const { data, error } = await window.kwatta_db
+        .from('v_transactions_complet')
+        .select('*')
+        .eq(filter, currentUser.id)
+        .order('created_at', { ascending: false });
+
+      $('loading').classList.add('hidden');
+
+      if (error) {
+        console.error(error);
+        $('commandes-list').innerHTML = '<div class="text-center py-8 text-red-600">Erreur : ' + error.message + '</div>';
+        return;
+      }
+
+      allTransactions = data || [];
+      renderTransactions();
+    }
+
+    // Affiche les transactions
+    function renderTransactions() {
+      // Filtre par statut
+      let filtered = allTransactions;
+      if (currentStatus !== 'all') {
+        filtered = filtered.filter(t => t.status === currentStatus);
+      }
+
+      if (filtered.length === 0) {
+        $('commandes-list').innerHTML = '';
+        $('empty-state').classList.remove('hidden');
+        return;
+      }
+      $('empty-state').classList.add('hidden');
+
+      const isAchat = currentTab === 'achats';
+
+      $('commandes-list').innerHTML = filtered.map(t => {
+        const statut = STATUTS[t.status] || STATUTS['pending_payment'];
+        const img = (t.listing_images && t.listing_images[0]) || 'https://placehold.co/100x100/f5f3ee/2D2A26?text=K';
+        const autreNom = isAchat ? (t.vendeur_nom || t.vendeur_username) : (t.acheteur_nom || t.acheteur_username);
+        
+        // Actions selon statut
+        let actions = '';
+        
+        if (isAchat) {
+          if (t.status === 'pending_payment') {
+            actions = `<button onclick="contacter('${t.seller_id}')" class="w-full py-2.5 rounded-lg bg-terra-500 hover:bg-terra-600 text-cream text-sm font-semibold transition">Contacter le vendeur</button>`;
+          } else if (t.status === 'shipped') {
+            actions = `<button onclick="confirmerReception('${t.id}')" class="w-full py-2.5 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-semibold transition">✅ Confirmer la réception</button>`;
+          } else if (t.status === 'completed' && !t.avis_acheteur_laisse) {
+            actions = `<a href="laisser-avis.html?vendeur=${t.seller_id}&commande=${t.id}" class="block w-full py-2.5 rounded-lg bg-honey hover:bg-yellow-500 text-charcoal text-sm font-bold text-center transition">⭐ Laisser un avis</a>`;
+          } else if (t.status === 'completed' && t.avis_note) {
+            actions = `<div class="text-center text-xs text-charcoal/60 py-2">Vous avez donné ${t.avis_note}/5 étoiles</div>`;
+          }
+        } else {
+          // Vente
+          if (t.status === 'pending_payment') {
+            actions = `<div class="text-center text-xs text-charcoal/60 py-2">⏳ En attente du paiement acheteur</div>`;
+          } else if (t.status === 'payment_held') {
+            actions = `<button onclick="marquerExpedie('${t.id}')" class="w-full py-2.5 rounded-lg bg-terra-500 hover:bg-terra-600 text-cream text-sm font-semibold transition">🚚 Marquer comme expédié</button>`;
+          } else if (t.status === 'completed') {
+            actions = `<div class="text-center text-xs text-green-600 py-2 font-semibold">💰 Vente terminée</div>`;
+          }
+        }
+
+        return `
+          <div class="bg-white rounded-2xl p-3 sm:p-4 border border-charcoal/5 overflow-hidden">
+            <div class="flex items-start gap-2 sm:gap-3 min-w-0">
+              <img src="${img}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover bg-charcoal/5 shrink-0" onerror="this.src='https://placehold.co/100x100/f5f3ee/2D2A26?text=K'">
+              <div class="flex-1 min-w-0">
+                
+                <!-- Titre -->
+                <a href="${t.listing_id ? 'product.html?id=' + t.listing_id : '#'}" class="block font-semibold text-sm hover:text-terra-500 truncate mb-1.5">
+                  ${t.listing_titre || (t.snapshot_listing && t.snapshot_listing.title) || 'Article supprimé'}
+                </a>
+                
+                <!-- Badge statut (sur sa propre ligne, wrap autorisé) -->
+                <div class="mb-2">
+                  <span class="inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold ${statut.cls}">${statut.label}</span>
+                </div>
+                
+                <div class="text-xs text-charcoal/60 mb-0.5 truncate">
+                  ${isAchat ? '👤 Vendeur : ' : '👤 Acheteur : '}${autreNom}
+                </div>
+                <div class="text-xs text-charcoal/50 mb-2">${formatDate(t.created_at)}</div>
+                
+                <div class="flex items-baseline justify-between gap-2 mb-3 min-w-0">
+                  <span class="text-xs text-charcoal/50 shrink-0">Montant</span>
+                  <span class="text-base sm:text-lg font-bold text-terra-600 truncate">${formatPrice(t.amount_xaf)}</span>
+                </div>
+
+                ${actions}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Actions
+    window.contacter = (userId) => {
+      window.location.href = 'chat.html?user=' + userId;
+    };
+
+    window.confirmerReception = async (transactionId) => {
+      if (!confirm('Confirmer que vous avez bien reçu l\'article ?')) return;
+
+      const { error } = await window.kwatta_db
+        .from('transactions')
+        .update({ status: 'completed' })
+        .eq('id', transactionId);
+
+      if (error) { alert('Erreur : ' + error.message); return; }
+
+      // Crédite le wallet du vendeur (5% commission KWATTA)
+      const { data: walletResult, error: walletError } = await window.kwatta_db.rpc('crediter_vendeur', {
+        p_transaction_id: transactionId
+      });
+
+      if (walletError) {
+        console.error('[WALLET] Erreur crédit:', walletError);
+        alert('⚠️ Commande validée mais erreur de crédit wallet : ' + walletError.message);
+      } else if (walletResult && !walletResult.success) {
+        console.warn('[WALLET]', walletResult.error);
+      } else {
+        console.log('[WALLET] Vendeur crédité :', walletResult.montant_vendeur, 'XAF (commission', walletResult.commission, 'XAF)');
+      }
+
+      alert('✅ Réception confirmée ! Le vendeur a été payé.');
+      await loadTransactions();
+    };
+
+    window.marquerExpedie = async (transactionId) => {
+      if (!confirm('Marquer cette commande comme expédiée ?')) return;
+
+      const { error } = await window.kwatta_db
+        .from('transactions')
+        .update({ status: 'shipped' })
+        .eq('id', transactionId);
+
+      if (error) { alert('Erreur : ' + error.message); return; }
+      alert('🚚 Marqué comme expédié !');
+      await loadTransactions();
+    };
+
+    // Onglets
+    document.querySelectorAll('.order-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentTab = tab.dataset.tab;
+        loadTransactions();
+      });
+    });
+
+    // Filtres statut
+    document.querySelectorAll('.status-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.status-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentStatus = btn.dataset.status;
+        renderTransactions();
+      });
+    });
+  </script>
+  <script src="js/bottom-nav.js" defer></script>
+</body>
+</html>

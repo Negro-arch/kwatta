@@ -1,0 +1,305 @@
+// ============================================
+// KWATTA — i18n (FR + EN)
+// ============================================
+const KWATTA_TRANSLATIONS = {
+  fr: {
+    'hero.badge': 'Nouveau sur KWATTA ?',
+    'hero.title': 'Le marché de <span class="text-honey">tout le monde</span>.',
+    'hero.subtitle': 'Achetez et vendez près de chez vous — mode, électronique, artisanat, et plus encore.',
+    'hero.cta_sell': 'Vendre un article',
+    'hero.cta_browse': 'Explorer',
+    'cat.all': 'Tout',
+    'sort.label': 'Trier',
+    'sort.recent': 'Plus récents',
+    'sort.price_asc': 'Prix croissant',
+    'sort.price_desc': 'Prix décroissant',
+    'empty.title': 'Aucun article trouvé',
+    'empty.subtitle': 'Essayez une autre recherche',
+    'nav.home': 'Accueil',
+    'nav.search': 'Rechercher',
+    'nav.sell': 'Vendre',
+    'nav.messages': 'Messages',
+    'nav.profile': 'Profil',
+    'results': 'articles',
+    'loading': 'Chargement...',
+
+    // === BOUTONS CRITIQUES ===
+    'btn.login': 'Connexion',
+    'btn.signup': 'Créer un compte',
+    'btn.logout': 'Déconnexion',
+    'btn.buy': 'Acheter maintenant',
+    'btn.offer': 'Faire une offre',
+    'btn.message': 'Envoyer un message',
+    'btn.follow': 'Suivre',
+    'btn.following': 'Suivi ✓',
+    'btn.edit': 'Modifier',
+    'btn.save': 'Enregistrer',
+    'btn.cancel': 'Annuler',
+    'btn.delete': 'Supprimer',
+    'btn.confirm': 'Confirmer',
+    'btn.back': 'Retour',
+    'btn.continue': 'Continuer',
+    'btn.retry': 'Réessayer',
+    'btn.publish': 'Publier',
+    'btn.charge': 'Recharger',
+    'btn.withdraw': 'Retirer',
+    'btn.pay': 'Payer',
+    'btn.post': 'Publier mon annonce',
+    
+    // === TITRES ===
+    'title.profile': 'Mon profil',
+    'title.wallet': 'Mon portefeuille',
+    'title.orders': 'Mes commandes',
+    'title.offers': 'Mes offres',
+    'title.messages': 'Messages',
+    'title.login': 'Connexion',
+    'title.signup': 'Créer un compte',
+    'title.checkout': 'Paiement',
+    'title.sell': 'Vendre un article',
+    'title.product': 'Article',
+    
+    // === CHAMPS FORMULAIRE ===
+    'form.email': 'Email',
+    'form.password': 'Mot de passe',
+    'form.name': 'Nom complet',
+    'form.username': 'Nom d\'utilisateur',
+    'form.phone': 'Téléphone',
+    'form.whatsapp': 'WhatsApp',
+    'form.city': 'Ville',
+    'form.quarter': 'Quartier',
+    'form.title': 'Titre',
+    'form.description': 'Description',
+    'form.price': 'Prix',
+    'form.condition': 'État',
+    'form.category': 'Catégorie',
+    'form.brand': 'Marque',
+    'form.size': 'Taille',
+    'form.photos': 'Photos',
+    
+    // === MESSAGES ===
+    'msg.loading': 'Chargement...',
+    'msg.error': 'Une erreur est survenue',
+    'msg.success': 'Succès',
+    'msg.confirm_delete': 'Êtes-vous sûr de vouloir supprimer ?',
+    'msg.required': 'Ce champ est requis',
+    'msg.invalid_email': 'Email invalide',
+    'msg.password_short': 'Mot de passe trop court',
+    'msg.no_results': 'Aucun résultat',
+    
+    // === WALLET ===
+    'wallet.balance': 'Solde disponible',
+    'wallet.pending': 'En attente',
+    'wallet.total': 'Total gagné',
+    'wallet.charge': 'Recharger',
+    'wallet.withdraw': 'Retirer',
+    'wallet.history': 'Historique',
+    'wallet.withdrawals': 'Mes retraits',
+    'wallet.minimum': 'Minimum',
+    'wallet.maximum': 'Maximum',
+    
+    // === COMMANDES ===
+    'orders.buy': 'Achats',
+    'orders.sell': 'Ventes',
+    'orders.pending': 'En attente',
+    'orders.shipped': 'Expédié',
+    'orders.completed': 'Terminé',
+    'orders.cancelled': 'Annulé',
+    
+    // === ÉTATS ===
+    'condition.new': 'Neuf avec étiquette',
+    'condition.very_good': 'Très bon état',
+    'condition.good': 'Bon état',
+    'condition.fair': 'Satisfaisant',
+
+    // === HERO ===
+    'hero.badge': 'Nouveau sur KWATTA ?',
+    'hero.title': 'Prêt à vider ton placard ?',
+    'hero.subtitle': 'Vends ce que tu n\'utilises plus et fais de la place pour du nouveau. Simple, rapide, gratuit.',
+    'hero.feature1': 'Publie ton article en 2 minutes',
+    'hero.feature2': 'Discute avec les acheteurs',
+    'hero.feature3': 'Paiement Mobile Money',
+    'hero.cta_sell': 'Vendre maintenant',
+    'hero.cta_how': 'Comment ça marche ?',
+    
+    // === COMMENT ÇA MARCHE ===
+    'how.title': 'Comment ça marche ?',
+    'how.subtitle': 'Acheter ou vendre sur KWATTA prend moins de 2 minutes.',
+    'how.step1_title': 'Publie ton article',
+    'how.step1_desc': 'Prends une photo, décris ton produit, fixe ton prix. C\'est gratuit.',
+    'how.step2_title': 'Discute avec l\'acheteur',
+    'how.step2_desc': 'Chat intégré ou WhatsApp. Négocie, réponds aux questions.',
+    'how.step3_title': 'Finalise la vente',
+    'how.step3_desc': 'Rencontrez-vous ou expédiez. Paiement Mobile Money ou espèces.',
+    
+    // === CTA ===
+    'cta.title': 'Tu as des articles à vendre ?',
+    'cta.subtitle': 'Rejoins des centaines de vendeurs sur KWATTA. Publie ton premier article en moins de 2 minutes — sans frais, sans commission.',
+    'cta.btn_sell': 'Vendre un article',
+    'cta.btn_signup': 'Créer un compte',
+    'cta.btn_my_listings': 'Voir mes annonces',
+  },
+  en: {
+    'hero.badge': 'New to KWATTA?',
+    'hero.title': 'Everyone\'s <span class="text-honey">marketplace</span>.',
+    'hero.subtitle': 'Buy and sell near you — fashion, electronics, crafts, and more.',
+    'hero.cta_sell': 'Sell an item',
+    'hero.cta_browse': 'Explore',
+    'cat.all': 'All',
+    'sort.label': 'Sort',
+    'sort.recent': 'Most recent',
+    'sort.price_asc': 'Price low to high',
+    'sort.price_desc': 'Price high to low',
+    'empty.title': 'No items found',
+    'empty.subtitle': 'Try a different search',
+    'nav.home': 'Home',
+    'nav.search': 'Search',
+    'nav.sell': 'Sell',
+    'nav.messages': 'Messages',
+    'nav.profile': 'Profile',
+    'results': 'items',
+    'loading': 'Loading...',
+
+    // === BOUTONS CRITIQUES ===
+    'btn.login': 'Login',
+    'btn.signup': 'Sign up',
+    'btn.logout': 'Logout',
+    'btn.buy': 'Buy now',
+    'btn.offer': 'Make an offer',
+    'btn.message': 'Send a message',
+    'btn.follow': 'Follow',
+    'btn.following': 'Following ✓',
+    'btn.edit': 'Edit',
+    'btn.save': 'Save',
+    'btn.cancel': 'Cancel',
+    'btn.delete': 'Delete',
+    'btn.confirm': 'Confirm',
+    'btn.back': 'Back',
+    'btn.continue': 'Continue',
+    'btn.retry': 'Retry',
+    'btn.publish': 'Publish',
+    'btn.charge': 'Top up',
+    'btn.withdraw': 'Withdraw',
+    'btn.pay': 'Pay',
+    'btn.post': 'Post my listing',
+    
+    // === TITRES ===
+    'title.profile': 'My profile',
+    'title.wallet': 'My wallet',
+    'title.orders': 'My orders',
+    'title.offers': 'My offers',
+    'title.messages': 'Messages',
+    'title.login': 'Login',
+    'title.signup': 'Sign up',
+    'title.checkout': 'Checkout',
+    'title.sell': 'Sell an item',
+    'title.product': 'Item',
+    
+    // === CHAMPS FORMULAIRE ===
+    'form.email': 'Email',
+    'form.password': 'Password',
+    'form.name': 'Full name',
+    'form.username': 'Username',
+    'form.phone': 'Phone',
+    'form.whatsapp': 'WhatsApp',
+    'form.city': 'City',
+    'form.quarter': 'Neighborhood',
+    'form.title': 'Title',
+    'form.description': 'Description',
+    'form.price': 'Price',
+    'form.condition': 'Condition',
+    'form.category': 'Category',
+    'form.brand': 'Brand',
+    'form.size': 'Size',
+    'form.photos': 'Photos',
+    
+    // === MESSAGES ===
+    'msg.loading': 'Loading...',
+    'msg.error': 'An error occurred',
+    'msg.success': 'Success',
+    'msg.confirm_delete': 'Are you sure you want to delete?',
+    'msg.required': 'This field is required',
+    'msg.invalid_email': 'Invalid email',
+    'msg.password_short': 'Password too short',
+    'msg.no_results': 'No results',
+    
+    // === WALLET ===
+    'wallet.balance': 'Available balance',
+    'wallet.pending': 'Pending',
+    'wallet.total': 'Total earned',
+    'wallet.charge': 'Top up',
+    'wallet.withdraw': 'Withdraw',
+    'wallet.history': 'History',
+    'wallet.withdrawals': 'My withdrawals',
+    'wallet.minimum': 'Minimum',
+    'wallet.maximum': 'Maximum',
+    
+    // === COMMANDES ===
+    'orders.buy': 'Purchases',
+    'orders.sell': 'Sales',
+    'orders.pending': 'Pending',
+    'orders.shipped': 'Shipped',
+    'orders.completed': 'Completed',
+    'orders.cancelled': 'Cancelled',
+    
+    // === ÉTATS ===
+    'condition.new': 'New with tags',
+    'condition.very_good': 'Very good',
+    'condition.good': 'Good',
+    'condition.fair': 'Fair',
+
+    // === HERO ===
+    'hero.badge': 'New to KWATTA?',
+    'hero.title': 'Ready to clear out your closet?',
+    'hero.subtitle': 'Sell what you no longer use and make room for something new. Simple, fast, free.',
+    'hero.feature1': 'Publish your item in 2 minutes',
+    'hero.feature2': 'Chat with buyers',
+    'hero.feature3': 'Mobile Money payment',
+    'hero.cta_sell': 'Sell now',
+    'hero.cta_how': 'How it works?',
+    
+    // === HOW IT WORKS ===
+    'how.title': 'How it works?',
+    'how.subtitle': 'Buying or selling on KWATTA takes less than 2 minutes.',
+    'how.step1_title': 'Publish your item',
+    'how.step1_desc': 'Take a photo, describe your product, set your price. It\'s free.',
+    'how.step2_title': 'Chat with the buyer',
+    'how.step2_desc': 'Built-in chat or WhatsApp. Negotiate, answer questions.',
+    'how.step3_title': 'Complete the sale',
+    'how.step3_desc': 'Meet up or ship. Mobile Money or cash payment.',
+    
+    // === CTA ===
+    'cta.title': 'Got items to sell?',
+    'cta.subtitle': 'Join hundreds of sellers on KWATTA. Publish your first item in under 2 minutes — no fees, no commission.',
+    'cta.btn_sell': 'Sell an item',
+    'cta.btn_signup': 'Create an account',
+    'cta.btn_my_listings': 'View my listings',
+  }
+};
+
+let KWATTA_LANG = localStorage.getItem('kwatta_lang') || 'en';
+
+function kwattaT(key) {
+  return KWATTA_TRANSLATIONS[KWATTA_LANG][key] || key;
+}
+
+function kwattaApplyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.innerHTML = kwattaT(key);
+  });
+  document.documentElement.lang = KWATTA_LANG;
+  const langLabel = document.getElementById('current-lang');
+  if (langLabel) langLabel.textContent = KWATTA_LANG.toUpperCase();
+}
+
+function kwattaToggleLang() {
+  KWATTA_LANG = KWATTA_LANG === 'fr' ? 'en' : 'fr';
+  localStorage.setItem('kwatta_lang', KWATTA_LANG);
+  kwattaApplyLang();
+  if (window.kwattaReRenderProducts) window.kwattaReRenderProducts();
+}
+
+window.kwattaT = kwattaT;
+window.kwattaApplyLang = kwattaApplyLang;
+window.kwattaToggleLang = kwattaToggleLang;
+window.kwattaGetLang = () => KWATTA_LANG;
