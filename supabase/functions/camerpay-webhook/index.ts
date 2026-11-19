@@ -12,47 +12,74 @@ serve(async (req) => {
   }
 
   try {
-    // CamerPay envoie les données en x-www-form-urlencoded
     const formData = await req.formData()
     const payload: Record<string, string> = {}
-    formData.forEach((value, key) => {
-      payload[key] = value.toString()
-    })
+    formData.forEach((value, key) => { payload[key] = value.toString() })
 
     console.log('[WEBHOOK] Payload reçu:', payload)
 
-    const invoiceId = payload.merchant_invoice_id || payload.invoice_id
+    const transactionId = payload.merchant_invoice_id || payload.invoice_id
     const status = payload.status
 
-    if (!invoiceId) {
-      return new Response(JSON.stringify({ error: 'Missing invoice ID' }), { status: 400, headers: corsHeaders })
+    if (!transactionId) {
+      return new Response(JSON.stringify({ error: 'Missing transaction ID' }), { status: 400, headers: corsHeaders })
     }
 
-    // Si le paiement est un succès
     if (status === 'success' || status === 'completed' || status === 'paid') {
       
-      // Connexion à Supabase avec la clé Service Role (bypass RLS)
       const supabaseClient = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       )
 
-      // Mettre à jour le statut de la transaction
-      // On passe de "pending_payment" à "payment_held"
-      const { error } = await supabaseClient
+      // 1. On récupère la transaction pour connaître le montant et le vendeur
+      const { data: tx, error: txErr } = await supabaseClient
+        .from('transactions')
+        .select('seller_id, amount_xaf, status')
+        .eq('id', transactionId)
+        .single()
+
+      if (txErr || !tx) {
+        console.error('[WEBHOOK] Transaction introuvable:', txErr)
+        throw new Error('Transaction introuvable')
+      }
+
+      // Si la transaction est déjà payée, on ne fait rien (évite les doublons)
+      if (tx.status !== 'pending_payment') {
+         return new Response(JSON.stringify({ received: true, message: 'Already processed' }), { status: 200, headers: corsHeaders })
+      }
+
+      const prixArticle = tx.amount_xaf; // C'est le montant sans les frais
+      
+      // 2. On ajoute l'argent au portefeuille du vendeur (en attente)
+      // On suppose que tu as une fonction RPC `crediter_vendeur_en_attente` ou on fait un upsert direct
+      const { error: walletErr } = await supabaseClient.rpc('ajouter_solde_en_attente', {
+        p_user_id: tx.seller_id,
+        p_montant: prixArticle,
+        p_description: 'Vente en attente de confirmation (Commande: ' + transactionId.substring(0,8) + ')'
+      })
+
+      if (walletErr) {
+        console.warn('[WEBHOOK] La fonction RPC ajouter_solde_en_attente a échoué. On tente un update direct.', walletErr)
+        
+        // Fallback : on met à jour le wallet manuellement
+        const { data: wallet } = await supabaseClient.from('wallets').select('solde_en_attente').eq('user_id', tx.seller_id).single()
+        const nouveauSolde = (wallet?.solde_en_attente || 0) + prixArticle;
+        
+        await supabaseClient.from('wallets').update({ solde_en_attente: nouveauSolde }).eq('user_id', tx.seller_id)
+      }
+
+      // 3. On met à jour le statut de la transaction
+      const { error: updateErr } = await supabaseClient
         .from('transactions')
         .update({ status: 'payment_held' })
-        .eq('id', invoiceId)
+        .eq('id', transactionId)
 
-      if (error) {
-        console.error('[WEBHOOK] Erreur update:', error)
-        throw error
-      }
+      if (updateErr) throw updateErr
       
-      console.log(`[WEBHOOK] ✅ Transaction ${invoiceId} passée en "payment_held".`)
+      console.log(`[WEBHOOK] ✅ Transaction ${transactionId} sécurisée. ${prixArticle} FCFA ajoutés en attente pour le vendeur ${tx.seller_id}.`)
     }
 
-    // Toujours répondre 200 à CamerPay pour accuser réception
     return new Response(JSON.stringify({ received: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,

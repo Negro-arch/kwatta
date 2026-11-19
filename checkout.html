@@ -193,7 +193,8 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script src="js/supabase.min.js"></script>
   <script src="js/supabase-init.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
@@ -217,7 +218,6 @@
     // INIT
     // ============================================
     (async () => {
-      // 1) Vérifier connecté
       const { data: { session } } = await window.kwatta_db.auth.getSession();
       if (!session) {
         window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
@@ -225,7 +225,6 @@
       }
       currentUser = session.user;
 
-      // 2) Charger le listing
       const { data, error } = await window.kwatta_db
         .from('listings')
         .select('id, title, price_xaf, images, seller_id, status, location_city, profiles!listings_seller_id_fkey(username, display_name, is_verified)')
@@ -233,12 +232,10 @@
         .single();
 
       if (error || !data) {
-        console.error('Erreur:', error);
         window.location.href = 'index.html';
         return;
       }
 
-      // 3) Vérifs
       if (data.status !== 'published') {
         alert('Cet article n\'est plus disponible.');
         window.location.href = 'index.html';
@@ -252,14 +249,12 @@
 
       listing = data;
 
-      // 4) Afficher
       const img = (data.images && data.images[0]) || 'https://placehold.co/100x100/f5f3ee/2D2A26?text=K';
       $('product-image').src = img;
       $('product-title').textContent = data.title;
       $('product-seller').textContent = '@' + (data.profiles?.username || '?');
       $('product-city').textContent = '📍 ' + (data.location_city || 'Cameroun');
 
-      // Calcul des frais : 3% + 300 FCFA
       const buyerFee = Math.round(data.price_xaf * 0.03) + 300;
       const totalToPay = data.price_xaf + buyerFee;
 
@@ -275,19 +270,11 @@
       $('checkout-content').classList.remove('hidden');
       $('action-bar').classList.remove('hidden');
 
-      // 5) Charge le solde du wallet
       await loadWalletBalance();
-
-      // 6) Setup des méthodes de paiement
       setupPaymentMethods();
-
-      // 6) Setup du bouton confirmer
       $('confirm-btn').addEventListener('click', confirmOrder);
     })();
 
-    // ============================================
-    // CHARGER LE SOLDE DU WALLET
-    // ============================================
     async function loadWalletBalance() {
       const { data: wallet } = await window.kwatta_db
         .from('wallets')
@@ -299,29 +286,19 @@
       listing.wallet_balance = balance;
 
       const balanceEl = document.getElementById('wallet-balance');
-      if (balanceEl) {
-        balanceEl.textContent = formatPrice(balance);
-      }
+      if (balanceEl) balanceEl.textContent = formatPrice(balance);
 
-      // Désactive l'option si solde insuffisant
       const walletBtn = document.getElementById('payment-wallet');
-      if (walletBtn) {
-        const total = listing.total_to_pay || listing.price_xaf;
-        if (balance < total) {
-          walletBtn.disabled = true;
-          walletBtn.classList.add('opacity-50', 'cursor-not-allowed');
-          balanceEl.innerHTML = formatPrice(balance) + ' <span class="text-red-500 text-[10px] font-bold ml-1">— Solde insuffisant</span>';
-        }
+      if (walletBtn && balance < (listing.total_to_pay || listing.price_xaf)) {
+        walletBtn.disabled = true;
+        walletBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        balanceEl.innerHTML = formatPrice(balance) + ' <span class="text-red-500 text-[10px] font-bold ml-1">— Solde insuffisant</span>';
       }
     }
 
-    // ============================================
-    // SÉLECTION DU MOYEN DE PAIEMENT
-    // ============================================
     function setupPaymentMethods() {
       document.querySelectorAll('.payment-method').forEach(btn => {
         btn.addEventListener('click', () => {
-          // Retire la sélection partout
           document.querySelectorAll('.payment-method').forEach(b => {
             b.classList.remove('border-terra-500', 'bg-terra-50');
             b.classList.add('border-charcoal/10');
@@ -329,15 +306,12 @@
             if (icon) icon.classList.add('hidden');
           });
 
-          // Ajoute la sélection sur celui cliqué
           btn.classList.remove('border-charcoal/10');
           btn.classList.add('border-terra-500', 'bg-terra-50');
           const icon = btn.querySelector('.check-icon');
           if (icon) icon.classList.remove('hidden');
 
           selectedMethod = btn.dataset.method;
-
-          // Active le bouton confirmer
           $('confirm-btn').disabled = false;
         });
       });
@@ -356,7 +330,7 @@
         return;
       }
 
-      // Si c'est le wallet, on garde l'ancienne logique
+      // --- 1. WALLET ---
       if (selectedMethod === 'wallet') {
         const { data: createData, error: createErr } = await window.kwatta_db.rpc('creer_transaction', {
           p_listing_id: listingId,
@@ -381,14 +355,9 @@
         return;
       }
 
-      // Si c'est MTN ou Orange → APPEL CAMERPAY
+      // --- 2. MTN / ORANGE (CAMERPAY) ---
       if (selectedMethod === 'mtn_momo' || selectedMethod === 'orange_money') {
-        if (!confirm('Confirmer cette commande ?
-
-Total : ' + formatPrice(listing.total_to_pay) + '
-
-Tu vas être redirigé vers la page de paiement sécurisée CamerPay.')) return;
-
+        if (!confirm('Confirmer cette commande ? Total : ' + formatPrice(listing.total_to_pay) + '. Tu vas être redirigé vers CamerPay.')) return;
         const btn = $('confirm-btn');
         btn.disabled = true;
         btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Traitement...';
@@ -398,7 +367,6 @@ Tu vas être redirigé vers la page de paiement sécurisée CamerPay.')) return;
           const { data: profile } = await window.kwatta_db.from('profiles').select('whatsapp').eq('id', session.user.id).single();
           const phone = profile?.whatsapp || '+237650612050'; // Fallback test
 
-          // 1. On crée la transaction dans Supabase d'abord
           const { data: createData, error: createErr } = await window.kwatta_db.rpc('creer_transaction', {
             p_listing_id: listingId,
             p_payment_provider: selectedMethod,
@@ -409,12 +377,11 @@ Tu vas être redirigé vers la page de paiement sécurisée CamerPay.')) return;
              throw new Error(createErr?.message || createData?.error);
           }
 
-          // 2. On demande l'URL de paiement à CamerPay via notre Edge Function
           const { data, error } = await window.kwatta_db.functions.invoke('camerpay-proxy', {
             body: {
               amount: listing.total_to_pay,
               phone: phone,
-              invoice_id: createData.transaction_id // On utilise l'ID de la transaction comme référence
+              invoice_id: createData.transaction_id
             }
           });
 
@@ -422,7 +389,6 @@ Tu vas être redirigé vers la page de paiement sécurisée CamerPay.')) return;
             throw new Error(error?.message || data?.error || 'Erreur CamerPay');
           }
 
-          // 3. Redirection vers CamerPay
           window.location.href = data.pay_url;
 
         } catch (err) {
@@ -435,7 +401,7 @@ Tu vas être redirigé vers la page de paiement sécurisée CamerPay.')) return;
         return;
       }
 
-      // Si c'est Espèces
+      // --- 3. CASH ---
       if (selectedMethod === 'cash') {
         if (!confirm('Confirmer cette commande en espèces ?')) return;
         const { data, error } = await window.kwatta_db.rpc('creer_transaction', {
@@ -457,7 +423,6 @@ Tu vas être redirigé vers la page de paiement sécurisée CamerPay.')) return;
       }[method] || method;
     }
   </script>
-  <script src="js/idle-logout.js" defer></script>
 
 </body>
 </html>
